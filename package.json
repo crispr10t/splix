@@ -10,5 +10,8 @@
   },
   "dependencies": {
     "mongodb": "^7.1.0"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.16.0"
   }
 }

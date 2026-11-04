@@ -91,9 +91,9 @@ export function SettlementList({
     <div className="space-y-5">
       {/* Net Balances Overview Chips */}
       {balances && balances.length > 0 && (
-        <div className="rounded-2xl border border-zinc-200/90 bg-white/90 p-4 shadow-sm">
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-500">
-            <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+        <div className="rounded-2xl border border-ink-200/90 bg-white/90 p-4 shadow-sm">
+          <div className="flex items-center gap-1.5 text-xs font-semibold tracking-normal text-ink-500">
+            <Sparkles className="h-3.5 w-3.5 text-leaf-600" />
             <span>Net Balances</span>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -105,10 +105,10 @@ export function SettlementList({
                   key={b.participantId}
                   className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium border ${
                     isZero
-                      ? "border-zinc-200 bg-zinc-50 text-zinc-600"
+                      ? "border-ink-200 bg-ink-50 text-ink-600"
                       : isPositive
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-                      : "border-rose-200 bg-rose-50 text-rose-900"
+                      ? "border-leaf-200 bg-leaf-50 text-leaf-900"
+                      : "border-danger-200 bg-danger-50 text-danger-900"
                   }`}
                 >
                   <span className="font-semibold">{b.participantName}:</span>
@@ -126,7 +126,7 @@ export function SettlementList({
       {/* Outstanding Debts Section */}
       <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">
+          <h3 className="text-sm font-semibold tracking-normal text-ink-500">
             Outstanding Debts ({settlements.length})
           </h3>
           {settlements.length === 0 && (
@@ -138,10 +138,10 @@ export function SettlementList({
         </div>
 
         {!settlements.length ? (
-          <div className="rounded-2xl border border-dashed border-zinc-200 bg-zinc-50/50 p-8 text-center text-zinc-500 text-sm">
-            <CheckCircle2 className="mx-auto h-8 w-8 text-emerald-600 mb-2" />
-            <p className="font-semibold text-zinc-900">All balances are even!</p>
-            <p className="mt-1 text-xs text-zinc-500">
+          <div className="rounded-2xl border border-dashed border-ink-200 bg-ink-50/50 p-8 text-center text-ink-500 text-sm">
+            <CheckCircle2 className="mx-auto h-8 w-8 text-leaf-600 mb-2" />
+            <p className="font-semibold text-ink-900">All balances are even!</p>
+            <p className="mt-1 text-xs text-ink-500">
               No one owes money in this group right now.
             </p>
           </div>
@@ -160,24 +160,24 @@ export function SettlementList({
                 setShowQr(false);
                 setSettleNote("");
               }}
-              className="group flex cursor-pointer items-center justify-between rounded-2xl border border-zinc-200 bg-white p-3.5 sm:p-4 transition-all hover:border-emerald-300 hover:shadow-md"
+              className="group flex cursor-pointer items-center justify-between rounded-2xl border border-ink-200 bg-white p-3.5 sm:p-4 transition-colors duration-150 hover:border-leaf-300 hover:shadow-md"
             >
               <div className="flex items-center gap-3 min-w-0">
                 {/* Payer Avatar */}
                 <Avatar className="h-8 w-8 shrink-0">
-                  <AvatarFallback className="text-xs bg-zinc-100 text-zinc-800">
+                  <AvatarFallback className="text-xs bg-ink-100 text-ink-800">
                     {item.fromName.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
 
                 {/* Transfer Info */}
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-zinc-900">
+                  <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-ink-900">
                     <span className="truncate">{item.fromName}</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-zinc-400 shrink-0" />
-                    <span className="truncate text-emerald-800">{item.toName}</span>
+                    <ArrowRight className="h-3.5 w-3.5 text-ink-400 shrink-0" />
+                    <span className="truncate text-leaf-800">{item.toName}</span>
                   </div>
-                  <p className="mt-0.5 text-xs text-zinc-500">
+                  <p className="mt-0.5 text-xs text-ink-500">
                     {payee?.upiId ? "UPI enabled" : "Cash / Bank Transfer"}
                   </p>
                 </div>
@@ -185,7 +185,7 @@ export function SettlementList({
 
               {/* Amount & Settle Button */}
               <div className="flex items-center gap-2.5 shrink-0 pl-2">
-                <span className="text-sm sm:text-base font-bold text-zinc-900">
+                <span className="text-sm sm:text-base font-bold text-ink-900">
                   {money(item.amountMinor, currency)}
                 </span>
 
@@ -193,7 +193,7 @@ export function SettlementList({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-8 text-xs font-semibold rounded-xl border-emerald-300 text-emerald-800 hover:bg-emerald-50"
+                    className="h-8 text-xs font-semibold rounded-xl border-leaf-300 text-leaf-800 hover:bg-leaf-50"
                     onClick={(e) => {
                       e.stopPropagation();
                       setActiveItem(item);
@@ -214,11 +214,11 @@ export function SettlementList({
       {settlementHistory && settlementHistory.length > 0 && (
         <div className="space-y-2.5 pt-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wider text-zinc-500">
-              <History className="h-4 w-4 text-emerald-600" />
+            <div className="flex items-center gap-1.5 text-sm font-semibold tracking-normal text-ink-500">
+              <History className="h-4 w-4 text-leaf-600" />
               <span>Payment History ({settlementHistory.length})</span>
             </div>
-            <Badge variant="outline" className="text-xs text-emerald-800 font-semibold bg-emerald-50 border-emerald-200">
+            <Badge variant="outline" className="text-xs text-leaf-800 font-semibold bg-leaf-50 border-leaf-200">
               Settled: {money(totalSettledMinor, currency)}
             </Badge>
           </div>
@@ -227,22 +227,22 @@ export function SettlementList({
             {settlementHistory.map((historyItem) => (
               <div
                 key={historyItem.id}
-                className="flex items-center justify-between rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-3 sm:p-3.5 text-xs"
+                className="flex items-center justify-between rounded-2xl border border-ink-200/80 bg-ink-50/70 p-3 sm:p-3.5 text-xs"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-leaf-700">
                     <Check className="h-3.5 w-3.5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-semibold text-zinc-900 truncate">
+                    <p className="font-semibold text-ink-900 truncate">
                       <strong>{historyItem.fromName}</strong> paid <strong>{historyItem.toName}</strong>
                     </p>
-                    <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-zinc-500">
+                    <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[11px] text-ink-500">
                       <span>{formatDateTime(historyItem.date || historyItem.createdAt)}</span>
                       {historyItem.note && (
                         <>
                           <span>&bull;</span>
-                          <span className="italic text-zinc-600">&ldquo;{historyItem.note}&rdquo;</span>
+                          <span className="italic text-ink-600">&ldquo;{historyItem.note}&rdquo;</span>
                         </>
                       )}
                     </div>
@@ -250,14 +250,14 @@ export function SettlementList({
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0 pl-2">
-                  <span className="font-bold text-zinc-900 text-xs sm:text-sm">
+                  <span className="font-bold text-ink-900 text-xs sm:text-sm">
                     {money(historyItem.amountMinor, currency)}
                   </span>
                   {!readOnly && onDeleteSettlement && (
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-7 w-7 text-zinc-400 hover:text-rose-600 rounded-lg"
+                      className="h-7 w-7 text-ink-400 hover:text-danger-600 rounded-lg"
                       title="Undo payment"
                       onClick={() => onDeleteSettlement(historyItem.id)}
                     >
@@ -282,9 +282,9 @@ export function SettlementList({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="my-2 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-4 text-center">
-              <span className="text-xs uppercase tracking-wider text-emerald-800 font-semibold">Total Amount</span>
-              <p className="mt-1 text-3xl font-extrabold text-emerald-950">
+            <div className="my-2 rounded-2xl border border-leaf-200 bg-leaf-50/70 p-4 text-center">
+              <span className="text-xs tracking-normal text-leaf-800 font-semibold">Total Amount</span>
+              <p className="mt-1 text-3xl font-extrabold text-leaf-950">
                 {money(activeItem.amountMinor, currency)}
               </p>
             </div>
@@ -292,10 +292,10 @@ export function SettlementList({
             {/* UPI Payment options if available */}
             {hasUpi ? (
               <div className="space-y-3">
-                <div className="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 p-2.5 text-xs">
+                <div className="flex items-center justify-between rounded-xl border border-ink-200 bg-ink-50 p-2.5 text-xs">
                   <div>
-                    <span className="text-zinc-500">UPI ID: </span>
-                    <span className="font-semibold text-zinc-900 font-mono">{activePayee.upiId}</span>
+                    <span className="text-ink-500">UPI ID: </span>
+                    <span className="font-semibold text-ink-900 font-mono">{activePayee.upiId}</span>
                   </div>
                   <Button
                     size="sm"
@@ -310,10 +310,10 @@ export function SettlementList({
 
                 <div className="grid grid-cols-2 gap-2">
                   <Button
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-sm text-xs sm:text-sm font-semibold"
+                    className="w-full bg-leaf-600 hover:bg-leaf-700 text-white rounded-xl shadow-sm text-xs sm:text-sm font-semibold"
                     onClick={() => openUpi(upiLink)}
                   >
-                    <Zap className="h-4 w-4 mr-1 text-emerald-200" />
+                    <Zap className="h-4 w-4 mr-1 text-leaf-200" />
                     Pay via UPI App
                   </Button>
 
@@ -328,13 +328,13 @@ export function SettlementList({
                 </div>
 
                 {showQr && (
-                  <div className="flex flex-col items-center justify-center rounded-2xl border border-zinc-200 bg-white p-4">
+                  <div className="flex flex-col items-center justify-center rounded-2xl border border-ink-200 bg-white p-4">
                     <img
                       src={buildQrUrl(upiLink)}
                       alt="UPI QR Code"
-                      className="h-44 w-44 rounded-xl border border-zinc-200 p-1"
+                      className="h-44 w-44 rounded-xl border border-ink-200 p-1"
                     />
-                    <p className="mt-2 text-xs text-zinc-500">Scan using GPay, PhonePe, Paytm, or BHIM</p>
+                    <p className="mt-2 text-xs text-ink-500">Scan using GPay, PhonePe, Paytm, or BHIM</p>
                   </div>
                 )}
               </div>
@@ -350,7 +350,7 @@ export function SettlementList({
             {/* Optional payment note */}
             {!readOnly && (
               <div className="pt-2 space-y-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+                <label className="text-xs font-semibold tracking-normal text-ink-500">
                   Payment Note (Optional)
                 </label>
                 <Input
@@ -366,12 +366,12 @@ export function SettlementList({
             {!readOnly && onRecordSettlement && (
               <div className="pt-2 flex flex-col gap-2">
                 <Button
-                  className="w-full rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 font-semibold text-xs sm:text-sm h-11"
+                  className="w-full rounded-xl bg-leaf-600 text-white hover:bg-leaf-700 font-semibold text-xs sm:text-sm h-11"
                   disabled={recording}
                   onClick={handleConfirmPayment}
                 >
                   <Check className="h-4 w-4 mr-1.5" />
-                  {recording ? "Recording Payment..." : "Record Payment (Zero Out Debt)"}
+                  {recording ? "Recording payment…" : "Record Payment (Zero Out Debt)"}
                 </Button>
               </div>
             )}

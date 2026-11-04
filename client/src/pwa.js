@@ -4,7 +4,7 @@ import { registerSW } from "virtual:pwa-register";
 // Register Service Worker with auto-update
 export const updateSW = registerSW({
   onNeedRefresh() {
-    console.log("[Splix PWA] New version available, reloading...");
+    console.log("[Splix PWA] New version available, reloading…");
   },
   onOfflineReady() {
     console.log("[Splix PWA] App is ready for offline use.");

@@ -7,6 +7,24 @@ export default {
   theme: {
     extend: {
       colors: {
+        white: "hsl(var(--paper))",
+        ink: {
+          50: "hsl(var(--ink-50))", 100: "hsl(var(--ink-100))", 200: "hsl(var(--ink-200))",
+          300: "hsl(var(--ink-300))", 400: "hsl(var(--ink-400))", 500: "hsl(var(--ink-500))",
+          600: "hsl(var(--ink-600))", 700: "hsl(var(--ink-700))", 800: "hsl(var(--ink-800))",
+          900: "hsl(var(--ink-900))", 950: "hsl(var(--ink-950))"
+        },
+        leaf: {
+          50: "hsl(var(--leaf-50))", 100: "hsl(var(--leaf-100))", 200: "hsl(var(--leaf-200))",
+          300: "hsl(var(--leaf-300))", 400: "hsl(var(--leaf-400))", 500: "hsl(var(--leaf-500))",
+          600: "hsl(var(--leaf-600))", 700: "hsl(var(--leaf-700))", 800: "hsl(var(--leaf-800))",
+          900: "hsl(var(--leaf-900))", 950: "hsl(var(--leaf-950))"
+        },
+        danger: {
+          50: "hsl(var(--danger-50))", 100: "hsl(var(--danger-100))", 200: "hsl(var(--danger-200))",
+          400: "hsl(var(--danger-400))", 500: "hsl(var(--danger-500))", 600: "hsl(var(--danger-600))",
+          800: "hsl(var(--danger-800))", 900: "hsl(var(--danger-900))"
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -40,23 +58,8 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))"
         },
-        brand: {
-          50: "#f0fdf4",
-          100: "#dcfce7",
-          200: "#bbf7d0",
-          500: "#22c55e",
-          600: "#16a34a",
-          700: "#15803d"
-        },
-        splix: {
-          50: "#f0fdf4",
-          100: "#dcfce7",
-          200: "#bbf7d0",
-          500: "#22c55e",
-          600: "#16a34a",
-          700: "#15803d",
-          900: "#14532d"
-        }
+        brand: "hsl(var(--primary))",
+        splix: "hsl(var(--primary))"
       },
       borderRadius: {
         lg: "var(--radius)",

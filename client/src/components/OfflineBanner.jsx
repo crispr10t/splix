@@ -5,11 +5,11 @@ export function OfflineBanner({ isOnline, pendingCount = 0, isSyncing = false, o
   if (isOnline && pendingCount === 0) return null;
 
   return (
-    <div className="rounded-xl border border-zinc-200 bg-zinc-50/90 dark:border-zinc-800 dark:bg-zinc-900/60 px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs text-zinc-700 dark:text-zinc-300">
+    <div className="rounded-xl border border-ink-200 bg-ink-50/90 dark:border-ink-800 dark:bg-ink-900/60 px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs text-ink-700 dark:text-ink-300">
       <div className="flex items-center gap-2">
         {!isOnline ? (
           <>
-            <WifiOff className="h-4 w-4 text-zinc-500 flex-shrink-0" />
+            <WifiOff className="h-4 w-4 text-ink-500 flex-shrink-0" />
             <span>You are offline. Changes are saved locally and will sync when reconnected.</span>
           </>
         ) : (
@@ -29,9 +29,9 @@ export function OfflineBanner({ isOnline, pendingCount = 0, isSyncing = false, o
           size="sm"
           disabled={isSyncing}
           onClick={onSync}
-          className="h-7 px-2.5 text-xs font-medium border-zinc-300 dark:border-zinc-700 flex-shrink-0"
+          className="h-7 px-2.5 text-xs font-medium border-ink-300 dark:border-ink-700 flex-shrink-0"
         >
-          {isSyncing ? "Syncing..." : "Sync now"}
+          {isSyncing ? "Syncing…" : "Sync now"}
         </Button>
       )}
     </div>

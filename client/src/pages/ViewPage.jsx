@@ -44,10 +44,10 @@ export function ViewPage() {
 
   if (loading && !snapshot) {
     return (
-      <main className="shell max-w-3xl py-12 text-center text-zinc-500">
+      <main id="main" className="shell max-w-3xl py-12 text-center text-ink-500">
         <div className="flex flex-col items-center justify-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-          <p className="text-sm font-medium">Loading group details...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-leaf-600 border-t-transparent" />
+          <p className="text-sm font-medium">Loading group details…</p>
         </div>
       </main>
     );
@@ -55,7 +55,7 @@ export function ViewPage() {
 
   if (error === "Group not found") {
     return (
-      <main className="shell max-w-lg py-12">
+      <main id="main" className="shell max-w-lg py-12">
         <LinkNotFoundCard />
       </main>
     );
@@ -63,8 +63,8 @@ export function ViewPage() {
 
   if (error && !snapshot) {
     return (
-      <main className="shell max-w-lg py-12">
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-rose-800">
+      <main id="main" className="shell max-w-lg py-12">
+        <div className="rounded-2xl border border-danger-200 bg-danger-50 p-6 text-center text-danger-800">
           <p className="font-semibold">{error}</p>
           <Button variant="outline" className="mt-4 rounded-xl text-xs" onClick={() => refetch()}>
             Retry
@@ -75,35 +75,35 @@ export function ViewPage() {
   }
 
   return (
-    <main className="shell max-w-4xl pb-16">
+    <main id="main" className="shell max-w-4xl pb-16">
       {snapshot && (
         <div className="space-y-5">
           {/* Header Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink-900">
                   {snapshot.group.name}
                 </h1>
-                <Badge variant="outline" className="text-[11px] font-semibold text-zinc-600">
+                <Badge variant="outline" className="text-[11px] font-semibold text-ink-600">
                   View Only
                 </Badge>
                 <Badge variant="success" className="text-[11px] font-semibold">
                   {snapshot.group.currency}
                 </Badge>
               </div>
-              <p className="mt-1 text-xs text-zinc-500">
-                Total Group Spend: <strong className="text-zinc-800 font-semibold">{money(totalAmountMinor, snapshot.group.currency)}</strong> across {snapshot.expenses.length} expenses
+              <p className="mt-1 text-xs text-ink-500">
+                Total Group Spend: <strong className="text-ink-800 font-semibold">{money(totalAmountMinor, snapshot.group.currency)}</strong> across {snapshot.expenses.length} expenses
               </p>
             </div>
 
             {/* Quick Actions Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-9 gap-1.5 rounded-xl border-zinc-200 text-xs font-semibold bg-white shadow-sm">
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 rounded-xl border-ink-200 text-xs font-semibold bg-white shadow-sm">
                   <Share2 className="h-3.5 w-3.5" />
                   <span>Share</span>
-                  <MoreVertical className="h-3.5 w-3.5 ml-0.5 text-zinc-400" />
+                  <MoreVertical className="h-3.5 w-3.5 ml-0.5 text-ink-400" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -129,7 +129,7 @@ export function ViewPage() {
                 </DropdownMenuItem>
                 {canInstall && (
                   <DropdownMenuItem onClick={promptInstall}>
-                    <Download className="h-4 w-4 mr-2 text-zinc-600" />
+                    <Download className="h-4 w-4 mr-2 text-ink-600" />
                     Install Splix App
                   </DropdownMenuItem>
                 )}
@@ -139,7 +139,7 @@ export function ViewPage() {
 
           {/* Tabbed Navigation */}
           <Tabs defaultValue="expenses" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 h-12 p-1.5 rounded-2xl bg-zinc-100">
+            <TabsList className="grid w-full grid-cols-3 h-12 p-1.5 rounded-2xl bg-ink-100">
               <TabsTrigger value="expenses" className="rounded-xl text-xs sm:text-sm font-semibold">
                 <Receipt className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
                 Expenses ({snapshot.expenses.length})

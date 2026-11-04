@@ -1,6 +1,6 @@
 export function SplixLogo({ className = "h-8 w-auto" }) {
   return (
-    <div className={`inline-flex items-center gap-2 text-zinc-900 ${className}`}>
+    <div className={`inline-flex items-center gap-2 text-ink-900 ${className}`}>
       <svg
         viewBox="0 0 40 40"
         fill="none"
@@ -18,7 +18,7 @@ export function SplixLogo({ className = "h-8 w-auto" }) {
         <circle cx="12" cy="14" r="4" fill="currentColor" />
         <circle cx="28" cy="26" r="4" fill="currentColor" />
       </svg>
-      <span className="gradient-text text-xl font-extrabold tracking-tight">Splix</span>
+      <span className="text-leaf-700 text-xl font-extrabold tracking-tight">Splix</span>
     </div>
   );
 }

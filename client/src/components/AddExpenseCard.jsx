@@ -251,14 +251,14 @@ export function AddExpenseCard({
       <div className="space-y-3">
         {/* Title input */}
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          <label className="text-xs font-semibold tracking-normal text-ink-500">
             Expense Title
           </label>
           <Input
             autoFocus={!isEditMode}
             className="mt-1 text-sm sm:text-base font-medium"
             maxLength={60}
-            placeholder="Dinner, Cab ride, Groceries..."
+            placeholder="Dinner, cab ride, groceries…"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
@@ -267,11 +267,11 @@ export function AddExpenseCard({
         {/* Amount & Currency */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <label className="text-xs font-semibold tracking-normal text-ink-500">
               Amount ({currency})
             </label>
             <div className="relative mt-1">
-              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400 font-semibold text-sm">
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-ink-400 font-semibold text-sm">
                 {currency}
               </span>
               <Input
@@ -286,17 +286,17 @@ export function AddExpenseCard({
                 }}
               />
             </div>
-            {amountError && <p className="mt-1 text-xs text-rose-600">{amountError}</p>}
+            {amountError && <p className="mt-1 text-xs text-danger-600">{amountError}</p>}
           </div>
 
           {/* Paid by selection */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <label className="text-xs font-semibold tracking-normal text-ink-500">
               Paid By
             </label>
             <div className="relative mt-1">
               <select
-                className="flex h-11 w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2 text-sm font-medium text-zinc-900 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                className="flex h-11 w-full rounded-xl border border-ink-300 bg-white px-3.5 py-2 text-sm font-medium text-ink-900 outline-none transition focus:border-leaf-600 focus:ring-2 focus:ring-leaf-200"
                 value={paidByParticipantId}
                 onChange={(e) => setPaidByParticipantId(e.target.value)}
               >
@@ -314,12 +314,12 @@ export function AddExpenseCard({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {/* Category Picker */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <label className="text-xs font-semibold tracking-normal text-ink-500">
               Category
             </label>
             <div className="relative mt-1">
               <select
-                className="flex h-11 w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2 text-sm font-medium text-zinc-900 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200"
+                className="flex h-11 w-full rounded-xl border border-ink-300 bg-white px-3.5 py-2 text-sm font-medium text-ink-900 outline-none transition focus:border-leaf-600 focus:ring-2 focus:ring-leaf-200"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
               >
@@ -334,7 +334,7 @@ export function AddExpenseCard({
 
           {/* Expense Date Picker */}
           <div>
-            <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500 flex items-center gap-1">
+            <label className="text-xs font-semibold tracking-normal text-ink-500 flex items-center gap-1">
               <Calendar className="h-3 w-3" />
               <span>Expense Date</span>
             </label>
@@ -359,14 +359,14 @@ export function AddExpenseCard({
               <button
                 key={cat.id}
                 type="button"
-                className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-medium border transition-all ${
+                className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-medium border transition-colors duration-150 ${
                   isSelected
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-800 ring-1 ring-emerald-500/30 font-semibold"
-                    : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300"
+                    ? "border-leaf-500 bg-leaf-50 text-leaf-800 ring-1 ring-leaf-500/30 font-semibold"
+                    : "border-ink-200 bg-white text-ink-600 hover:border-ink-300"
                 }`}
                 onClick={() => setCategory(cat.id)}
               >
-                <Icon className={`h-3 w-3 ${isSelected ? "text-emerald-700" : "text-zinc-500"}`} />
+                <Icon className={`h-3 w-3 ${isSelected ? "text-leaf-700" : "text-ink-500"}`} />
                 <span>{cat.shortLabel}</span>
               </button>
             );
@@ -375,9 +375,9 @@ export function AddExpenseCard({
       </div>
 
       {/* Split Mode Selector */}
-      <div className="rounded-2xl border border-zinc-200/90 bg-zinc-50/70 p-3 sm:p-4">
+      <div className="rounded-2xl border border-ink-200/90 bg-ink-50/70 p-3 sm:p-4">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+          <label className="text-xs font-semibold tracking-normal text-ink-500">
             Split Method
           </label>
           {perPersonShare && (
@@ -390,10 +390,10 @@ export function AddExpenseCard({
         <div className="mt-2.5 grid grid-cols-3 gap-1.5 sm:gap-2">
           <button
             type="button"
-            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-semibold transition-colors duration-150 ${
               mode === "even"
-                ? "bg-white text-emerald-800 shadow-sm border border-emerald-300 ring-2 ring-emerald-500/20"
-                : "text-zinc-600 hover:bg-white/60"
+                ? "bg-white text-leaf-800 shadow-sm border border-leaf-300 ring-2 ring-leaf-500/20"
+                : "text-ink-600 hover:bg-white/60"
             }`}
             onClick={() => setMode("even")}
           >
@@ -402,10 +402,10 @@ export function AddExpenseCard({
           </button>
           <button
             type="button"
-            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-semibold transition-colors duration-150 ${
               mode === "amount"
-                ? "bg-white text-emerald-800 shadow-sm border border-emerald-300 ring-2 ring-emerald-500/20"
-                : "text-zinc-600 hover:bg-white/60"
+                ? "bg-white text-leaf-800 shadow-sm border border-leaf-300 ring-2 ring-leaf-500/20"
+                : "text-ink-600 hover:bg-white/60"
             }`}
             onClick={() => setMode("amount")}
           >
@@ -414,10 +414,10 @@ export function AddExpenseCard({
           </button>
           <button
             type="button"
-            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-semibold transition-all ${
+            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-semibold transition-colors duration-150 ${
               mode === "percentage"
-                ? "bg-white text-emerald-800 shadow-sm border border-emerald-300 ring-2 ring-emerald-500/20"
-                : "text-zinc-600 hover:bg-white/60"
+                ? "bg-white text-leaf-800 shadow-sm border border-leaf-300 ring-2 ring-leaf-500/20"
+                : "text-ink-600 hover:bg-white/60"
             }`}
             onClick={() => setMode("percentage")}
           >
@@ -427,21 +427,21 @@ export function AddExpenseCard({
         </div>
 
         {/* Participants Selector Toggle */}
-        <div className="mt-3.5 border-t border-zinc-200/80 pt-3">
+        <div className="mt-3.5 border-t border-ink-200/80 pt-3">
           <div className="flex items-center justify-between">
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-700 hover:text-zinc-900"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-700 hover:text-ink-900"
               onClick={() => setDetailsOpen((c) => !c)}
             >
-              <Users className="h-3.5 w-3.5 text-emerald-600" />
+              <Users className="h-3.5 w-3.5 text-leaf-600" />
               <span>Split across {selectedIds.length} of {sortedParticipants.length} people</span>
               {detailsOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
             </button>
             {detailsOpen && selectedIds.length !== sortedParticipants.length && (
               <button
                 type="button"
-                className="text-xs font-semibold text-emerald-700 hover:underline"
+                className="text-xs font-semibold text-leaf-700 hover:underline"
                 onClick={selectAll}
               >
                 Select all
@@ -456,21 +456,21 @@ export function AddExpenseCard({
                 return (
                   <div
                     key={p.id}
-                    className={`flex items-center justify-between rounded-xl border p-2 sm:p-2.5 transition-all ${
+                    className={`flex items-center justify-between rounded-xl border p-2 sm:p-2.5 transition-colors duration-150 ${
                       checked
-                        ? "border-emerald-200 bg-white"
-                        : "border-zinc-200 bg-zinc-50/50 opacity-60"
+                        ? "border-leaf-200 bg-white"
+                        : "border-ink-200 bg-ink-50/50 opacity-60"
                     }`}
                   >
-                    <label className="flex flex-1 cursor-pointer items-center gap-2.5 text-xs sm:text-sm font-medium text-zinc-900">
+                    <label className="flex flex-1 cursor-pointer items-center gap-2.5 text-xs sm:text-sm font-medium text-ink-900">
                       <input
                         type="checkbox"
                         checked={checked}
                         onChange={() => toggleParticipant(p.id)}
-                        className="h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
+                        className="h-4 w-4 rounded text-leaf-600 focus:ring-leaf-500"
                       />
                       <Avatar className="h-6 w-6">
-                        <AvatarFallback className="text-[10px] bg-emerald-100 text-emerald-800">
+                        <AvatarFallback className="text-[10px] bg-leaf-100 text-leaf-800">
                           {p.name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -526,18 +526,18 @@ export function AddExpenseCard({
         )}
         <Button
           type="submit"
-          className="flex-1 h-11 text-sm font-semibold rounded-xl bg-emerald-600 hover:bg-emerald-700 shadow-md text-white"
+          className="flex-1 h-11 text-sm font-semibold rounded-xl bg-leaf-600 hover:bg-leaf-700 shadow-md text-white"
           disabled={disabled || adding || !title.trim() || toMinor(amount) <= 0 || selectedIds.length === 0}
         >
           {isEditMode ? (
             <>
               <Save className="h-4 w-4 mr-1.5" />
-              {adding ? "Saving Changes..." : "Update Expense"}
+              {adding ? "Saving changes…" : "Update Expense"}
             </>
           ) : (
             <>
               <Plus className="h-4 w-4 mr-1" />
-              {adding ? "Adding Expense..." : "Add Expense"}
+              {adding ? "Adding expense…" : "Add Expense"}
             </>
           )}
         </Button>

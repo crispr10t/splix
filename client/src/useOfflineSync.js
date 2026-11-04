@@ -171,7 +171,7 @@ export function useOfflineSync({ editId, token, onSynced }) {
   useEffect(() => {
     function handleOnline() {
       setIsOnline(true);
-      toast.info("Connection restored. Syncing changes...", { duration: 2000 });
+      toast.info("Connection restored. Syncing changes…", { duration: 2000 });
       syncNow();
     }
 

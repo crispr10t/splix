@@ -84,35 +84,35 @@ export function PinGateCard({
     <>
       <div
         className={cn(
-          "mx-auto max-w-sm rounded-3xl border border-zinc-200/90 bg-white/95 p-6 sm:p-7 shadow-xl shadow-zinc-950/5 backdrop-blur-xl transition-all duration-300",
+          "mx-auto max-w-sm rounded-2xl border border-ink-200/90 bg-white p-6 sm:p-7 shadow-sm transition-colors duration-150",
           isShaking && "animate-shake"
         )}
       >
         {/* Proportional Lock Icon Container */}
         <div
           className={cn(
-            "mx-auto flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm border transition-all duration-300 mb-3",
+            "mx-auto flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm border transition-colors duration-150 duration-300 mb-3",
             isUnlocked
-              ? "bg-emerald-600 text-white border-emerald-500 scale-105 shadow-emerald-600/20"
-              : "bg-emerald-100/90 text-emerald-800 border-emerald-200/60"
+              ? "bg-leaf-600 text-white border-leaf-500 scale-105 shadow-leaf-600/20"
+              : "bg-leaf-100/90 text-leaf-800 border-leaf-200/60"
           )}
         >
           {isUnlocked ? (
             <LockOpen className="h-6 w-6 animate-in zoom-in-75 duration-200" />
           ) : loading ? (
-            <Loader2 className="h-6 w-6 animate-spin text-emerald-800" />
+            <Loader2 className="h-6 w-6 animate-spin text-leaf-800" />
           ) : (
-            <Lock className="h-6 w-6 text-emerald-800" />
+            <Lock className="h-6 w-6 text-leaf-800" />
           )}
         </div>
 
         {/* Dynamic Title (Group Name) */}
         {metaLoading ? (
-          <div className="h-7 w-40 mx-auto bg-zinc-200/80 animate-pulse rounded-lg my-1" />
+          <div className="h-7 w-40 mx-auto bg-ink-200/80 animate-pulse rounded-lg my-1" />
         ) : (
           <h2
             className={cn(
-              "font-bold text-center text-zinc-900 tracking-tight break-words [overflow-wrap:anywhere] line-clamp-2 px-1",
+              "font-bold text-center text-ink-900 tracking-tight break-words [overflow-wrap:anywhere] line-clamp-2 px-1",
               groupMeta?.name && groupMeta.name.length > 20
                 ? "text-lg sm:text-xl"
                 : "text-xl sm:text-2xl"
@@ -125,7 +125,7 @@ export function PinGateCard({
 
         {/* Minimal Subtitle */}
         {groupMeta && (
-          <p className="mt-1 text-center text-xs font-medium text-zinc-400">
+          <p className="mt-1 text-center text-xs font-medium text-ink-400">
             {groupMeta.participantCount} {groupMeta.participantCount === 1 ? "member" : "members"} · {groupMeta.currency}
           </p>
         )}
@@ -172,22 +172,22 @@ export function PinGateCard({
                   <div
                     key={index}
                     className={cn(
-                      "relative flex h-14 w-12 sm:h-16 sm:w-14 items-center justify-center rounded-2xl border-2 text-2xl sm:text-3xl font-bold font-mono transition-all duration-150 select-none",
+                      "relative flex h-14 w-12 sm:h-16 sm:w-14 items-center justify-center rounded-2xl border-2 text-2xl sm:text-3xl font-bold font-mono transition-colors duration-150 duration-150 select-none",
                       errorMessage
-                        ? "border-red-400 bg-red-50/40 text-red-600 ring-4 ring-red-400/15"
+                        ? "border-danger-400 bg-danger-50/40 text-danger-600 ring-4 ring-danger-400/15"
                         : isCurrent
-                        ? "border-emerald-600 bg-emerald-50/20 ring-4 ring-emerald-500/15 scale-105"
+                        ? "border-leaf-600 bg-leaf-50/20 ring-4 ring-leaf-500/15 scale-105"
                         : isFilled
-                        ? "border-zinc-300 bg-white text-zinc-900 shadow-sm"
-                        : "border-zinc-200 bg-zinc-50/60 text-zinc-300 hover:border-zinc-300"
+                        ? "border-ink-300 bg-white text-ink-900 shadow-sm"
+                        : "border-ink-200 bg-ink-50/60 text-ink-300 hover:border-ink-300"
                     )}
                   >
                     {isFilled ? (
-                      <span className="text-zinc-900 font-bold animate-in zoom-in-75 duration-100">
+                      <span className="text-ink-900 font-bold animate-in zoom-in-75 duration-100">
                         {char}
                       </span>
                     ) : isCurrent ? (
-                      <span className="h-6 w-0.5 animate-pulse bg-emerald-600 rounded-full" />
+                      <span className="h-6 w-0.5 animate-pulse bg-leaf-600 rounded-full" />
                     ) : null}
                   </div>
                 );
@@ -196,7 +196,7 @@ export function PinGateCard({
 
             {/* Error Message */}
             {errorMessage && (
-              <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-rose-600 animate-in fade-in slide-in-from-top-1 duration-150">
+              <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-danger-600 animate-in fade-in slide-in-from-top-1 duration-150">
                 <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                 <span>{errorMessage}</span>
               </div>
@@ -207,17 +207,17 @@ export function PinGateCard({
           <Button
             type="submit"
             className={cn(
-              "w-full h-11 text-sm font-semibold rounded-xl text-white shadow-md transition-all active:scale-[0.99]",
+              "w-full h-11 text-sm font-semibold rounded-xl text-white shadow-md transition-colors duration-150 active:scale-[0.99]",
               isUnlocked
-                ? "bg-emerald-600 hover:bg-emerald-600"
-                : "bg-emerald-600 hover:bg-emerald-700"
+                ? "bg-leaf-600 hover:bg-leaf-600"
+                : "bg-leaf-600 hover:bg-leaf-700"
             )}
             disabled={loading || pin.length !== 4 || isUnlocked}
           >
             {loading ? (
               <span className="inline-flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Verifying PIN...
+                Verifying PIN…
               </span>
             ) : isUnlocked ? (
               <span className="inline-flex items-center gap-2">
@@ -230,11 +230,11 @@ export function PinGateCard({
           </Button>
 
           {/* Minimal Footer Navigation */}
-          <div className="pt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-zinc-400">
+          <div className="pt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-ink-400">
             <button
               type="button"
               onClick={() => setForgotOpen(true)}
-              className="text-zinc-400 hover:text-zinc-700 transition-colors hover:underline inline-flex items-center gap-1"
+              className="text-ink-400 hover:text-ink-700 transition-colors hover:underline inline-flex items-center gap-1"
             >
               <HelpCircle className="h-3.5 w-3.5" />
               Forgot PIN?
@@ -242,10 +242,10 @@ export function PinGateCard({
 
             {groupMeta?.viewId && (
               <>
-                <span className="text-zinc-300">•</span>
+                <span className="text-ink-300">•</span>
                 <Link
                   to={`/view/${groupMeta.viewId}`}
-                  className="text-emerald-700 hover:text-emerald-800 hover:underline font-medium inline-flex items-center gap-1 transition-colors"
+                  className="text-leaf-700 hover:text-leaf-800 hover:underline font-medium inline-flex items-center gap-1 transition-colors"
                 >
                   <span>Read-only view</span>
                   <ArrowRight className="h-3 w-3" />
@@ -263,42 +263,42 @@ export function PinGateCard({
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 border border-amber-200/60 mb-2">
               <HelpCircle className="h-6 w-6" />
             </div>
-            <DialogTitle className="text-center font-bold text-zinc-900">
+            <DialogTitle className="text-center font-bold text-ink-900">
               How to Find Your PIN
             </DialogTitle>
-            <DialogDescription className="text-center text-zinc-500">
+            <DialogDescription className="text-center text-ink-500">
               Splix is privacy-first and doesn&apos;t store user emails or passwords.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 py-2 text-sm text-zinc-600">
-            <div className="flex items-start gap-3 rounded-2xl border border-zinc-100 bg-zinc-50/70 p-3.5">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+          <div className="space-y-3 py-2 text-sm text-ink-600">
+            <div className="flex items-start gap-3 rounded-2xl border border-ink-100 bg-ink-50/70 p-3.5">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-xs font-bold text-leaf-800">
                 1
               </span>
-              <p className="text-xs leading-relaxed text-zinc-600">
-                <strong className="text-zinc-900 font-semibold">Ask the creator:</strong> Check
+              <p className="text-xs leading-relaxed text-ink-600">
+                <strong className="text-ink-900 font-semibold">Ask the creator:</strong> Check
                 with the person who created this group or originally shared the link.
               </p>
             </div>
 
-            <div className="flex items-start gap-3 rounded-2xl border border-zinc-100 bg-zinc-50/70 p-3.5">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-800">
+            <div className="flex items-start gap-3 rounded-2xl border border-ink-100 bg-ink-50/70 p-3.5">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-xs font-bold text-leaf-800">
                 2
               </span>
-              <p className="text-xs leading-relaxed text-zinc-600">
-                <strong className="text-zinc-900 font-semibold">Check chat history:</strong> Search
+              <p className="text-xs leading-relaxed text-ink-600">
+                <strong className="text-ink-900 font-semibold">Check chat history:</strong> Search
                 WhatsApp or Telegram messages for the 4-digit code sent with the group link.
               </p>
             </div>
 
             {groupMeta?.viewId && (
-              <div className="flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3.5">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-200 text-xs font-bold text-emerald-900">
+              <div className="flex items-start gap-3 rounded-2xl border border-leaf-100 bg-leaf-50/60 p-3.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-leaf-200 text-xs font-bold text-leaf-900">
                   3
                 </span>
-                <div className="text-xs leading-relaxed text-zinc-700">
-                  <strong className="text-emerald-950 font-semibold">Read-only view:</strong> Anyone
+                <div className="text-xs leading-relaxed text-ink-700">
+                  <strong className="text-leaf-950 font-semibold">Read-only view:</strong> Anyone
                   can see expenses and who owes what without needing the PIN.
                 </div>
               </div>
@@ -310,7 +310,7 @@ export function PinGateCard({
               <Button
                 asChild
                 variant="outline"
-                className="w-full sm:w-auto text-xs font-medium rounded-xl border-emerald-200 text-emerald-800 hover:bg-emerald-50"
+                className="w-full sm:w-auto text-xs font-medium rounded-xl border-leaf-200 text-leaf-800 hover:bg-leaf-50"
                 onClick={() => setForgotOpen(false)}
               >
                 <Link to={`/view/${groupMeta.viewId}`}>Go to Read-Only View</Link>
@@ -318,7 +318,7 @@ export function PinGateCard({
             )}
             <Button
               type="button"
-              className="w-full sm:w-auto text-xs font-semibold rounded-xl bg-zinc-900 text-white hover:bg-zinc-800"
+              className="w-full sm:w-auto text-xs font-semibold rounded-xl bg-ink-900 text-white hover:bg-ink-800"
               onClick={() => setForgotOpen(false)}
             >
               Got it

@@ -97,15 +97,15 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
     <div className={isDialog ? "space-y-4 max-h-[80vh] overflow-y-auto pr-1" : "space-y-4"}>
       {/* Header if inside dialog */}
       {isDialog && (
-        <div className={`flex items-center gap-3 pb-3 border-b pr-6 ${result ? "border-emerald-200/70" : "border-zinc-100"}`}>
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800 shrink-0">
-            {result ? <CheckCircle2 className="h-5 w-5 text-emerald-700" /> : <Users className="h-5 w-5" />}
+        <div className={`flex items-center gap-3 pb-3 border-b pr-6 ${result ? "border-leaf-200/70" : "border-ink-100"}`}>
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-leaf-50 text-leaf-800 shrink-0">
+            {result ? <CheckCircle2 className="h-5 w-5 text-leaf-700" /> : <Users className="h-5 w-5" />}
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-bold text-zinc-900 leading-tight">
+            <h2 className="text-lg font-bold text-ink-900 leading-tight">
               {result ? "Links generated" : "Create a Group"}
             </h2>
-            <p className={`text-xs mt-0.5 ${result ? "text-emerald-800 font-medium" : "text-zinc-500"}`}>
+            <p className={`text-xs mt-0.5 ${result ? "text-leaf-800 font-medium" : "text-ink-500"}`}>
               {result ? "Use Edit to manage expenses. Share View for read-only access." : "Start splitting bills instantly. No account required."}
             </p>
           </div>
@@ -116,7 +116,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
         <form className="space-y-4" onSubmit={onSubmit}>
           {/* Group Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-zinc-700">Group Name</label>
+            <label className="text-xs font-semibold text-ink-700">Group Name</label>
             <div className="relative">
               <Input
                 autoFocus={isDialog}
@@ -127,17 +127,17 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 onChange={(e) => setName(e.target.value)}
                 onFocus={() => void warmApi()}
               />
-              <Users className="absolute left-3 top-3.5 h-4 w-4 text-zinc-400" />
+              <Users className="absolute left-3 top-3.5 h-4 w-4 text-ink-400" />
             </div>
           </div>
 
           {/* Currency & PIN */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-700 block">Currency</label>
+              <label className="text-xs font-semibold text-ink-700 block">Currency</label>
               <div className="relative">
                 <select
-                  className="flex h-11 w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2 text-sm font-medium text-zinc-900 focus-visible:outline-none focus-visible:border-emerald-600 focus-visible:ring-2 focus-visible:ring-emerald-200 transition-all cursor-pointer"
+                  className="flex h-11 w-full rounded-xl border border-ink-300 bg-white px-3.5 py-2 text-sm font-medium text-ink-900 focus-visible:outline-none focus-visible:border-leaf-600 focus-visible:ring-2 focus-visible:ring-leaf-200 transition-colors duration-150 cursor-pointer"
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
                   onFocus={() => void warmApi()}
@@ -152,10 +152,10 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-zinc-700 block">PIN</label>
+              <label className="text-xs font-semibold text-ink-700 block">PIN</label>
               <div className="relative">
                 <Input
-                  className="pl-9 font-mono tracking-widest text-sm rounded-xl h-11"
+                  className="pl-9 font-mono tracking-normal text-sm rounded-xl h-11"
                   placeholder="••••"
                   maxLength={4}
                   inputMode="numeric"
@@ -163,7 +163,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
                   onFocus={() => void warmApi()}
                 />
-                <Lock className="absolute left-3 top-3.5 h-4 w-4 text-zinc-400" />
+                <Lock className="absolute left-3 top-3.5 h-4 w-4 text-ink-400" />
               </div>
             </div>
           </div>
@@ -171,8 +171,8 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
           {/* Participants */}
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-zinc-700">Group Members</label>
-              <Badge variant="outline" className="text-[11px] font-semibold text-zinc-600">
+              <label className="text-xs font-semibold text-ink-700">Group Members</label>
+              <Badge variant="outline" className="text-[11px] font-semibold text-ink-600">
                 {participants.filter((p) => p.trim()).length} members
               </Badge>
             </div>
@@ -181,8 +181,8 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
               {participants.map((participant, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div className="relative flex-1 flex items-center">
-                    <Avatar className="absolute left-2.5 h-6 w-6 text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                      <AvatarFallback className="bg-emerald-100 text-emerald-800 font-bold">
+                    <Avatar className="absolute left-2.5 h-6 w-6 text-[10px] font-bold bg-leaf-100 text-leaf-800">
+                      <AvatarFallback className="bg-leaf-100 text-leaf-800 font-bold">
                         {participant.trim()
                           ? participant.trim().slice(0, 2).toUpperCase()
                           : String(index + 1)}
@@ -205,7 +205,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="h-10 w-10 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl shrink-0"
+                    className="h-10 w-10 text-ink-400 hover:text-danger-600 hover:bg-danger-50 rounded-xl shrink-0"
                     disabled={participants.length <= 2}
                     onClick={() =>
                       setParticipants((curr) =>
@@ -226,26 +226,26 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 variant="outline"
                 size="sm"
                 onClick={() => setParticipants((curr) => [...curr, `Person ${curr.length + 1}`])}
-                className="rounded-xl border-dashed border-zinc-300 text-zinc-600 hover:border-emerald-400 hover:text-emerald-700 h-9 gap-1.5 text-xs font-semibold"
+                className="rounded-xl border-dashed border-ink-300 text-ink-600 hover:border-leaf-400 hover:text-leaf-700 h-9 gap-1.5 text-xs font-semibold"
               >
-                <Plus className="h-3.5 w-3.5 text-emerald-600" />
+                <Plus className="h-3.5 w-3.5 text-leaf-600" />
                 Add Member
               </Button>
             </div>
           </div>
 
           {/* Submit Button */}
-          <div className="pt-2">
+          <div className="creator-submit pt-2">
             <Button
               type="submit"
               size="lg"
               disabled={saving || !canSubmit}
-              className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm gap-2"
+              className="w-full h-11 rounded-xl bg-leaf-600 hover:bg-leaf-700 text-white font-semibold text-sm shadow-sm gap-2"
             >
               {saving ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  Creating Group...
+                  Creating group…
                 </>
               ) : (
                 "Create Group"
@@ -257,12 +257,12 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
         /* Result state matching original LinkPanel layout with current theme */
         <div className="space-y-3.5 pt-1">
           {/* Edit Link Panel */}
-          <div className="rounded-2xl border border-emerald-200/90 bg-white p-4 sm:p-5 shadow-2xs space-y-2.5">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          <div className="rounded-2xl border border-leaf-200/90 bg-white p-4 sm:p-5 shadow-2xs space-y-2.5">
+            <p className="text-xs font-semibold tracking-normal text-ink-500">
               Edit link
             </p>
             <a
-              className="mt-1 block break-all font-mono text-sm sm:text-base font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-4 transition hover:text-emerald-800"
+              className="mt-1 block break-all font-mono text-sm sm:text-base font-semibold text-leaf-700 underline decoration-leaf-300 underline-offset-4 transition hover:text-leaf-800"
               href={result.editLink}
               target="_blank"
               rel="noreferrer"
@@ -275,20 +275,20 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 variant="outline"
                 size="sm"
                 onClick={() => copyLink(result.editLink, "edit")}
-                className={`h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5 bg-white border-zinc-200 transition-all ${
+                  className={`h-10 min-h-10 w-24 min-w-0 justify-center px-3 text-xs font-semibold gap-1.5 bg-white border-ink-200 transition-colors duration-150 ${
                   copiedKey === "edit"
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-300"
-                    : "hover:bg-zinc-50 text-zinc-700"
+                    ? "bg-leaf-50 text-leaf-700 border-leaf-300"
+                    : "hover:bg-ink-50 text-ink-700"
                 }`}
               >
                 {copiedKey === "edit" ? (
                   <>
-                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                    <Check className="h-3.5 w-3.5 text-leaf-600" />
                     <span>Copied</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3.5 w-3.5 text-zinc-500" />
+                    <Copy className="h-3.5 w-3.5 text-ink-500" />
                     <span>Copy</span>
                   </>
                 )}
@@ -298,10 +298,10 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 variant="outline"
                 size="sm"
                 asChild
-                className="h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5 bg-white border-zinc-200 hover:bg-zinc-50 text-zinc-700 shadow-2xs"
+                className="h-10 min-h-10 w-24 min-w-0 justify-center px-3 text-xs font-semibold gap-1.5 bg-white border-ink-200 hover:bg-ink-50 text-ink-700 shadow-2xs"
               >
                 <Link to={result.editLink} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-3.5 w-3.5 text-zinc-500" />
+                  <ExternalLink className="h-3.5 w-3.5 text-ink-500" />
                   <span>Open</span>
                 </Link>
               </Button>
@@ -309,12 +309,12 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
           </div>
 
           {/* View Link Panel */}
-          <div className="rounded-2xl border border-emerald-200/90 bg-white p-4 sm:p-5 shadow-2xs space-y-2.5">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          <div className="rounded-2xl border border-leaf-200/90 bg-white p-4 sm:p-5 shadow-2xs space-y-2.5">
+            <p className="text-xs font-semibold tracking-normal text-ink-500">
               View link
             </p>
             <a
-              className="mt-1 block break-all font-mono text-sm sm:text-base font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-4 transition hover:text-emerald-800"
+              className="mt-1 block break-all font-mono text-sm sm:text-base font-semibold text-leaf-700 underline decoration-leaf-300 underline-offset-4 transition hover:text-leaf-800"
               href={result.viewLink}
               target="_blank"
               rel="noreferrer"
@@ -327,20 +327,20 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 variant="outline"
                 size="sm"
                 onClick={() => copyLink(result.viewLink, "view")}
-                className={`h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5 bg-white border-zinc-200 transition-all ${
+                  className={`h-10 min-h-10 w-24 min-w-0 justify-center px-3 text-xs font-semibold gap-1.5 bg-white border-ink-200 transition-colors duration-150 ${
                   copiedKey === "view"
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-300"
-                    : "hover:bg-zinc-50 text-zinc-700"
+                    ? "bg-leaf-50 text-leaf-700 border-leaf-300"
+                    : "hover:bg-ink-50 text-ink-700"
                 }`}
               >
                 {copiedKey === "view" ? (
                   <>
-                    <Check className="h-3.5 w-3.5 text-emerald-600" />
+                    <Check className="h-3.5 w-3.5 text-leaf-600" />
                     <span>Copied</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3.5 w-3.5 text-zinc-500" />
+                    <Copy className="h-3.5 w-3.5 text-ink-500" />
                     <span>Copy</span>
                   </>
                 )}
@@ -350,10 +350,10 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 variant="outline"
                 size="sm"
                 asChild
-                className="h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5 bg-white border-zinc-200 hover:bg-zinc-50 text-zinc-700 shadow-2xs"
+                className="h-10 min-h-10 w-24 min-w-0 justify-center px-3 text-xs font-semibold gap-1.5 bg-white border-ink-200 hover:bg-ink-50 text-ink-700 shadow-2xs"
               >
                 <Link to={result.viewLink} target="_blank" rel="noreferrer">
-                  <ExternalLink className="h-3.5 w-3.5 text-zinc-500" />
+                  <ExternalLink className="h-3.5 w-3.5 text-ink-500" />
                   <span>Open</span>
                 </Link>
               </Button>
@@ -372,9 +372,9 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 setPin("");
                 setParticipants(["Person 1", "Person 2"]);
               }}
-              className="text-xs text-emerald-800 hover:text-emerald-950 hover:bg-emerald-100/60 h-8 px-3 rounded-lg gap-1.5 font-semibold transition"
+              className="text-xs text-leaf-800 hover:text-leaf-950 hover:bg-leaf-100/60 h-8 px-3 rounded-lg gap-1.5 font-semibold transition"
             >
-              <Plus className="h-3.5 w-3.5 text-emerald-600" />
+              <Plus className="h-3.5 w-3.5 text-leaf-600" />
               <span>Create another group</span>
             </Button>
           </div>
@@ -389,29 +389,29 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
 
   return (
     <Card
-      className={`transition-all duration-200 rounded-2xl sm:rounded-3xl ${
+      className={`transition-colors duration-150 duration-200 rounded-2xl sm:rounded-3xl ${
         result
-          ? "border-emerald-300 bg-emerald-50 shadow-sm"
-          : "border-zinc-200/90 bg-white/95 shadow-sm"
+          ? "border-leaf-300 bg-leaf-50 shadow-sm"
+          : "border-ink-200/90 bg-white/95 shadow-sm"
       }`}
     >
       <CardHeader
         className={`p-5 sm:p-6 pb-4 sm:pb-4 border-b transition-colors duration-200 ${
-          result ? "border-emerald-200/60" : "border-zinc-100"
+          result ? "border-leaf-200/60" : "border-ink-100"
         }`}
       >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
-              {result ? <CheckCircle2 className="h-5 w-5 text-emerald-700" /> : <Users className="h-5 w-5" />}
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-leaf-50 text-leaf-800">
+              {result ? <CheckCircle2 className="h-5 w-5 text-leaf-700" /> : <Users className="h-5 w-5" />}
             </div>
             <div>
-              <CardTitle className="text-lg sm:text-xl font-bold text-zinc-900">
+              <CardTitle className="text-lg sm:text-xl font-bold text-ink-900">
                 {result ? "Links generated" : "Create a Group"}
               </CardTitle>
               <CardDescription
                 className={`text-xs sm:text-sm mt-0.5 font-medium transition-colors ${
-                  result ? "text-emerald-800/80" : "text-zinc-500"
+                  result ? "text-leaf-800/80" : "text-ink-500"
                 }`}
               >
                 {result

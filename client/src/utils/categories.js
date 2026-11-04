@@ -15,8 +15,8 @@ export const CATEGORIES = [
     shortLabel: "Food",
     icon: Utensils,
     color: "emerald",
-    bgClass: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    badgeClass: "bg-emerald-100 text-emerald-800"
+    bgClass: "bg-leaf-50 text-leaf-700 border-leaf-200",
+    badgeClass: "bg-leaf-100 text-leaf-800"
   },
   {
     id: "transport",
@@ -69,8 +69,8 @@ export const CATEGORIES = [
     shortLabel: "General",
     icon: Package2,
     color: "zinc",
-    bgClass: "bg-zinc-50 text-zinc-700 border-zinc-200",
-    badgeClass: "bg-zinc-100 text-zinc-800"
+    bgClass: "bg-ink-50 text-ink-700 border-ink-200",
+    badgeClass: "bg-ink-100 text-ink-800"
   }
 ];
 

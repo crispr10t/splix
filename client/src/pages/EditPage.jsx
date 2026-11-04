@@ -690,7 +690,7 @@ export function EditPage() {
 
   if (missingLink) {
     return (
-      <main className="shell max-w-lg py-12">
+      <main id="main" className="shell max-w-lg py-12">
         <LinkNotFoundCard />
       </main>
     );
@@ -698,7 +698,7 @@ export function EditPage() {
 
   if (!token) {
     return (
-      <main className="shell max-w-lg py-12">
+      <main id="main" className="shell max-w-lg py-12">
         <PinGateCard
           groupMeta={groupMeta}
           metaLoading={metaLoading && !groupMeta}
@@ -711,10 +711,10 @@ export function EditPage() {
 
   if (loading && !snapshot) {
     return (
-      <main className="shell max-w-3xl py-12 text-center text-zinc-500">
+      <main id="main" className="shell max-w-3xl py-12 text-center text-ink-500">
         <div className="flex flex-col items-center justify-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-600 border-t-transparent" />
-          <p className="text-sm font-medium">Loading group data...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-leaf-600 border-t-transparent" />
+          <p className="text-sm font-medium">Loading group data…</p>
         </div>
       </main>
     );
@@ -723,14 +723,14 @@ export function EditPage() {
   if (error && !snapshot) {
     if (error === "Group not found") {
       return (
-        <main className="shell max-w-lg py-12">
+        <main id="main" className="shell max-w-lg py-12">
           <LinkNotFoundCard />
         </main>
       );
     }
     return (
-      <main className="shell max-w-lg py-12">
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-rose-800">
+      <main id="main" className="shell max-w-lg py-12">
+        <div className="rounded-2xl border border-danger-200 bg-danger-50 p-6 text-center text-danger-800">
           <p className="font-semibold">{error}</p>
           <Button
             variant="outline"
@@ -746,7 +746,7 @@ export function EditPage() {
 
   if (snapshot && (!selectedParticipantId || !participants.find((item) => item.id === selectedParticipantId))) {
     return (
-      <main className="shell max-w-lg py-10">
+      <main id="main" className="shell max-w-lg py-10">
         <IdentitySelectorCard
           groupName={snapshot.group.name}
           participants={orderedParticipants}
@@ -770,14 +770,14 @@ export function EditPage() {
   }
 
   return (
-    <main className="shell max-w-4xl pb-28">
+    <main id="main" className="shell max-w-4xl pb-28">
       {snapshot && (
         <div className="space-y-5">
           {/* Dashboard Header Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink-900">
                   {snapshot.group.name}
                 </h1>
                 <Badge variant="success" className="text-[11px] font-semibold">
@@ -787,14 +787,14 @@ export function EditPage() {
 
               {/* User Balance Indicator */}
               <div className="mt-1 flex items-center gap-2 text-xs">
-                <span className="text-zinc-500">Your Net Balance:</span>
+                <span className="text-ink-500">Your Net Balance:</span>
                 <span
                   className={`font-semibold ${
                     userNetBalance > 0
-                      ? "text-emerald-700"
+                      ? "text-leaf-700"
                       : userNetBalance < 0
-                      ? "text-rose-600"
-                      : "text-zinc-700"
+                      ? "text-danger-600"
+                      : "text-ink-700"
                   }`}
                 >
                   {userNetBalance > 0 ? "+" : ""}
@@ -822,23 +822,23 @@ export function EditPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 gap-1.5 rounded-xl border-zinc-200 text-xs font-semibold bg-white shadow-sm hover:border-emerald-300"
+                className="h-9 gap-1.5 rounded-xl border-ink-200 text-xs font-semibold bg-white shadow-sm hover:border-leaf-300"
                 onClick={() => setAddMemberOpen(true)}
               >
-                <UserPlus className="h-3.5 w-3.5 text-emerald-600" />
+                <UserPlus className="h-3.5 w-3.5 text-leaf-600" />
                 <span className="hidden sm:inline">Add Member</span>
               </Button>
 
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 gap-1.5 rounded-xl border-zinc-200 text-xs font-semibold bg-white shadow-sm"
+                className="h-9 gap-1.5 rounded-xl border-ink-200 text-xs font-semibold bg-white shadow-sm"
                 onClick={() => setProfileOpen(true)}
               >
-                <UserCheck className="h-3.5 w-3.5 text-emerald-600" />
+                <UserCheck className="h-3.5 w-3.5 text-leaf-600" />
                 <span>{selectedParticipant?.name}</span>
                 {selectedParticipant?.upiId && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-leaf-500" />
                 )}
               </Button>
 
@@ -851,7 +851,7 @@ export function EditPage() {
                 <DropdownMenuContent align="end" className="w-52">
                   <DropdownMenuLabel>Group Actions</DropdownMenuLabel>
                   <DropdownMenuItem onClick={() => setAddMemberOpen(true)}>
-                    <UserPlus className="h-4 w-4 mr-2 text-emerald-600" />
+                    <UserPlus className="h-4 w-4 mr-2 text-leaf-600" />
                     Add Group Member
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -867,7 +867,7 @@ export function EditPage() {
                       copyLink(`${window.location.origin}/edit/${snapshot.group.editId}`, "Edit link copied")
                     }
                   >
-                    <Link2 className="h-4 w-4 mr-2 text-emerald-600" />
+                    <Link2 className="h-4 w-4 mr-2 text-leaf-600" />
                     Copy Edit Link
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -883,7 +883,7 @@ export function EditPage() {
                   </DropdownMenuItem>
                   {canInstall && (
                     <DropdownMenuItem onClick={promptInstall}>
-                      <Download className="h-4 w-4 mr-2 text-zinc-600" />
+                      <Download className="h-4 w-4 mr-2 text-ink-600" />
                       Install Splix App
                     </DropdownMenuItem>
                   )}
@@ -916,7 +916,7 @@ export function EditPage() {
 
           {/* Tabbed Navigation Layout */}
           <Tabs defaultValue="expenses" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 h-12 p-1.5 rounded-2xl bg-zinc-100">
+            <TabsList className="grid w-full grid-cols-3 h-12 p-1.5 rounded-2xl bg-ink-100">
               <TabsTrigger value="expenses" className="rounded-xl text-xs sm:text-sm font-semibold">
                 <Receipt className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
                 Expenses ({visibleExpenses.length})
@@ -980,7 +980,7 @@ export function EditPage() {
           <div className="fixed bottom-6 right-6 z-30 sm:bottom-8 sm:right-8">
             <Button
               size="lg"
-              className="h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xl hover:shadow-emerald-500/30 px-5 gap-2 text-sm font-bold active:scale-95 transition-all"
+              className="h-14 rounded-2xl bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl hover:shadow-leaf-500/30 px-5 gap-2 text-sm font-bold active:scale-95 transition-colors duration-150"
               onClick={() => {
                 setEditingExpense(null);
                 setAddExpenseOpen(true);

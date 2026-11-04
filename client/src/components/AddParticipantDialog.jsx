@@ -47,7 +47,7 @@ export function AddParticipantDialog({ open, onOpenChange, onAdd, adding }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800 mb-2">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-leaf-100 text-leaf-800 mb-2">
             <UserPlus className="h-6 w-6" />
           </div>
           <DialogTitle className="text-center">Add Group Member</DialogTitle>
@@ -58,7 +58,7 @@ export function AddParticipantDialog({ open, onOpenChange, onAdd, adding }) {
 
         <form onSubmit={submit} className="space-y-4 pt-2">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <label className="text-xs font-semibold tracking-normal text-ink-500">
               Person&apos;s Name *
             </label>
             <Input
@@ -71,7 +71,7 @@ export function AddParticipantDialog({ open, onOpenChange, onAdd, adding }) {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
+            <label className="text-xs font-semibold tracking-normal text-ink-500">
               UPI ID (Optional)
             </label>
             <Input
@@ -83,7 +83,7 @@ export function AddParticipantDialog({ open, onOpenChange, onAdd, adding }) {
               value={upiId}
               onChange={(e) => setUpiId(e.target.value)}
             />
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-ink-500">
               Can be added or updated later anytime.
             </p>
           </div>
@@ -99,10 +99,10 @@ export function AddParticipantDialog({ open, onOpenChange, onAdd, adding }) {
             </Button>
             <Button
               type="submit"
-              className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold"
+              className="flex-1 rounded-xl bg-leaf-600 hover:bg-leaf-700 text-white text-xs sm:text-sm font-semibold"
               disabled={adding || !name.trim()}
             >
-              {adding ? "Adding..." : "Add Member"}
+              {adding ? "Adding…" : "Add Member"}
             </Button>
           </div>
         </form>
