@@ -777,7 +777,7 @@ export function EditPage() {
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink-900">
+                <h1 className="max-w-[180px] truncate text-xl sm:max-w-none sm:text-2xl font-bold tracking-tight text-ink-900">
                   {snapshot.group.name}
                 </h1>
                 <Badge variant="success" className="text-[11px] font-semibold">
@@ -786,8 +786,8 @@ export function EditPage() {
               </div>
 
               {/* User Balance Indicator */}
-              <div className="mt-1 flex items-center gap-2 text-xs">
-                <span className="text-ink-500">Your Net Balance:</span>
+              <div className={`mt-2 inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm sm:mt-1 sm:min-h-0 sm:bg-transparent sm:px-0 sm:py-0 sm:text-xs ${userNetBalance > 0 ? "bg-leaf-50" : userNetBalance < 0 ? "bg-danger-50" : "bg-ink-100"}`}>
+                <span className="text-ink-600">{userNetBalance > 0 ? "You are owed" : userNetBalance < 0 ? "You owe" : "You are all settled up"}</span>
                 <span
                   className={`font-semibold ${
                     userNetBalance > 0
@@ -814,7 +814,7 @@ export function EditPage() {
                   }`}
                   title={isOnline ? "Click to sync now" : "Saved offline"}
                 >
-                  <RefreshCw className={`h-3 w-3 ${isSyncing ? "animate-spin" : ""}`} />
+                  <RefreshCw className={`h-3 w-3 ${isSyncing ? "motion-safe:animate-spin" : ""}`} />
                   <span>{pendingCount}</span>
                 </Badge>
               )}
@@ -836,7 +836,7 @@ export function EditPage() {
                 onClick={() => setProfileOpen(true)}
               >
                 <UserCheck className="h-3.5 w-3.5 text-leaf-600" />
-                <span>{selectedParticipant?.name}</span>
+                <span className="max-w-[80px] truncate sm:max-w-none">{selectedParticipant?.name}</span>
                 {selectedParticipant?.upiId && (
                   <span className="h-1.5 w-1.5 rounded-full bg-leaf-500" />
                 )}
@@ -916,7 +916,7 @@ export function EditPage() {
 
           {/* Tabbed Navigation Layout */}
           <Tabs defaultValue="expenses" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 h-12 p-1.5 rounded-2xl bg-ink-100">
+            <TabsList className="sticky top-[57px] z-30 grid w-full grid-cols-3 h-12 p-1.5 rounded-2xl bg-paper/95 backdrop-blur-sm shadow-sm">
               <TabsTrigger value="expenses" className="rounded-xl text-xs sm:text-sm font-semibold">
                 <Receipt className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
                 Expenses ({visibleExpenses.length})
@@ -927,7 +927,8 @@ export function EditPage() {
               </TabsTrigger>
               <TabsTrigger value="summary" className="rounded-xl text-xs sm:text-sm font-semibold">
                 <Share2 className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
-                Summary &amp; Analytics
+                <span className="sm:hidden">Summary</span>
+                <span className="hidden sm:inline">Summary &amp; Analytics</span>
               </TabsTrigger>
             </TabsList>
 
@@ -977,7 +978,7 @@ export function EditPage() {
           </Tabs>
 
           {/* Floating Action Button (FAB) for Adding Expense */}
-          <div className="fixed bottom-6 right-6 z-30 sm:bottom-8 sm:right-8">
+          <div className="fixed right-6 z-30 sm:bottom-8 sm:right-8" style={{ bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))" }}>
             <Button
               size="lg"
               className="h-14 rounded-2xl bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl hover:shadow-leaf-500/30 px-5 gap-2 text-sm font-bold active:scale-95 transition-colors duration-150"

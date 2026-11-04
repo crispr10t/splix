@@ -308,9 +308,9 @@ export function SettlementList({
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="flex flex-col gap-2">
                   <Button
-                    className="w-full bg-leaf-600 hover:bg-leaf-700 text-white rounded-xl shadow-sm text-xs sm:text-sm font-semibold"
+                    className="h-12 w-full bg-leaf-600 hover:bg-leaf-700 text-white rounded-xl shadow-sm text-sm font-semibold"
                     onClick={() => openUpi(upiLink)}
                   >
                     <Zap className="h-4 w-4 mr-1 text-leaf-200" />
@@ -323,7 +323,7 @@ export function SettlementList({
                     onClick={() => setShowQr((c) => !c)}
                   >
                     <QrCode className="h-4 w-4 mr-1" />
-                    {showQr ? "Hide QR" : "Show QR Code"}
+                    {showQr ? "Hide QR" : "Show QR code for a friend to scan"}
                   </Button>
                 </div>
 

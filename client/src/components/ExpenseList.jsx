@@ -133,7 +133,7 @@ export function ExpenseList({
         <div className="space-y-2 rounded-2xl border border-ink-200/80 bg-ink-50/60 p-2.5 sm:p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             {/* Category pills */}
-            <div className="flex flex-wrap items-center gap-1">
+            <div className="-mx-2 flex items-center gap-1.5 overflow-x-auto px-2 pb-1 pt-0.5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 scrollbar-none">
               <button
                 type="button"
                 className={`rounded-lg px-2.5 py-1 text-[11px] sm:text-xs font-medium transition-colors duration-150 ${
@@ -273,10 +273,10 @@ export function ExpenseList({
 
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-ink-500">
                       <span>By <strong className="text-ink-800 font-medium">{payerName}</strong></span>
-                      <span>&bull;</span>
+                        <span aria-hidden="true">·</span>
                       <span>{formatDateTime(displayDate)}</span>
                       {expense.__pending && (
-                        <Badge variant="secondary" className="whitespace-nowrap text-[10px] py-0 px-1.5 animate-pulse">
+                        <Badge variant="secondary" className="whitespace-nowrap text-[10px] py-0 px-1.5 motion-safe:animate-pulse">
                           Pending
                         </Badge>
                       )}
@@ -295,33 +295,9 @@ export function ExpenseList({
 
                 {/* Amount & Actions */}
                 <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-sm sm:text-base font-bold text-ink-900 pr-1">
+                  <span className="font-figure tabular-nums text-sm sm:text-base font-bold text-ink-900 pr-1">
                     {money(expense.amountMinor, currency)}
                   </span>
-
-                  {canEdit && !expense.__pending && onEdit && (
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 text-ink-400 hover:text-leaf-700 rounded-xl"
-                      title="Edit expense"
-                      onClick={() => onEdit(expense)}
-                    >
-                      <Edit2 className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
-
-                  {canDelete && !expense.__pending && onDelete && (
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 text-ink-400 hover:text-danger-600 rounded-xl"
-                      title="Delete expense"
-                      onClick={() => onDelete(expense.id)}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
                 </div>
               </div>
 
@@ -332,7 +308,7 @@ export function ExpenseList({
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    transition={{ duration: typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 0.2, ease: "easeOut" }}
                     className="overflow-hidden"
                   >
                     <div className="mt-3.5 rounded-xl border border-ink-200/90 bg-ink-50/70 p-3.5">
@@ -368,6 +344,20 @@ export function ExpenseList({
                             );
                           })}
                       </div>
+                      {(canEdit || canDelete) && !expense.__pending && (
+                        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                          {canEdit && onEdit && (
+                            <Button type="button" variant="outline" className="min-h-11 flex-1 rounded-xl" onClick={() => onEdit(expense)}>
+                              <Edit2 className="mr-2 h-4 w-4" /> Edit expense
+                            </Button>
+                          )}
+                          {canDelete && onDelete && (
+                            <Button type="button" variant="outline" className="min-h-11 flex-1 rounded-xl text-danger-600" onClick={() => onDelete(expense.id)}>
+                              <Trash2 className="mr-2 h-4 w-4" /> Delete expense
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}

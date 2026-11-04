@@ -312,26 +312,6 @@ export function AddExpenseCard({
 
         {/* Category & Date in 2 columns */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {/* Category Picker */}
-          <div>
-            <label className="text-xs font-semibold tracking-normal text-ink-500">
-              Category
-            </label>
-            <div className="relative mt-1">
-              <select
-                className="flex h-11 w-full rounded-xl border border-ink-300 bg-white px-3.5 py-2 text-sm font-medium text-ink-900 outline-none transition focus:border-leaf-600 focus:ring-2 focus:ring-leaf-200"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
           {/* Expense Date Picker */}
           <div>
             <label className="text-xs font-semibold tracking-normal text-ink-500 flex items-center gap-1">
@@ -513,7 +493,7 @@ export function AddExpenseCard({
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
+      <div className="sticky bottom-0 z-10 -mx-4 flex gap-2 border-t border-ink-100 bg-white/95 px-4 pb-[env(safe-area-inset-bottom)] pt-3 backdrop-blur-sm sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
         {isEditMode && onCancel && (
           <Button
             type="button"
