@@ -30,7 +30,7 @@ export function AppHeader({ groupName, rightContent }) {
   return (
     <header className="sticky top-0 z-40 border-b border-ink-200 bg-white">
       <a className="skip-link" href="#main">Skip to content</a>
-      <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
+      <div className="container flex items-center justify-between py-3">
         <div className="flex items-center gap-3">
           <Link to="/" aria-label="Go to home" className="inline-flex items-center transition hover:opacity-90">
             <SplixLogo className="h-8 w-auto" />
