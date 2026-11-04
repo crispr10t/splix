@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
+  ChevronDown,
   DollarSign,
   Download,
   ExternalLink,
@@ -54,6 +55,7 @@ import { money } from "@/utils/format";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sheet,
@@ -730,7 +732,7 @@ export function EditPage() {
     }
     return (
       <main id="main" className="shell max-w-lg py-12">
-        <div className="rounded-2xl border border-danger-200 bg-danger-50 p-6 text-center text-danger-800">
+        <div className="rounded-xl border border-danger-200 bg-danger-50 p-6 text-center text-danger-800">
           <p className="font-semibold">{error}</p>
           <Button
             variant="outline"
@@ -770,139 +772,158 @@ export function EditPage() {
   }
 
   return (
-    <main id="main" className="shell max-w-4xl pb-28">
+    <main id="main" className="shell max-w-4xl pb-28 font-sans">
       {snapshot && (
         <div className="space-y-5">
-          {/* Dashboard Header Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="max-w-[180px] truncate text-xl sm:max-w-none sm:text-2xl font-bold tracking-tight text-ink-900">
+          {/* Simplified Group Header & Balance Hero (directly on page background) */}
+          <div className="pt-2 pb-1">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h1 className="truncate text-base font-bold tracking-tight text-ink-900 font-sans">
                   {snapshot.group.name}
                 </h1>
-                <Badge variant="success" className="text-[11px] font-semibold">
-                  {snapshot.group.currency}
-                </Badge>
+                <div className="mt-1">
+                  <p className="text-xs font-medium text-ink-500">
+                    {userNetBalance > 0 ? "You are owed" : userNetBalance < 0 ? "You owe" : "All settled up"}
+                  </p>
+                  <p
+                    className={`text-[28px] font-bold tabular-nums tracking-tight leading-tight font-sans ${
+                      userNetBalance > 0
+                        ? "text-leaf-600"
+                        : userNetBalance < 0
+                        ? "text-danger-600"
+                        : "text-ink-900"
+                    }`}
+                  >
+                    {money(Math.abs(userNetBalance), snapshot.group.currency)}
+                  </p>
+                </div>
               </div>
 
-              {/* User Balance Indicator */}
-              <div className={`mt-2 inline-flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-sm sm:mt-1 sm:min-h-0 sm:bg-transparent sm:px-0 sm:py-0 sm:text-xs ${userNetBalance > 0 ? "bg-leaf-50" : userNetBalance < 0 ? "bg-danger-50" : "bg-ink-100"}`}>
-                <span className="text-ink-600">{userNetBalance > 0 ? "You are owed" : userNetBalance < 0 ? "You owe" : "You are all settled up"}</span>
-                <span
-                  className={`font-semibold ${
-                    userNetBalance > 0
-                      ? "text-leaf-700"
-                      : userNetBalance < 0
-                      ? "text-danger-600"
-                      : "text-ink-700"
-                  }`}
-                >
-                  {userNetBalance > 0 ? "+" : ""}
-                  {money(userNetBalance, snapshot.group.currency)}
-                </span>
-              </div>
-            </div>
-
-            {/* Quick Actions & User Pill */}
-            <div className="flex items-center gap-2">
-              {pendingCount > 0 && (
-                <Badge
-                  variant="outline"
-                  onClick={isOnline ? syncNow : undefined}
-                  className={`h-9 gap-1.5 px-2.5 text-xs font-normal border-amber-300 bg-amber-50 text-amber-800 rounded-xl ${
-                    isOnline ? "cursor-pointer hover:bg-amber-100" : ""
-                  }`}
-                  title={isOnline ? "Click to sync now" : "Saved offline"}
-                >
-                  <RefreshCw className={`h-3 w-3 ${isSyncing ? "motion-safe:animate-spin" : ""}`} />
-                  <span>{pendingCount}</span>
-                </Badge>
-              )}
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 gap-1.5 rounded-xl border-ink-200 text-xs font-semibold bg-white shadow-sm hover:border-leaf-300"
-                onClick={() => setAddMemberOpen(true)}
-              >
-                <UserPlus className="h-3.5 w-3.5 text-leaf-600" />
-                <span className="hidden sm:inline">Add Member</span>
-              </Button>
-
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 gap-1.5 rounded-xl border-ink-200 text-xs font-semibold bg-white shadow-sm"
-                onClick={() => setProfileOpen(true)}
-              >
-                <UserCheck className="h-3.5 w-3.5 text-leaf-600" />
-                <span className="max-w-[80px] truncate sm:max-w-none">{selectedParticipant?.name}</span>
-                {selectedParticipant?.upiId && (
-                  <span className="h-1.5 w-1.5 rounded-full bg-leaf-500" />
-                )}
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon" className="h-9 w-9 rounded-xl">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-52">
-                  <DropdownMenuLabel>Group Actions</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => setAddMemberOpen(true)}>
-                    <UserPlus className="h-4 w-4 mr-2 text-leaf-600" />
-                    Add Group Member
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied")
-                    }
-                  >
-                    <Link2 className="h-4 w-4 mr-2" />
-                    Copy View Link
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() =>
-                      copyLink(`${window.location.origin}/edit/${snapshot.group.editId}`, "Edit link copied")
-                    }
-                  >
-                    <Link2 className="h-4 w-4 mr-2 text-leaf-600" />
-                    Copy Edit Link
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <a
-                      href={pdfDownloadUrl(snapshot.group.viewId)}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center"
+              {/* Actions & subtle active user identity ("Piyush ▾") */}
+              <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
+                {pendingCount > 0 && (
+                  isOnline ? (
+                    <button
+                      type="button"
+                      onClick={syncNow}
+                      className="h-8 inline-flex items-center gap-1 px-2.5 text-xs font-normal border border-ink-200 bg-ink-100/70 text-ink-700 rounded-xl hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 transition-colors"
+                      title="Click to sync now"
                     >
-                      <Download className="h-4 w-4 mr-2" />
-                      Download PDF
-                    </a>
-                  </DropdownMenuItem>
-                  {canInstall && (
-                    <DropdownMenuItem onClick={promptInstall}>
-                      <Download className="h-4 w-4 mr-2 text-ink-600" />
-                      Install Splix App
+                      <RefreshCw className={`h-3 w-3 ${isSyncing ? "motion-safe:animate-spin" : ""}`} />
+                      <span className="tabular-nums">{pendingCount}</span>
+                    </button>
+                  ) : (
+                    <span
+                      className="h-8 inline-flex items-center gap-1 px-2.5 text-xs font-normal border border-ink-200 bg-ink-100/70 text-ink-700 rounded-xl cursor-default"
+                      title="Saved offline"
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                      <span className="tabular-nums">{pendingCount}</span>
+                    </span>
+                  )
+                )}
+
+                {/* Clear, subtle active user identity */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="inline-flex items-center gap-1 text-sm font-medium text-ink-700 hover:text-ink-900 px-2 py-1.5 rounded-xl hover:bg-ink-100/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400"
+                      title="Active user: click to switch or edit profile"
+                    >
+                      <span className="max-w-[100px] sm:max-w-[140px] truncate">{selectedParticipant?.name || "Member"}</span>
+                      <ChevronDown className="h-3.5 w-3.5 text-ink-400 shrink-0" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52 max-h-72 overflow-y-auto">
+                    <DropdownMenuLabel className="text-xs">Active Member</DropdownMenuLabel>
+                    {orderedParticipants.map((p) => (
+                      <DropdownMenuItem
+                        key={p.id}
+                        className={p.id === selectedParticipantId ? "font-semibold text-leaf-700" : ""}
+                        onClick={() => selectIdentity(p.id)}
+                      >
+                        <UserCheck className={`h-4 w-4 shrink-0 ${p.id === selectedParticipantId ? "text-leaf-600" : "text-transparent"}`} />
+                        <span className="truncate">{p.name}</span>
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setProfileOpen(true)}>
+                      <User className="h-4 w-4 shrink-0 text-ink-600" />
+                      Profile &amp; UPI
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setProfileOpen(true)}>
-                    <User className="h-4 w-4 mr-2" />
-                    Edit UPI / Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      localStorage.removeItem(identityKey(editId));
-                      setSelectedParticipantId("");
-                    }}
-                  >
-                    <Users className="h-4 w-4 mr-2" />
-                    Switch Identity
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* ⋯ Menu with relocated Add Member */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-xl text-ink-600 hover:text-ink-900 hover:bg-ink-100/60 shadow-none"
+                      aria-label="Group actions"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-52 max-h-72 overflow-y-auto">
+                    <DropdownMenuItem onClick={() => setAddMemberOpen(true)}>
+                      <UserPlus className="h-4 w-4 shrink-0 text-leaf-600" />
+                      Add Member
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() =>
+                        copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied")
+                      }
+                    >
+                      <Link2 className="h-4 w-4 shrink-0 text-ink-600" />
+                      Copy View Link
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        copyLink(`${window.location.origin}/edit/${snapshot.group.editId}`, "Edit link copied")
+                      }
+                    >
+                      <Link2 className="h-4 w-4 shrink-0 text-leaf-600" />
+                      Copy Edit Link
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <a
+                        href={pdfDownloadUrl(snapshot.group.viewId)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center"
+                      >
+                        <Download className="h-4 w-4 shrink-0 text-ink-600" />
+                        Download PDF
+                      </a>
+                    </DropdownMenuItem>
+                    {canInstall && (
+                      <DropdownMenuItem onClick={promptInstall}>
+                        <Download className="h-4 w-4 shrink-0 text-ink-600" />
+                        Install Splix App
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setProfileOpen(true)}>
+                      <User className="h-4 w-4 shrink-0 text-ink-600" />
+                      Edit UPI / Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        localStorage.removeItem(identityKey(editId));
+                        setSelectedParticipantId("");
+                      }}
+                    >
+                      <Users className="h-4 w-4 shrink-0 text-ink-600" />
+                      Switch Identity
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           </div>
 
@@ -914,26 +935,35 @@ export function EditPage() {
             onSync={syncNow}
           />
 
-          {/* Tabbed Navigation Layout */}
+          {/* Tabbed Navigation Layout: Underline-style navigation tabs */}
           <Tabs defaultValue="expenses" className="w-full">
-            <TabsList className="sticky top-[57px] z-30 grid w-full grid-cols-3 h-12 p-1.5 rounded-2xl bg-paper/95 backdrop-blur-sm shadow-sm">
-              <TabsTrigger value="expenses" className="rounded-xl text-xs sm:text-sm font-semibold">
-                <Receipt className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
+            <TabsList className="sticky top-[57px] z-30 flex w-full justify-start gap-6 h-auto p-0 rounded-none bg-white border-b border-ink-200 shadow-none">
+              <TabsTrigger
+                value="expenses"
+                className="rounded-none border-b-2 border-transparent px-1 pb-3 pt-2 text-sm font-medium text-ink-600 hover:text-ink-900 shadow-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:border-leaf-600 data-[state=active]:text-ink-900 data-[state=active]:font-semibold data-[state=active]:shadow-none transition-colors"
+              >
+                <Receipt className="h-4 w-4 mr-1.5 hidden sm:inline" />
                 Expenses ({visibleExpenses.length})
               </TabsTrigger>
-              <TabsTrigger value="settlements" className="rounded-xl text-xs sm:text-sm font-semibold">
-                <Wallet className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
+              <TabsTrigger
+                value="settlements"
+                className="rounded-none border-b-2 border-transparent px-1 pb-3 pt-2 text-sm font-medium text-ink-600 hover:text-ink-900 shadow-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:border-leaf-600 data-[state=active]:text-ink-900 data-[state=active]:font-semibold data-[state=active]:shadow-none transition-colors"
+              >
+                <Wallet className="h-4 w-4 mr-1.5 hidden sm:inline" />
                 Settlements ({settlements.length})
               </TabsTrigger>
-              <TabsTrigger value="summary" className="rounded-xl text-xs sm:text-sm font-semibold">
-                <Share2 className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
+              <TabsTrigger
+                value="summary"
+                className="rounded-none border-b-2 border-transparent px-1 pb-3 pt-2 text-sm font-medium text-ink-600 hover:text-ink-900 shadow-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:border-leaf-600 data-[state=active]:text-ink-900 data-[state=active]:font-semibold data-[state=active]:shadow-none transition-colors"
+              >
+                <Share2 className="h-4 w-4 mr-1.5 hidden sm:inline" />
                 <span className="sm:hidden">Summary</span>
                 <span className="hidden sm:inline">Summary &amp; Analytics</span>
               </TabsTrigger>
             </TabsList>
 
             {/* Tab 1: Expenses */}
-            <TabsContent value="expenses" className="mt-4">
+            <TabsContent value="expenses" className="mt-3">
               <ExpenseList
                 expenses={visibleExpenses}
                 participants={orderedParticipants}
@@ -981,7 +1011,7 @@ export function EditPage() {
           <div className="fixed right-6 z-30 sm:bottom-8 sm:right-8" style={{ bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))" }}>
             <Button
               size="lg"
-              className="h-14 rounded-2xl bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl hover:shadow-leaf-500/30 px-5 gap-2 text-sm font-bold active:scale-95 transition-colors duration-150"
+              className="h-14 rounded-xl bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl hover:shadow-leaf-500/30 px-5 gap-2 text-sm font-bold active:scale-95 transition-colors duration-150"
               onClick={() => {
                 setEditingExpense(null);
                 setAddExpenseOpen(true);
