@@ -7,6 +7,7 @@ import {
   Copy,
   ExternalLink,
   Link2,
+  HelpCircle,
   Lock,
   Plus,
   RefreshCw,
@@ -46,6 +47,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
   const [saving, setSaving] = useState(false);
   const [copiedKey, setCopiedKey] = useState(null);
   const [errors, setErrors] = useState({});
+  const [showPinInfo, setShowPinInfo] = useState(false);
 
   const nameRef = useRef(null);
   const pinRef = useRef(null);
@@ -230,9 +232,11 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
           </div>
 
           {/* Currency & PIN */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-2 gap-3 sm:gap-3.5">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-ink-700 block font-sans">Currency</label>
+              <div className="flex items-center h-5">
+                <label className="text-xs font-semibold text-ink-700 block font-sans">Currency</label>
+              </div>
               <div className="relative">
                 <select
                   className="flex h-11 w-full rounded-xl border border-ink-300 bg-white px-3.5 py-2 text-sm font-medium font-sans text-ink-900 focus-visible:outline-none focus-visible:border-leaf-600 focus-visible:ring-2 focus-visible:ring-leaf-200 transition-colors duration-150 cursor-pointer"
@@ -250,7 +254,31 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-ink-700 block font-sans">PIN</label>
+              <div className="flex items-center gap-1.5 h-5">
+                <label className="text-xs font-semibold text-ink-700 block font-sans">PIN</label>
+                <div className="relative inline-flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowPinInfo((prev) => !prev)}
+                    onMouseEnter={() => setShowPinInfo(true)}
+                    onMouseLeave={() => setShowPinInfo(false)}
+                    className="!min-h-0 !min-w-0 h-4 w-4 inline-flex items-center justify-center p-0 text-ink-400 hover:text-ink-700 transition-colors rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-leaf-400"
+                    aria-label="PIN information"
+                    title="Protects your edit link. Anyone with this PIN can edit expenses, add members, or settle balances."
+                  >
+                    <HelpCircle className="h-3.5 w-3.5" />
+                  </button>
+                  {showPinInfo && (
+                    <div
+                      role="tooltip"
+                      className="absolute bottom-full right-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-52 sm:w-60 p-2.5 rounded-xl bg-ink-950 text-white text-[11px] font-normal leading-relaxed shadow-xl z-50 pointer-events-none"
+                    >
+                      <span>Protects your edit link. Anyone with this PIN can edit expenses, add members, or settle balances.</span>
+                      <div className="absolute top-full right-2 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-ink-950" />
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="relative">
                 <Input
                   ref={pinRef}
@@ -278,9 +306,6 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                   {errors.pin}
                 </p>
               )}
-              <p className="text-xs text-ink-500 mt-1 font-sans">
-                Protects your edit link
-              </p>
             </div>
           </div>
 
@@ -288,11 +313,13 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center justify-between">
               <label className="text-xs font-semibold text-ink-700 font-sans">Group Members</label>
-              <Badge variant="outline" className="text-[11px] font-semibold text-ink-600 font-sans">
-                {validMemberCount === 1
-                  ? "1 member"
-                  : `${validMemberCount} members`}
-              </Badge>
+              {validMemberCount > 0 && (
+                <Badge variant="outline" className="text-[11px] font-semibold text-ink-600 font-sans">
+                  {validMemberCount === 1
+                    ? "1 member"
+                    : `${validMemberCount} members`}
+                </Badge>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
