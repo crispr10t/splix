@@ -29,9 +29,9 @@ export function LandingPage() {
             <p className="hero-lede">
               Create a group, add expenses, and share balances. No account needed.
             </p>
+            <p className="hero-note">Works for trips, homes, dinners, and the plans in between.</p>
           </div>
           <div className="hero-after">
-            <p className="hero-note">Works for trips, homes, dinners, and the plans in between.</p>
             <a className="text-link" href="#how-it-works">
               See how Splix works <ArrowRight aria-hidden="true" size={16} />
             </a>
