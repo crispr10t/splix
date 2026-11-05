@@ -245,7 +245,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                   errors.name && "border-danger-500 focus-visible:ring-danger-200"
                 )}
                 maxLength={50}
-                placeholder="e.g. Goa Trip, Flat 402, Friday Dinner"
+                placeholder="e.g. Goa Trip, Flat 402"
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
@@ -308,7 +308,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                       role="tooltip"
                       className="absolute top-full right-0 sm:left-1/2 sm:-translate-x-1/2 mt-1.5 w-52 sm:w-56 p-2.5 rounded-xl bg-ink-950 text-white text-[11px] font-normal leading-relaxed shadow-xl z-50 pointer-events-none animate-fade-up"
                     >
-                      <span>Protects your edit link. Share the PIN only with people who should edit.</span>
+                      <span>4-digit code that protects your edit link. Share it only with people who should edit.</span>
                       <div className="absolute bottom-full right-2 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-b-ink-950" />
                     </div>
                   )}
@@ -321,7 +321,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                     "pl-9 font-sans tracking-normal text-sm rounded-xl h-11",
                     errors.pin && "border-danger-500 focus-visible:ring-danger-200"
                   )}
-                  placeholder="4-digit PIN"
+                  placeholder="••••"
                   maxLength={4}
                   inputMode="numeric"
                   autoComplete="new-password"
@@ -498,7 +498,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
               )}
             </Button>
             {!canSubmit && (
-              <p className="text-[11px] text-ink-500 text-center font-sans mt-2 animate-fade-up">
+              <p className="text-xs text-ink-600 text-center font-sans mt-2 animate-fade-up">
                 Add a group name, 4-digit PIN, and at least 2 members
               </p>
             )}

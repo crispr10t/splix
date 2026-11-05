@@ -392,7 +392,8 @@ button,
 
 /* Closing CTA */
 .closing-cta {
-  padding-block: clamp(3.5rem, 7vw, 5rem);
+  padding-top: clamp(3rem, 6vw, 4.5rem);
+  padding-bottom: clamp(1.75rem, 3.5vw, 2.5rem);
   text-align: center;
   border-top: 1px solid var(--color-rule);
   background: linear-gradient(180deg, transparent 0%, hsl(var(--leaf-100) / 0.3) 100%);
@@ -427,7 +428,7 @@ button,
   height: 3rem;
   padding-inline: 1.75rem;
   border-radius: 0.75rem;
-  background-color: hsl(var(--leaf-500));
+  background-color: hsl(var(--leaf-600));
   color: hsl(var(--primary-foreground));
   font-weight: 600;
   font-size: 0.925rem;
@@ -438,7 +439,7 @@ button,
 }
 
 .closing-cta-btn:hover {
-  background-color: hsl(var(--leaf-600));
+  background-color: hsl(var(--leaf-700));
   color: hsl(var(--primary-foreground));
 }
 

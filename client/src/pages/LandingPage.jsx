@@ -1,19 +1,16 @@
-import { ArrowRight, Link2, Receipt, Wallet } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { CreateGroupCard } from "../components/CreateGroupCard";
 
 const steps = [
   {
-    icon: Link2,
     title: "Share the right link",
     detail: "Share the view-only link with everyone, and the PIN-protected edit link with trusted members."
   },
   {
-    icon: Receipt,
     title: "Record shared bills",
     detail: "Add an expense, choose who paid, and split it evenly or by amount."
   },
   {
-    icon: Wallet,
     title: "Settle the balance",
     detail: "See who owes whom, then pay with a UPI link or QR code."
   }
@@ -50,14 +47,13 @@ export function LandingPage() {
             <p>Keep the group moving without doing the math in chat.</p>
           </div>
           <ol className="timeline-list">
-            {steps.map(({ icon: Icon, title, detail }, index) => (
+            {steps.map(({ title, detail }, index) => (
               <li className="timeline-item" key={title}>
                 <div className="timeline-node" aria-hidden="true">
                   0{index + 1}
                 </div>
                 <div className="timeline-body">
                   <div className="timeline-header">
-                    <Icon className="timeline-icon" aria-hidden="true" size={18} />
                     <h3 className="timeline-title">{title}</h3>
                   </div>
                   <p className="timeline-detail">{detail}</p>
@@ -71,7 +67,7 @@ export function LandingPage() {
       <section className="closing-cta" aria-labelledby="cta-title">
         <div className="container closing-cta-content">
           <h2 id="cta-title">Ready to split?</h2>
-          <p>Start your group in seconds. No apps, no accounts, no headaches.</p>
+          <p>Start your group in seconds. Works with a simple link.</p>
           <a
             className="closing-cta-btn"
             href="#create-group"
