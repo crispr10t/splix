@@ -93,8 +93,7 @@ export function LandingPage() {
       </section>
 
       <footer className="site-footer container">
-        <span>Shared expenses, clear balances, no sign-up.</span>
-        <a href="https://www.linkedin.com/in/piyushagr24" rel="noreferrer" target="_blank">
+        <a href="https://crispr10t.vercel.app/" rel="noreferrer" target="_blank">
           Made by Piyush Agrawal
         </a>
       </footer>
