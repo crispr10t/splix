@@ -60,6 +60,30 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
   const nameRef = useRef(null);
   const pinRef = useRef(null);
   const memberRefs = useRef([]);
+  const pinTooltipRef = useRef(null);
+
+  useEffect(() => {
+    if (!showPinInfo) return;
+
+    const handlePointerDown = (event) => {
+      if (pinTooltipRef.current && !pinTooltipRef.current.contains(event.target)) {
+        setShowPinInfo(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setShowPinInfo(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showPinInfo]);
 
   const validMemberCount = useMemo(
     () => participants.filter((p) => p.trim().length > 0).length,
@@ -200,7 +224,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
               {result ? "Links generated" : "Create a Group"}
             </h2>
             <p className={`text-xs mt-0.5 font-sans ${result ? "text-leaf-800 font-medium" : "text-ink-500"}`}>
-              {result ? "Use Edit to manage expenses. Share View for read-only access." : "Start splitting bills instantly. No account required."}
+              {result ? "Use Edit to manage expenses. Share View for read-only access." : "Start splitting bills instantly."}
             </p>
           </div>
         </div>
@@ -213,6 +237,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
             <label className="text-xs font-semibold text-ink-700 font-sans">Group Name</label>
             <div className="relative">
               <Input
+                id="group-name-input"
                 ref={nameRef}
                 autoFocus={isDialog}
                 className={cn(
@@ -264,25 +289,27 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
             <div className="space-y-1.5">
               <div className="flex items-center gap-1.5 h-5">
                 <label className="text-xs font-semibold text-ink-700 block font-sans">PIN</label>
-                <div className="relative inline-flex items-center">
+                <div ref={pinTooltipRef} className="relative inline-flex items-center">
                   <button
                     type="button"
                     onClick={() => setShowPinInfo((prev) => !prev)}
                     onMouseEnter={() => setShowPinInfo(true)}
                     onMouseLeave={() => setShowPinInfo(false)}
-                    className="!min-h-0 !min-w-0 h-5 w-5 inline-flex items-center justify-center p-0 text-ink-400 hover:text-ink-700 transition-colors rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-leaf-400 cursor-pointer"
+                    className="relative inline-flex items-center justify-center !min-h-0 !min-w-0 h-5 w-5 p-0 text-ink-400 hover:text-ink-700 transition-colors rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-leaf-400 cursor-pointer before:absolute before:-inset-3 before:content-[''] touch-manipulation"
                     aria-label="PIN information"
-                    title="Protects your edit link. Only you can edit expenses or add members."
+                    aria-expanded={showPinInfo}
+                    aria-describedby={showPinInfo ? "pin-tooltip-text" : undefined}
                   >
                     <HelpCircle className="h-3.5 w-3.5" />
                   </button>
                   {showPinInfo && (
                     <div
+                      id="pin-tooltip-text"
                       role="tooltip"
-                      className="absolute bottom-full right-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-52 sm:w-56 p-2.5 rounded-xl bg-ink-950 text-white text-[11px] font-normal leading-relaxed shadow-xl z-50 pointer-events-none"
+                      className="absolute top-full right-0 sm:left-1/2 sm:-translate-x-1/2 mt-1.5 w-52 sm:w-56 p-2.5 rounded-xl bg-ink-950 text-white text-[11px] font-normal leading-relaxed shadow-xl z-50 pointer-events-none animate-fade-up"
                     >
-                      <span>Protects your edit link. Only you can edit expenses or add members.</span>
-                      <div className="absolute top-full right-2 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-ink-950" />
+                      <span>Protects your edit link. Share the PIN only with people who should edit.</span>
+                      <div className="absolute bottom-full right-2 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-b-ink-950" />
                     </div>
                   )}
                 </div>
@@ -463,7 +490,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
               size="lg"
               disabled={saving}
               className={cn(
-                "w-full h-11 rounded-xl font-semibold text-sm shadow-sm gap-2 font-sans transition-all duration-200 active:scale-[0.98]",
+                "w-full h-11 rounded-xl font-semibold text-sm shadow-sm gap-2 font-sans transition-colors duration-200 active:scale-[0.98]",
                 canSubmit
                   ? "bg-leaf-600 hover:bg-leaf-700 text-white shadow-leaf-900/10 ring-2 ring-leaf-400/25 cursor-pointer"
                   : "bg-ink-100 text-ink-400 hover:bg-ink-200 hover:text-ink-600 border border-ink-200/60 cursor-pointer"
@@ -478,6 +505,11 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 "Create Group"
               )}
             </Button>
+            {!canSubmit && (
+              <p className="text-[11px] text-ink-500 text-center font-sans mt-2 animate-fade-up">
+                Add a group name, 4-digit PIN, and at least 2 members
+              </p>
+            )}
           </div>
         </form>
       ) : (
@@ -645,7 +677,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
               >
                 {result
                   ? "Use Edit to manage expenses. Share View for read-only access."
-                  : "Start splitting bills instantly. No account required."}
+                  : "Start splitting bills instantly."}
               </CardDescription>
             </div>
           </div>

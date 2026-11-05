@@ -3,14 +3,14 @@ import { CreateGroupCard } from "../components/CreateGroupCard";
 
 const steps = [
   {
-    icon: Receipt,
-    title: "Record shared bills",
-    detail: "Add an expense, choose who paid, and split it evenly or by amount."
-  },
-  {
     icon: Link2,
     title: "Share the right link",
     detail: "Share the view-only link with everyone. Keep the PIN-protected edit link for yourself."
+  },
+  {
+    icon: Receipt,
+    title: "Record shared bills",
+    detail: "Add an expense, choose who paid, and split it evenly or by amount."
   },
   {
     icon: Wallet,
@@ -34,20 +34,6 @@ export function LandingPage() {
             </h1>
             <p className="hero-lede animate-fade-up [animation-delay:60ms]">
               Create a group, add expenses, and share balances. No account needed.
-            </p>
-            <div className="flex flex-wrap items-center gap-2 pt-2.5 select-none pointer-events-none animate-fade-up [animation-delay:120ms]">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-leaf-100/70 text-leaf-800 border border-leaf-200/60 font-sans">
-                Free
-              </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-leaf-100/70 text-leaf-800 border border-leaf-200/60 font-sans">
-                No sign-up
-              </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-leaf-100/70 text-leaf-800 border border-leaf-200/60 font-sans">
-                Works with a link
-              </span>
-            </div>
-            <p className="hero-note animate-fade-up [animation-delay:160ms]">
-              Works for trips, homes, dinners, and the plans in between.
             </p>
           </div>
           <div className="hero-after">
@@ -96,9 +82,13 @@ export function LandingPage() {
             onClick={(e) => {
               e.preventDefault();
               const target = document.getElementById("create-group");
-              target?.scrollIntoView({ behavior: "smooth" });
-              const input = target?.querySelector("input");
-              input?.focus({ preventScroll: true });
+              if (target) {
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+                setTimeout(() => {
+                  const input = document.getElementById("group-name-input") || target.querySelector("input");
+                  input?.focus({ preventScroll: true });
+                }, 400);
+              }
             }}
           >
             Create a group <ArrowRight aria-hidden="true" size={16} />
