@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -11,6 +11,7 @@ import {
   Plus,
   RefreshCw,
   Trash2,
+  User,
   Users
 } from "lucide-react";
 import { toast } from "sonner";
@@ -20,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 const standardCurrencies = [
   "AED", "AUD", "BRL", "CAD", "CHF", "CNY", "EUR", "GBP",
@@ -27,14 +29,37 @@ const standardCurrencies = [
   "SEK", "SGD", "TRY", "USD", "ZAR"
 ];
 
+function getInitials(name = "") {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.trim().slice(0, 2).toUpperCase();
+}
+
 export function CreateGroupCard({ isDialog = false, onClose }) {
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("INR");
   const [pin, setPin] = useState("");
-  const [participants, setParticipants] = useState(["Person 1", "Person 2"]);
+  const [participants, setParticipants] = useState(["", ""]);
   const [result, setResult] = useState(null);
   const [saving, setSaving] = useState(false);
   const [copiedKey, setCopiedKey] = useState(null);
+  const [errors, setErrors] = useState({});
+
+  const nameRef = useRef(null);
+  const pinRef = useRef(null);
+  const memberRefs = useRef([]);
+
+  const validMemberCount = useMemo(
+    () => participants.filter((p) => p.trim().length > 0).length,
+    [participants]
+  );
+
+  const canSubmit = useMemo(
+    () => Boolean(name.trim() && /^\d{4}$/.test(pin) && validMemberCount >= 2),
+    [name, pin, validMemberCount]
+  );
 
   useEffect(() => {
     const runWarmup = () => {
@@ -50,24 +75,83 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
     return () => window.clearTimeout(timeoutId);
   }, []);
 
-  const canSubmit = useMemo(
-    () => name.trim() && /^\d{4}$/.test(pin) && participants.filter((p) => p.trim()).length >= 2,
-    [name, pin, participants]
-  );
-
   async function onSubmit(event) {
     event.preventDefault();
-    if (!canSubmit) return;
+    if (saving) return;
+
+    const trimmedName = name.trim();
+    const newErrors = {};
+
+    if (!trimmedName) {
+      newErrors.name = "Please enter a group name.";
+    }
+
+    if (!/^\d{4}$/.test(pin)) {
+      newErrors.pin = "PIN must be exactly 4 digits.";
+    }
+
+    const participantEntries = participants.map((p, index) => ({
+      index,
+      trimmed: p.trim()
+    }));
+    const nonEmptyEntries = participantEntries.filter((p) => p.trimmed.length > 0);
+
+    let memberError = null;
+    let invalidMemberIndex = -1;
+
+    if (nonEmptyEntries.length < 2) {
+      memberError = "Please provide names for at least 2 members.";
+      if (!participants[0]?.trim()) {
+        invalidMemberIndex = 0;
+      } else if (!participants[1]?.trim()) {
+        invalidMemberIndex = 1;
+      } else {
+        invalidMemberIndex = 0;
+      }
+    } else {
+      const seen = new Map();
+      for (const entry of nonEmptyEntries) {
+        const lower = entry.trimmed.toLowerCase();
+        if (seen.has(lower)) {
+          memberError = "Member names must be unique.";
+          invalidMemberIndex = entry.index;
+          break;
+        }
+        seen.set(lower, entry.index);
+      }
+    }
+
+    if (memberError) {
+      newErrors.members = memberError;
+      newErrors.memberIndex = invalidMemberIndex;
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      if (newErrors.name) {
+        nameRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        nameRef.current?.focus({ preventScroll: true });
+      } else if (newErrors.pin) {
+        pinRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        pinRef.current?.focus({ preventScroll: true });
+      } else if (invalidMemberIndex >= 0 && memberRefs.current[invalidMemberIndex]) {
+        memberRefs.current[invalidMemberIndex]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        memberRefs.current[invalidMemberIndex]?.focus({ preventScroll: true });
+      }
+      return;
+    }
+
+    setErrors({});
     setSaving(true);
     try {
       const cleanParticipants = participants
         .map((participant) => participant.trim())
         .filter((participant) => participant.length > 0)
         .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base", numeric: true }))
-        .map((name) => ({ name }));
+        .map((pName) => ({ name: pName }));
 
       const data = await createGroup({
-        name: name.trim(),
+        name: trimmedName,
         currency: currency.trim().toUpperCase(),
         pin,
         participants: cleanParticipants
@@ -102,10 +186,10 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
             {result ? <CheckCircle2 className="h-5 w-5 text-leaf-700" /> : <Users className="h-5 w-5" />}
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-bold text-ink-900 leading-tight">
+            <h2 className="text-lg font-bold font-sans text-ink-900 leading-tight">
               {result ? "Links generated" : "Create a Group"}
             </h2>
-            <p className={`text-xs mt-0.5 ${result ? "text-leaf-800 font-medium" : "text-ink-500"}`}>
+            <p className={`text-xs mt-0.5 font-sans ${result ? "text-leaf-800 font-medium" : "text-ink-500"}`}>
               {result ? "Use Edit to manage expenses. Share View for read-only access." : "Start splitting bills instantly. No account required."}
             </p>
           </div>
@@ -116,28 +200,42 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
         <form className="space-y-4" onSubmit={onSubmit}>
           {/* Group Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-ink-700">Group Name</label>
+            <label className="text-xs font-semibold text-ink-700 font-sans">Group Name</label>
             <div className="relative">
               <Input
+                ref={nameRef}
                 autoFocus={isDialog}
-                className="pl-9 h-11 text-sm rounded-xl"
+                className={cn(
+                  "pl-9 h-11 text-sm rounded-xl font-sans",
+                  errors.name && "border-danger-500 focus-visible:ring-danger-200"
+                )}
                 maxLength={50}
                 placeholder="e.g. Goa Trip, Flat 402, Friday Dinner"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (errors.name) {
+                    setErrors((prev) => ({ ...prev, name: null }));
+                  }
+                }}
                 onFocus={() => void warmApi()}
               />
               <Users className="absolute left-3 top-3.5 h-4 w-4 text-ink-400" />
             </div>
+            {errors.name && (
+              <p className="text-danger-600 text-xs mt-1 font-medium font-sans">
+                {errors.name}
+              </p>
+            )}
           </div>
 
           {/* Currency & PIN */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-ink-700 block">Currency</label>
+              <label className="text-xs font-semibold text-ink-700 block font-sans">Currency</label>
               <div className="relative">
                 <select
-                  className="flex h-11 w-full rounded-xl border border-ink-300 bg-white px-3.5 py-2 text-sm font-medium text-ink-900 focus-visible:outline-none focus-visible:border-leaf-600 focus-visible:ring-2 focus-visible:ring-leaf-200 transition-colors duration-150 cursor-pointer"
+                  className="flex h-11 w-full rounded-xl border border-ink-300 bg-white px-3.5 py-2 text-sm font-medium font-sans text-ink-900 focus-visible:outline-none focus-visible:border-leaf-600 focus-visible:ring-2 focus-visible:ring-leaf-200 transition-colors duration-150 cursor-pointer"
                   value={currency}
                   onChange={(e) => setCurrency(e.target.value)}
                   onFocus={() => void warmApi()}
@@ -152,72 +250,132 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-ink-700 block">PIN</label>
+              <label className="text-xs font-semibold text-ink-700 block font-sans">PIN</label>
               <div className="relative">
                 <Input
-                  className="pl-9 font-mono tracking-normal text-sm rounded-xl h-11"
-                  placeholder="••••"
+                  ref={pinRef}
+                  className={cn(
+                    "pl-9 font-sans tracking-normal text-sm rounded-xl h-11",
+                    errors.pin && "border-danger-500 focus-visible:ring-danger-200"
+                  )}
+                  placeholder="4-digit PIN"
                   maxLength={4}
                   inputMode="numeric"
+                  autoComplete="new-password"
                   value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+                  onChange={(e) => {
+                    setPin(e.target.value.replace(/\D/g, ""));
+                    if (errors.pin) {
+                      setErrors((prev) => ({ ...prev, pin: null }));
+                    }
+                  }}
                   onFocus={() => void warmApi()}
                 />
                 <Lock className="absolute left-3 top-3.5 h-4 w-4 text-ink-400" />
               </div>
+              {errors.pin && (
+                <p className="text-danger-600 text-xs mt-1 font-medium font-sans">
+                  {errors.pin}
+                </p>
+              )}
+              <p className="text-xs text-ink-500 mt-1 font-sans">
+                Protects your edit link
+              </p>
             </div>
           </div>
 
           {/* Participants */}
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-ink-700">Group Members</label>
-              <Badge variant="outline" className="text-[11px] font-semibold text-ink-600">
-                {participants.filter((p) => p.trim()).length} members
+              <label className="text-xs font-semibold text-ink-700 font-sans">Group Members</label>
+              <Badge variant="outline" className="text-[11px] font-semibold text-ink-600 font-sans">
+                {validMemberCount === 1
+                  ? "1 member"
+                  : `${validMemberCount} members`}
               </Badge>
             </div>
 
             <div className="flex flex-col gap-2">
-              {participants.map((participant, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className="relative flex-1 flex items-center">
-                    <Avatar className="absolute left-2.5 h-6 w-6 text-[10px] font-bold bg-leaf-100 text-leaf-800">
-                      <AvatarFallback className="bg-leaf-100 text-leaf-800 font-bold">
-                        {participant.trim()
-                          ? participant.trim().slice(0, 2).toUpperCase()
-                          : String(index + 1)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <Input
-                      className="pl-10 h-10 text-xs sm:text-sm rounded-xl"
-                      maxLength={32}
-                      placeholder={`Person ${index + 1}`}
-                      value={participant}
-                      onChange={(e) =>
-                        setParticipants((curr) =>
-                          curr.map((item, i) => (i === index ? e.target.value : item))
-                        )
-                      }
-                      onFocus={() => void warmApi()}
-                    />
+              {participants.map((participant, index) => {
+                const isInvalid = errors.memberIndex === index;
+                const placeholder =
+                  index === 0
+                    ? "Your name"
+                    : index === 1
+                    ? "Friend's name"
+                    : `Friend ${index + 1}`;
+
+                return (
+                  <div key={index} className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1 flex items-center">
+                        <Avatar className="absolute left-2.5 h-6 w-6 text-[10px] font-bold bg-leaf-100 text-leaf-800 pointer-events-none">
+                          <AvatarFallback className="bg-leaf-100 text-leaf-800 font-bold flex items-center justify-center font-sans">
+                            {participant.trim() ? (
+                              getInitials(participant)
+                            ) : (
+                              <User className="h-3.5 w-3.5 text-leaf-700/80" aria-hidden="true" />
+                            )}
+                          </AvatarFallback>
+                        </Avatar>
+                        <Input
+                          ref={(el) => (memberRefs.current[index] = el)}
+                          className={cn(
+                            "pl-10 h-10 text-xs sm:text-sm rounded-xl font-sans",
+                            isInvalid && "border-danger-500 focus-visible:ring-danger-200"
+                          )}
+                          maxLength={32}
+                          placeholder={placeholder}
+                          value={participant}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setParticipants((curr) =>
+                              curr.map((item, i) => (i === index ? val : item))
+                            );
+                            if (errors.members) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                members: null,
+                                memberIndex: null
+                              }));
+                            }
+                          }}
+                          onFocus={() => void warmApi()}
+                        />
+                      </div>
+                      {index >= 2 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-10 w-10 text-ink-400 hover:text-danger-600 hover:bg-danger-50 rounded-xl shrink-0"
+                          onClick={() => {
+                            setParticipants((curr) =>
+                              curr.filter((_, i) => i !== index)
+                            );
+                            if (errors.members) {
+                              setErrors((prev) => ({
+                                ...prev,
+                                members: null,
+                                memberIndex: null
+                              }));
+                            }
+                          }}
+                          title="Remove person"
+                          aria-label={`Remove ${placeholder}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    {isInvalid && errors.members && (
+                      <p className="text-danger-600 text-xs mt-1 font-medium font-sans">
+                        {errors.members}
+                      </p>
+                    )}
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 text-ink-400 hover:text-danger-600 hover:bg-danger-50 rounded-xl shrink-0"
-                    disabled={participants.length <= 2}
-                    onClick={() =>
-                      setParticipants((curr) =>
-                        curr.length <= 2 ? curr : curr.filter((_, i) => i !== index)
-                      )
-                    }
-                    title={participants.length <= 2 ? "Minimum 2 participants required" : "Remove person"}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             <div className="pt-0.5">
@@ -225,8 +383,17 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => setParticipants((curr) => [...curr, `Person ${curr.length + 1}`])}
-                className="rounded-xl border-dashed border-ink-300 text-ink-600 hover:border-leaf-400 hover:text-leaf-700 h-9 gap-1.5 text-xs font-semibold"
+                onClick={() => {
+                  setParticipants((curr) => [...curr, ""]);
+                  if (errors.members) {
+                    setErrors((prev) => ({
+                      ...prev,
+                      members: null,
+                      memberIndex: null
+                    }));
+                  }
+                }}
+                className="rounded-xl border-dashed border-ink-300 text-ink-600 hover:border-leaf-400 hover:text-leaf-700 h-9 gap-1.5 text-xs font-semibold font-sans"
               >
                 <Plus className="h-3.5 w-3.5 text-leaf-600" />
                 Add Member
@@ -240,7 +407,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
               type="submit"
               size="lg"
               disabled={saving || !canSubmit}
-              className="w-full h-11 rounded-xl bg-leaf-600 hover:bg-leaf-700 text-white font-semibold text-sm shadow-sm gap-2"
+              className="w-full h-11 rounded-xl bg-leaf-600 hover:bg-leaf-700 text-white font-semibold text-sm shadow-sm gap-2 font-sans"
             >
               {saving ? (
                 <>
@@ -257,7 +424,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
         /* Result state matching original LinkPanel layout with current theme */
         <div className="space-y-3.5 pt-1">
           {/* Edit Link Panel */}
-          <div className="rounded-2xl border border-leaf-200/90 bg-white p-4 sm:p-5 shadow-2xs space-y-2.5">
+          <div className="rounded-2xl border border-leaf-200/90 bg-white p-4 sm:p-5 shadow-sm space-y-2.5">
             <p className="text-xs font-semibold tracking-normal text-ink-500">
               Edit link
             </p>
@@ -298,7 +465,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 variant="outline"
                 size="sm"
                 asChild
-                className="h-10 min-h-10 w-24 min-w-0 justify-center px-3 text-xs font-semibold gap-1.5 bg-white border-ink-200 hover:bg-ink-50 text-ink-700 shadow-2xs"
+                className="h-10 min-h-10 w-24 min-w-0 justify-center px-3 text-xs font-semibold gap-1.5 bg-white border-ink-200 hover:bg-ink-50 text-ink-700 shadow-sm"
               >
                 <Link to={result.editLink} target="_blank" rel="noreferrer">
                   <ExternalLink className="h-3.5 w-3.5 text-ink-500" />
@@ -309,7 +476,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
           </div>
 
           {/* View Link Panel */}
-          <div className="rounded-2xl border border-leaf-200/90 bg-white p-4 sm:p-5 shadow-2xs space-y-2.5">
+          <div className="rounded-2xl border border-leaf-200/90 bg-white p-4 sm:p-5 shadow-sm space-y-2.5">
             <p className="text-xs font-semibold tracking-normal text-ink-500">
               View link
             </p>
@@ -350,7 +517,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 variant="outline"
                 size="sm"
                 asChild
-                className="h-10 min-h-10 w-24 min-w-0 justify-center px-3 text-xs font-semibold gap-1.5 bg-white border-ink-200 hover:bg-ink-50 text-ink-700 shadow-2xs"
+                className="h-10 min-h-10 w-24 min-w-0 justify-center px-3 text-xs font-semibold gap-1.5 bg-white border-ink-200 hover:bg-ink-50 text-ink-700 shadow-sm"
               >
                 <Link to={result.viewLink} target="_blank" rel="noreferrer">
                   <ExternalLink className="h-3.5 w-3.5 text-ink-500" />
@@ -370,7 +537,9 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 setResult(null);
                 setName("");
                 setPin("");
-                setParticipants(["Person 1", "Person 2"]);
+                setCurrency("INR");
+                setParticipants(["", ""]);
+                setErrors({});
               }}
               className="text-xs text-leaf-800 hover:text-leaf-950 hover:bg-leaf-100/60 h-8 px-3 rounded-lg gap-1.5 font-semibold transition"
             >
@@ -389,7 +558,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
 
   return (
     <Card
-      className={`transition-colors duration-150 duration-200 rounded-2xl sm:rounded-3xl ${
+      className={`transition-colors duration-200 rounded-2xl sm:rounded-3xl ${
         result
           ? "border-leaf-300 bg-leaf-50 shadow-sm"
           : "border-ink-200/90 bg-white/95 shadow-sm"
@@ -406,11 +575,11 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
               {result ? <CheckCircle2 className="h-5 w-5 text-leaf-700" /> : <Users className="h-5 w-5" />}
             </div>
             <div>
-              <CardTitle className="text-lg sm:text-xl font-bold text-ink-900">
+              <CardTitle className="text-lg sm:text-xl font-bold font-sans text-ink-900">
                 {result ? "Links generated" : "Create a Group"}
               </CardTitle>
               <CardDescription
-                className={`text-xs sm:text-sm mt-0.5 font-medium transition-colors ${
+                className={`text-xs sm:text-sm mt-0.5 font-sans font-medium transition-colors ${
                   result ? "text-leaf-800/80" : "text-ink-500"
                 }`}
               >

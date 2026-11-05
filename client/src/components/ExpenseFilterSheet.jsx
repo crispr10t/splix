@@ -48,19 +48,19 @@ export function ExpenseFilterSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="flex flex-col max-h-[88vh] sm:max-w-lg sm:mx-auto p-0 overflow-hidden rounded-t-2xl sm:rounded-2xl border-ink-200"
+        className="flex flex-col gap-0 max-h-[88vh] sm:max-w-lg sm:mx-auto p-0 overflow-hidden rounded-t-2xl sm:rounded-2xl border-ink-200"
       >
-        <SheetHeader className="px-5 pt-2 pb-3 border-b border-ink-100 text-left">
+        <SheetHeader className="px-5 py-3 border-b border-ink-100 text-left space-y-0">
           <SheetTitle className="text-base font-bold text-ink-900 font-sans">
             Filters
           </SheetTitle>
-          <SheetDescription className="text-xs text-ink-500 font-sans">
+          <SheetDescription className="sr-only">
             Filter by payer, category, date, and sort order.
           </SheetDescription>
         </SheetHeader>
 
         {/* Scrollable Sheet Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
+        <div className="flex-1 overflow-y-auto px-5 py-3.5 space-y-5">
           {/* 1. Paid by: Everyone / each member */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-ink-700 font-sans">
@@ -69,7 +69,7 @@ export function ExpenseFilterSheet({
             <div className="flex flex-wrap items-center gap-1.5">
               <button
                 type="button"
-                className={`h-8 px-3 text-xs font-medium rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                className={`h-8 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                   draft.payer === "all"
                     ? "bg-leaf-600 text-white font-semibold"
                     : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
@@ -84,7 +84,7 @@ export function ExpenseFilterSheet({
                   <button
                     key={p.id}
                     type="button"
-                    className={`h-8 px-3 text-xs font-medium rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                    className={`h-8 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                       isSelected
                         ? "bg-leaf-600 text-white font-semibold"
                         : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
@@ -111,7 +111,7 @@ export function ExpenseFilterSheet({
                   <button
                     key={cat.id}
                     type="button"
-                    className={`h-8 inline-flex items-center gap-1.5 px-3 text-xs font-medium rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                    className={`h-8 inline-flex items-center gap-1.5 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                       isSelected
                         ? "bg-leaf-600 text-white font-semibold"
                         : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
@@ -151,7 +151,7 @@ export function ExpenseFilterSheet({
                   <button
                     key={opt.id}
                     type="button"
-                    className={`h-8 px-3 text-xs font-medium rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                    className={`h-8 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                       isSelected
                         ? "bg-leaf-600 text-white font-semibold"
                         : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
@@ -213,7 +213,7 @@ export function ExpenseFilterSheet({
                   <button
                     key={opt.id}
                     type="button"
-                    className={`h-8 px-3 text-xs font-medium rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                    className={`h-8 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                       isSelected
                         ? "bg-leaf-600 text-white font-semibold"
                         : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"

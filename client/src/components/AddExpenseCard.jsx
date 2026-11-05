@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   Calendar,
   Check,
@@ -190,8 +191,49 @@ export function AddExpenseCard({
 
   async function submit(event) {
     event.preventDefault();
+
+    if (!title.trim()) {
+      toast.error("Please enter an expense title");
+      return;
+    }
+
     const amountMinor = toMinor(amount);
-    if (!title.trim() || amountMinor <= 0 || !paidByParticipantId || selectedIds.length === 0) return;
+    if (!amount || amountMinor <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+
+    if (!paidByParticipantId) {
+      toast.error("Please select who paid");
+      return;
+    }
+
+    if (selectedIds.length === 0) {
+      toast.error("Please select at least one person to split with");
+      return;
+    }
+
+    if (mode === "amount") {
+      const splitTotalMinor = selectedIds.reduce(
+        (sum, id) => sum + toMinor(amountMap[id] || 0),
+        0
+      );
+      if (splitTotalMinor !== amountMinor) {
+        toast.error(`Split amounts must total ${currency} ${(amountMinor / 100).toFixed(2)}`);
+        return;
+      }
+    }
+
+    if (mode === "percentage") {
+      const splitTotalPercent = selectedIds.reduce(
+        (sum, id) => sum + Number(percentMap[id] || 0),
+        0
+      );
+      if (Math.abs(splitTotalPercent - 100) > 0.01) {
+        toast.error("Split percentages must total 100%");
+        return;
+      }
+    }
 
     const splitEntries = selectedIds.map((participantId) => ({
       participantId,
@@ -268,7 +310,7 @@ export function AddExpenseCard({
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label className="text-xs font-semibold tracking-normal text-ink-500">
-              Amount ({currency})
+              Amount
             </label>
             <div className="relative mt-1">
               <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-ink-400 font-semibold text-sm">
@@ -296,7 +338,7 @@ export function AddExpenseCard({
             </label>
             <div className="relative mt-1">
               <select
-                className="flex h-11 w-full rounded-xl border border-ink-300 bg-white px-3.5 py-2 text-sm font-medium text-ink-900 outline-none transition focus:border-leaf-600 focus:ring-2 focus:ring-leaf-200"
+                className="flex h-11 w-full appearance-none rounded-xl border border-ink-300 bg-white px-3.5 pr-10 py-2 text-sm font-medium text-ink-900 transition-colors duration-150 focus-visible:outline-none focus-visible:border-leaf-600 focus-visible:ring-2 focus-visible:ring-leaf-200 cursor-pointer"
                 value={paidByParticipantId}
                 onChange={(e) => setPaidByParticipantId(e.target.value)}
               >
@@ -306,51 +348,51 @@ export function AddExpenseCard({
                   </option>
                 ))}
               </select>
+              <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-400" />
             </div>
           </div>
         </div>
 
-        {/* Category & Date in 2 columns */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {/* Expense Date Picker */}
-          <div>
-            <label className="text-xs font-semibold tracking-normal text-ink-500 flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              <span>Expense Date</span>
-            </label>
-            <div className="relative mt-1">
-              <Input
-                type="date"
-                className="h-11 text-sm font-medium"
-                value={date}
-                max={new Date().toISOString().slice(0, 10)}
-                onChange={(e) => setDate(e.target.value)}
-              />
-            </div>
+        {/* Expense Date Picker */}
+        <div>
+          <label className="text-xs font-semibold tracking-normal text-ink-500">
+            Date
+          </label>
+          <div className="relative mt-1">
+            <Input
+              type="date"
+              className="h-11 text-sm font-medium text-ink-900 bg-white cursor-pointer"
+              value={date}
+              max={new Date().toISOString().slice(0, 10)}
+              onChange={(e) => setDate(e.target.value)}
+            />
           </div>
         </div>
 
         {/* Quick Category Chips */}
-        <div className="flex flex-wrap gap-1.5 pt-0.5">
-          {CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const isSelected = category === cat.id;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-xs font-medium border transition-colors duration-150 ${
-                  isSelected
-                    ? "border-leaf-500 bg-leaf-50 text-leaf-800 ring-1 ring-leaf-500/30 font-semibold"
-                    : "border-ink-200 bg-white text-ink-600 hover:border-ink-300"
-                }`}
-                onClick={() => setCategory(cat.id)}
-              >
-                <Icon className={`h-3 w-3 ${isSelected ? "text-leaf-700" : "text-ink-500"}`} />
-                <span>{cat.shortLabel}</span>
-              </button>
-            );
-          })}
+        <div>
+          <label className="text-xs font-semibold text-ink-500">Category</label>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const isSelected = category === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className={`h-8 inline-flex items-center gap-1.5 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
+                    isSelected
+                      ? "bg-leaf-600 text-white font-semibold shadow-sm"
+                      : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
+                  }`}
+                  onClick={() => setCategory(cat.id)}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{cat.shortLabel || cat.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
@@ -368,42 +410,29 @@ export function AddExpenseCard({
         </div>
 
         <div className="mt-2.5 grid grid-cols-3 gap-1.5 sm:gap-2">
-          <button
-            type="button"
-            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-semibold transition-colors duration-150 ${
-              mode === "even"
-                ? "bg-white text-leaf-800 shadow-sm border border-leaf-300 ring-2 ring-leaf-500/20"
-                : "text-ink-600 hover:bg-white/60"
-            }`}
-            onClick={() => setMode("even")}
-          >
-            <Layers className="h-3.5 w-3.5" />
-            <span>Equally</span>
-          </button>
-          <button
-            type="button"
-            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-semibold transition-colors duration-150 ${
-              mode === "amount"
-                ? "bg-white text-leaf-800 shadow-sm border border-leaf-300 ring-2 ring-leaf-500/20"
-                : "text-ink-600 hover:bg-white/60"
-            }`}
-            onClick={() => setMode("amount")}
-          >
-            <DollarSign className="h-3.5 w-3.5" />
-            <span>By Amount</span>
-          </button>
-          <button
-            type="button"
-            className={`flex items-center justify-center gap-1.5 rounded-xl py-2 px-2 text-xs sm:text-sm font-semibold transition-colors duration-150 ${
-              mode === "percentage"
-                ? "bg-white text-leaf-800 shadow-sm border border-leaf-300 ring-2 ring-leaf-500/20"
-                : "text-ink-600 hover:bg-white/60"
-            }`}
-            onClick={() => setMode("percentage")}
-          >
-            <Percent className="h-3.5 w-3.5" />
-            <span>By %</span>
-          </button>
+          {[
+            { id: "even", label: "Equally", icon: Layers },
+            { id: "amount", label: "By Amount", icon: DollarSign },
+            { id: "percentage", label: "By %", icon: Percent }
+          ].map((item) => {
+            const Icon = item.icon;
+            const isSelected = mode === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`h-9 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
+                  isSelected
+                    ? "bg-leaf-600 text-white font-semibold shadow-sm"
+                    : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
+                }`}
+                onClick={() => setMode(item.id)}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Participants Selector Toggle */}
@@ -507,7 +536,7 @@ export function AddExpenseCard({
         <Button
           type="submit"
           className="flex-1 h-11 text-sm font-semibold rounded-xl bg-leaf-600 hover:bg-leaf-700 shadow-md text-white"
-          disabled={disabled || adding || !title.trim() || toMinor(amount) <= 0 || selectedIds.length === 0}
+          disabled={disabled || adding || !title.trim() || toMinor(amount) <= 0 || !paidByParticipantId || selectedIds.length === 0}
         >
           {isEditMode ? (
             <>

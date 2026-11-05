@@ -243,14 +243,16 @@ button,
 
 .steps-heading h2 {
   max-width: 12ch;
-  margin: 0;
+  margin: 0 0 1rem;
   font-size: clamp(2rem, 3.2vw, 3.25rem);
   line-height: 1.05;
 }
 
 .steps-heading p {
   max-width: 48ch;
+  margin: 0;
   color: var(--color-ink-soft);
+  line-height: 1.5;
 }
 
 .steps-list {
@@ -382,7 +384,7 @@ button,
   transform: translateY(0);
 }
 
-@media (max-width: 850px) {
+@media (max-width: 767px) {
   .hero {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.5rem;
@@ -410,7 +412,7 @@ button,
   }
 
   .hero h1 {
-    max-width: 12ch;
+    max-width: 15ch;
   }
 
   .steps-content {
@@ -451,16 +453,6 @@ button,
   textarea {
     font-size: 16px !important;
     scroll-margin-block: 5rem 8rem;
-  }
-
-  .creator-submit {
-    position: sticky;
-    z-index: 2;
-    bottom: 0;
-    margin-inline: -0.25rem;
-    padding: 0.5rem 0.25rem calc(0.5rem + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--color-rule);
-    background: var(--color-sheet);
   }
 
   .step-row {

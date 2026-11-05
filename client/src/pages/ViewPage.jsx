@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
-import { Download, Link2, MoreVertical, Receipt, Share2, Wallet, WifiOff } from "lucide-react";
+import { Download, Eye, Link2, MoreVertical, Receipt, Share2, Wallet, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 import { fetchViewSnapshot, pdfDownloadUrl } from "@/api";
 import { ExpenseList } from "@/components/ExpenseList";
@@ -44,7 +44,7 @@ export function ViewPage() {
 
   if (loading && !snapshot) {
     return (
-      <main id="main" className="shell max-w-3xl py-12 text-center text-ink-500">
+      <main id="main" className="shell !max-w-2xl mx-auto py-12 text-center text-ink-500">
         <div className="flex flex-col items-center justify-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-leaf-600 border-t-transparent" />
           <p className="text-sm font-medium">Loading group details…</p>
@@ -55,7 +55,7 @@ export function ViewPage() {
 
   if (error === "Group not found") {
     return (
-      <main id="main" className="shell max-w-lg py-12">
+      <main id="main" className="shell !max-w-lg mx-auto py-12">
         <LinkNotFoundCard />
       </main>
     );
@@ -63,7 +63,7 @@ export function ViewPage() {
 
   if (error && !snapshot) {
     return (
-      <main id="main" className="shell max-w-lg py-12">
+      <main id="main" className="shell !max-w-lg mx-auto py-12">
         <div className="rounded-2xl border border-danger-200 bg-danger-50 p-6 text-center text-danger-800">
           <p className="font-semibold">{error}</p>
           <Button variant="outline" className="mt-4 rounded-xl text-xs" onClick={() => refetch()}>
@@ -75,19 +75,20 @@ export function ViewPage() {
   }
 
   return (
-    <main id="main" className="shell max-w-4xl pb-16">
+    <main id="main" className="shell !max-w-2xl mx-auto pb-16 font-sans">
       {snapshot && (
         <div className="space-y-5">
           {/* Header Bar */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-ink-900">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="min-w-0 truncate text-xl sm:text-2xl font-bold tracking-tight text-ink-900 capitalize font-sans">
                   {snapshot.group.name}
                 </h1>
-                <Badge variant="outline" className="text-[11px] font-semibold text-ink-600">
-                  View Only
-                </Badge>
+                <span className="inline-flex items-center gap-1 rounded-full bg-ink-100 text-ink-600 text-xs px-2.5 py-0.5 font-medium">
+                  <Eye className="h-3 w-3 text-ink-500" />
+                  <span>View only</span>
+                </span>
                 <Badge variant="success" className="text-[11px] font-semibold">
                   {snapshot.group.currency}
                 </Badge>
@@ -150,7 +151,7 @@ export function ViewPage() {
               </TabsTrigger>
               <TabsTrigger value="summary" className="rounded-xl text-xs sm:text-sm font-semibold">
                 <Share2 className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
-                Summary &amp; Analytics
+                Summary
               </TabsTrigger>
             </TabsList>
 

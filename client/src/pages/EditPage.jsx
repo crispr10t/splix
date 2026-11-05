@@ -693,7 +693,7 @@ export function EditPage() {
 
   if (missingLink) {
     return (
-      <main id="main" className="shell max-w-lg py-12">
+      <main id="main" className="shell !max-w-lg mx-auto py-12">
         <LinkNotFoundCard />
       </main>
     );
@@ -701,7 +701,7 @@ export function EditPage() {
 
   if (!token) {
     return (
-      <main id="main" className="shell max-w-lg py-12">
+      <main id="main" className="shell !max-w-lg mx-auto py-12">
         <PinGateCard
           groupMeta={groupMeta}
           metaLoading={metaLoading && !groupMeta}
@@ -714,7 +714,7 @@ export function EditPage() {
 
   if (loading && !snapshot) {
     return (
-      <main id="main" className="shell max-w-3xl py-12 text-center text-ink-500">
+      <main id="main" className="shell !max-w-2xl mx-auto py-12 text-center text-ink-500">
         <div className="flex flex-col items-center justify-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-leaf-600 border-t-transparent" />
           <p className="text-sm font-medium">Loading group data…</p>
@@ -726,13 +726,13 @@ export function EditPage() {
   if (error && !snapshot) {
     if (error === "Group not found") {
       return (
-        <main id="main" className="shell max-w-lg py-12">
+        <main id="main" className="shell !max-w-lg mx-auto py-12">
           <LinkNotFoundCard />
         </main>
       );
     }
     return (
-      <main id="main" className="shell max-w-lg py-12">
+      <main id="main" className="shell !max-w-lg mx-auto py-12">
         <div className="rounded-xl border border-danger-200 bg-danger-50 p-6 text-center text-danger-800">
           <p className="font-semibold">{error}</p>
           <Button
@@ -749,7 +749,7 @@ export function EditPage() {
 
   if (snapshot && (!selectedParticipantId || !participants.find((item) => item.id === selectedParticipantId))) {
     return (
-      <main id="main" className="shell max-w-lg py-10">
+      <main id="main" className="shell !max-w-lg mx-auto py-10">
         <IdentitySelectorCard
           groupName={snapshot.group.name}
           participants={orderedParticipants}
@@ -773,14 +773,14 @@ export function EditPage() {
   }
 
   return (
-    <main id="main" className="shell max-w-4xl pb-28 font-sans">
+    <main id="main" className="shell !max-w-2xl mx-auto pb-28 font-sans">
       {snapshot && (
         <div className="space-y-5">
           {/* Single crisp white card: Header & Balance */}
           <div className="rounded-xl border border-ink-200/70 bg-white p-4 shadow-none">
             {/* Top row: Trip title on left, Identity pill and ⋮ button on right */}
             <div className="flex items-center justify-between gap-3">
-              <h1 className="truncate text-base font-bold tracking-tight text-ink-900 font-sans">
+              <h1 className="min-w-0 truncate text-xl sm:text-2xl font-bold tracking-tight text-ink-900 capitalize font-sans">
                 {snapshot.group.name}
               </h1>
 
@@ -812,7 +812,7 @@ export function EditPage() {
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1.5 rounded-full border border-ink-200/80 bg-white px-2.5 py-1 text-xs font-medium text-ink-800 hover:bg-ink-50 hover:border-ink-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 font-sans"
+                      className="inline-flex items-center gap-1.5 rounded-full !rounded-full border border-ink-200/80 bg-white px-2.5 py-1 text-xs font-medium text-ink-800 hover:bg-ink-50 hover:border-ink-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 font-sans"
                       title="Active user: click to switch or edit profile"
                     >
                       <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-[10px] font-bold text-leaf-800">
@@ -906,7 +906,7 @@ export function EditPage() {
                 {userNetBalance > 0 ? "You are owed" : userNetBalance < 0 ? "You owe" : "All settled"}
               </p>
               <p
-                className={`text-[28px] font-bold tabular-nums tracking-tight leading-tight font-sans ${
+                className={`text-2xl sm:text-3xl font-bold tabular-nums tracking-tight leading-tight font-sans ${
                   userNetBalance > 0
                     ? "text-leaf-600"
                     : userNetBalance < 0
@@ -949,8 +949,7 @@ export function EditPage() {
                 className="flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:bg-white data-[state=active]:text-ink-950 data-[state=active]:font-medium data-[state=active]:shadow-none border-0 shadow-none"
               >
                 <Share2 className="h-4 w-4 mr-1.5 hidden sm:inline" />
-                <span className="sm:hidden">Summary</span>
-                <span className="hidden sm:inline">Summary &amp; Analytics</span>
+                Summary
               </TabsTrigger>
             </TabsList>
 

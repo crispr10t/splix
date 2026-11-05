@@ -10,7 +10,7 @@ const steps = [
   {
     icon: Link2,
     title: "Share the right link",
-    detail: "Give organizers the PIN-protected edit link. Everyone else can view."
+    detail: "Share the view-only link with everyone. Keep the PIN-protected edit link for yourself."
   },
   {
     icon: Wallet,
