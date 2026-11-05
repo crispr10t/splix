@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -28,6 +28,14 @@ const standardCurrencies = [
   "AED", "AUD", "BRL", "CAD", "CHF", "CNY", "EUR", "GBP",
   "HKD", "INR", "JPY", "KRW", "MXN", "NOK", "NZD", "SAR",
   "SEK", "SGD", "TRY", "USD", "ZAR"
+];
+
+const AVATAR_PALETTES = [
+  { bg: "bg-emerald-100", text: "text-emerald-800" },
+  { bg: "bg-teal-100", text: "text-teal-800" },
+  { bg: "bg-sky-100", text: "text-sky-800" },
+  { bg: "bg-amber-100", text: "text-amber-800" },
+  { bg: "bg-rose-100", text: "text-rose-800" }
 ];
 
 function getInitials(name = "") {
@@ -262,18 +270,18 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                     onClick={() => setShowPinInfo((prev) => !prev)}
                     onMouseEnter={() => setShowPinInfo(true)}
                     onMouseLeave={() => setShowPinInfo(false)}
-                    className="!min-h-0 !min-w-0 h-4 w-4 inline-flex items-center justify-center p-0 text-ink-400 hover:text-ink-700 transition-colors rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-leaf-400"
+                    className="!min-h-0 !min-w-0 h-5 w-5 inline-flex items-center justify-center p-0 text-ink-400 hover:text-ink-700 transition-colors rounded-full focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-leaf-400 cursor-pointer"
                     aria-label="PIN information"
-                    title="Protects your edit link. Anyone with this PIN can edit expenses, add members, or settle balances."
+                    title="Protects your edit link. Only you can edit expenses or add members."
                   >
                     <HelpCircle className="h-3.5 w-3.5" />
                   </button>
                   {showPinInfo && (
                     <div
                       role="tooltip"
-                      className="absolute bottom-full right-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-52 sm:w-60 p-2.5 rounded-xl bg-ink-950 text-white text-[11px] font-normal leading-relaxed shadow-xl z-50 pointer-events-none"
+                      className="absolute bottom-full right-0 sm:left-1/2 sm:-translate-x-1/2 mb-2 w-52 sm:w-56 p-2.5 rounded-xl bg-ink-950 text-white text-[11px] font-normal leading-relaxed shadow-xl z-50 pointer-events-none"
                     >
-                      <span>Protects your edit link. Anyone with this PIN can edit expenses, add members, or settle balances.</span>
+                      <span>Protects your edit link. Only you can edit expenses or add members.</span>
                       <div className="absolute top-full right-2 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-t-ink-950" />
                     </div>
                   )}
@@ -336,15 +344,35 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                   <div key={index} className="space-y-1">
                     <div className="flex items-center gap-2">
                       <div className="relative flex-1 flex items-center">
-                        <Avatar className="absolute left-2.5 h-6 w-6 text-[10px] font-bold bg-leaf-100 text-leaf-800 pointer-events-none">
-                          <AvatarFallback className="bg-leaf-100 text-leaf-800 font-bold flex items-center justify-center font-sans">
-                            {participant.trim() ? (
-                              getInitials(participant)
-                            ) : (
-                              <User className="h-3.5 w-3.5 text-leaf-700/80" aria-hidden="true" />
-                            )}
-                          </AvatarFallback>
-                        </Avatar>
+                        {(() => {
+                          const palette = AVATAR_PALETTES[index % AVATAR_PALETTES.length];
+                          const hasName = Boolean(participant.trim());
+                          return (
+                            <Avatar
+                              className={cn(
+                                "absolute left-2.5 h-6 w-6 text-[10px] font-bold pointer-events-none transition-colors duration-150",
+                                hasName
+                                  ? cn(palette.bg, palette.text)
+                                  : "bg-ink-100 text-ink-400"
+                              )}
+                            >
+                              <AvatarFallback
+                                className={cn(
+                                  "font-bold flex items-center justify-center font-sans",
+                                  hasName
+                                    ? cn(palette.bg, palette.text)
+                                    : "bg-ink-100 text-ink-400"
+                                )}
+                              >
+                                {hasName ? (
+                                  getInitials(participant)
+                                ) : (
+                                  <User className="h-3.5 w-3.5 text-ink-400" aria-hidden="true" />
+                                )}
+                              </AvatarFallback>
+                            </Avatar>
+                          );
+                        })()}
                         <Input
                           ref={(el) => (memberRefs.current[index] = el)}
                           className={cn(
@@ -433,8 +461,13 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
             <Button
               type="submit"
               size="lg"
-              disabled={saving || !canSubmit}
-              className="w-full h-11 rounded-xl bg-leaf-600 hover:bg-leaf-700 text-white font-semibold text-sm shadow-sm gap-2 font-sans"
+              disabled={saving}
+              className={cn(
+                "w-full h-11 rounded-xl font-semibold text-sm shadow-sm gap-2 font-sans transition-all duration-200 active:scale-[0.98]",
+                canSubmit
+                  ? "bg-leaf-600 hover:bg-leaf-700 text-white shadow-leaf-900/10 ring-2 ring-leaf-400/25 cursor-pointer"
+                  : "bg-ink-100 text-ink-400 hover:bg-ink-200 hover:text-ink-600 border border-ink-200/60 cursor-pointer"
+              )}
             >
               {saving ? (
                 <>
@@ -585,10 +618,10 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
 
   return (
     <Card
-      className={`transition-colors duration-200 rounded-2xl sm:rounded-3xl ${
+      className={`transition-all duration-200 rounded-2xl border ${
         result
-          ? "border-leaf-300 bg-leaf-50 shadow-sm"
-          : "border-ink-200/90 bg-white/95 shadow-sm"
+          ? "border-leaf-300 bg-leaf-50 shadow-md"
+          : "border-ink-200/80 bg-white shadow-xl shadow-leaf-950/[0.04]"
       }`}
     >
       <CardHeader

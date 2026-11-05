@@ -118,11 +118,32 @@
 }
 
 .hero {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 0.86fr) minmax(22rem, 1fr);
   align-items: start;
   gap: clamp(2rem, 6vw, 6rem);
   padding-bottom: clamp(4rem, 9vh, 7rem);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  top: -12%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 68rem;
+  height: 90%;
+  background: radial-gradient(ellipse 75% 50% at 50% 15%, hsl(var(--leaf-100) / 0.65), transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-aside,
+.creator {
+  position: relative;
+  z-index: 1;
 }
 
 .hero-aside {
@@ -206,9 +227,9 @@
 
 .creator > * {
   border: 1px solid var(--color-rule);
-  border-radius: 0.75rem !important;
-  background: var(--color-sheet) !important;
-  box-shadow: var(--shadow-soft) !important;
+  border-radius: 1rem;
+  background: var(--color-sheet);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(18, 53, 36, 0.04);
 }
 
 .creator button,
@@ -287,6 +308,142 @@ button,
   margin: 0.25rem 0 0;
   color: var(--color-ink-soft);
   font-size: 0.9rem;
+}
+
+/* Connected Vertical Timeline */
+.timeline-list {
+  position: relative;
+  margin: 0;
+  padding: 0.5rem 0 0;
+  list-style: none;
+}
+
+.timeline-list::before {
+  content: "";
+  position: absolute;
+  top: 1.5rem;
+  bottom: 2rem;
+  left: 1rem;
+  width: 2px;
+  background-color: hsl(var(--leaf-200));
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding-bottom: 2.25rem;
+}
+
+.timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.timeline-node {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 2px solid hsl(var(--leaf-500));
+  color: hsl(var(--leaf-800));
+  font-family: var(--font-figure);
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.timeline-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeline-icon {
+  color: hsl(var(--leaf-600));
+  flex-shrink: 0;
+}
+
+.timeline-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.timeline-detail {
+  margin: 0.35rem 0 0;
+  color: var(--color-ink-soft);
+  font-size: 0.925rem;
+  line-height: 1.5;
+}
+
+/* Closing CTA */
+.closing-cta {
+  padding-block: clamp(3.5rem, 7vw, 5rem);
+  text-align: center;
+  border-top: 1px solid var(--color-rule);
+  background: linear-gradient(180deg, transparent 0%, hsl(var(--leaf-100) / 0.3) 100%);
+}
+
+.closing-cta-content {
+  max-width: 36rem;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.closing-cta h2 {
+  font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+  line-height: 1.15;
+  margin: 0;
+}
+
+.closing-cta p {
+  color: var(--color-ink-soft);
+  font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+  margin: 0;
+}
+
+.closing-cta-btn {
+  margin-top: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 3rem;
+  padding-inline: 1.75rem;
+  border-radius: 0.75rem;
+  background-color: hsl(var(--leaf-600));
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.925rem;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 150ms ease;
+  cursor: pointer;
+}
+
+.closing-cta-btn:hover {
+  background-color: hsl(var(--leaf-700));
+  color: #ffffff;
+}
+
+.closing-cta-btn:active {
+  transform: scale(0.98);
 }
 
 .site-footer {
@@ -441,7 +598,8 @@ button,
 
   .hero h1 {
     max-width: 15ch;
-    font-size: clamp(2.4rem, 10vw, 3rem);
+    font-size: clamp(2.25rem, 8vw, 2.75rem);
+    line-height: 1.05;
   }
 
   .hero-lede {
@@ -469,6 +627,21 @@ button,
   .steps-band {
     padding-block: 2.5rem;
   }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {

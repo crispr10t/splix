@@ -25,11 +25,30 @@ export function LandingPage() {
       <section className="hero container" aria-labelledby="hero-title">
         <div className="hero-aside">
           <div className="hero-copy">
-            <h1 id="hero-title">Shared bills, settled together.</h1>
-            <p className="hero-lede">
+            <h1 id="hero-title" className="animate-fade-up">
+              Shared bills,{" "}
+              <span className="text-leaf-700 underline decoration-leaf-300 underline-offset-4 decoration-2">
+                settled
+              </span>{" "}
+              together.
+            </h1>
+            <p className="hero-lede animate-fade-up [animation-delay:60ms]">
               Create a group, add expenses, and share balances. No account needed.
             </p>
-            <p className="hero-note">Works for trips, homes, dinners, and the plans in between.</p>
+            <div className="flex flex-wrap items-center gap-2 pt-2.5 select-none pointer-events-none animate-fade-up [animation-delay:120ms]">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-leaf-100/70 text-leaf-800 border border-leaf-200/60 font-sans">
+                Free
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-leaf-100/70 text-leaf-800 border border-leaf-200/60 font-sans">
+                No sign-up
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-leaf-100/70 text-leaf-800 border border-leaf-200/60 font-sans">
+                Works with a link
+              </span>
+            </div>
+            <p className="hero-note animate-fade-up [animation-delay:160ms]">
+              Works for trips, homes, dinners, and the plans in between.
+            </p>
           </div>
           <div className="hero-after">
             <a className="text-link" href="#how-it-works">
@@ -37,7 +56,7 @@ export function LandingPage() {
             </a>
           </div>
         </div>
-        <div className="creator" id="create-group">
+        <div className="creator animate-fade-up [animation-delay:100ms]" id="create-group">
           <CreateGroupCard isDialog={false} />
         </div>
       </section>
@@ -48,17 +67,42 @@ export function LandingPage() {
             <h2 id="steps-title">From first bill to final balance</h2>
             <p>Keep the group moving without doing the math in chat.</p>
           </div>
-          <ol className="steps-list">
-            {steps.map(({ icon: Icon, title, detail }) => (
-              <li className="step-row" key={title}>
-                <Icon className="step-icon" aria-hidden="true" size={20} />
-                <div>
-                  <h3>{title}</h3>
-                  <p>{detail}</p>
+          <ol className="timeline-list">
+            {steps.map(({ icon: Icon, title, detail }, index) => (
+              <li className="timeline-item" key={title}>
+                <div className="timeline-node" aria-hidden="true">
+                  0{index + 1}
+                </div>
+                <div className="timeline-body">
+                  <div className="timeline-header">
+                    <Icon className="timeline-icon" aria-hidden="true" size={18} />
+                    <h3 className="timeline-title">{title}</h3>
+                  </div>
+                  <p className="timeline-detail">{detail}</p>
                 </div>
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      <section className="closing-cta" aria-labelledby="cta-title">
+        <div className="container closing-cta-content">
+          <h2 id="cta-title">Ready to split?</h2>
+          <p>Start your group in seconds. No apps, no accounts, no headaches.</p>
+          <a
+            className="closing-cta-btn"
+            href="#create-group"
+            onClick={(e) => {
+              e.preventDefault();
+              const target = document.getElementById("create-group");
+              target?.scrollIntoView({ behavior: "smooth" });
+              const input = target?.querySelector("input");
+              input?.focus({ preventScroll: true });
+            }}
+          >
+            Create a group <ArrowRight aria-hidden="true" size={16} />
+          </a>
         </div>
       </section>
 
