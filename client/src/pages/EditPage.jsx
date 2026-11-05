@@ -18,7 +18,6 @@ import {
   User,
   UserCheck,
   UserPlus,
-  Users,
   Wallet
 } from "lucide-react";
 import {
@@ -37,6 +36,7 @@ import {
 import { AddExpenseCard } from "@/components/AddExpenseCard";
 import { AddParticipantDialog } from "@/components/AddParticipantDialog";
 import { ExpenseList } from "@/components/ExpenseList";
+import { DEFAULT_FILTERS } from "@/components/ExpenseFilterSheet";
 import { IdentitySelectorCard } from "@/components/IdentitySelectorCard";
 import { LinkNotFoundCard } from "@/components/LinkNotFoundCard";
 import { OfflineBanner } from "@/components/OfflineBanner";
@@ -87,6 +87,7 @@ export function EditPage() {
   const [addingMember, setAddingMember] = useState(false);
   const [addExpenseOpen, setAddExpenseOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
+  const [expenseFilters, setExpenseFilters] = useState(DEFAULT_FILTERS);
   const [missingLink, setMissingLink] = useState(false);
   const [groupMeta, setGroupMeta] = useState(null);
   const [metaLoading, setMetaLoading] = useState(false);
@@ -775,39 +776,21 @@ export function EditPage() {
     <main id="main" className="shell max-w-4xl pb-28 font-sans">
       {snapshot && (
         <div className="space-y-5">
-          {/* Simplified Group Header & Balance Hero (directly on page background) */}
-          <div className="pt-2 pb-1">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <h1 className="truncate text-base font-bold tracking-tight text-ink-900 font-sans">
-                  {snapshot.group.name}
-                </h1>
-                <div className="mt-1">
-                  <p className="text-xs font-medium text-ink-500">
-                    {userNetBalance > 0 ? "You are owed" : userNetBalance < 0 ? "You owe" : "All settled up"}
-                  </p>
-                  <p
-                    className={`text-[28px] font-bold tabular-nums tracking-tight leading-tight font-sans ${
-                      userNetBalance > 0
-                        ? "text-leaf-600"
-                        : userNetBalance < 0
-                        ? "text-danger-600"
-                        : "text-ink-900"
-                    }`}
-                  >
-                    {money(Math.abs(userNetBalance), snapshot.group.currency)}
-                  </p>
-                </div>
-              </div>
+          {/* Single crisp white card: Header & Balance */}
+          <div className="rounded-xl border border-ink-200/70 bg-white p-4 shadow-none">
+            {/* Top row: Trip title on left, Identity pill and ⋮ button on right */}
+            <div className="flex items-center justify-between gap-3">
+              <h1 className="truncate text-base font-bold tracking-tight text-ink-900 font-sans">
+                {snapshot.group.name}
+              </h1>
 
-              {/* Actions & subtle active user identity ("Piyush ▾") */}
-              <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
+              <div className="flex items-center gap-1.5 shrink-0">
                 {pendingCount > 0 && (
                   isOnline ? (
                     <button
                       type="button"
                       onClick={syncNow}
-                      className="h-8 inline-flex items-center gap-1 px-2.5 text-xs font-normal border border-ink-200 bg-ink-100/70 text-ink-700 rounded-xl hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 transition-colors"
+                      className="h-7 inline-flex items-center gap-1 px-2 text-xs font-normal border border-ink-200 bg-ink-100/70 text-ink-700 rounded-lg hover:bg-ink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 transition-colors font-sans"
                       title="Click to sync now"
                     >
                       <RefreshCw className={`h-3 w-3 ${isSyncing ? "motion-safe:animate-spin" : ""}`} />
@@ -815,7 +798,7 @@ export function EditPage() {
                     </button>
                   ) : (
                     <span
-                      className="h-8 inline-flex items-center gap-1 px-2.5 text-xs font-normal border border-ink-200 bg-ink-100/70 text-ink-700 rounded-xl cursor-default"
+                      className="h-7 inline-flex items-center gap-1 px-2 text-xs font-normal border border-ink-200 bg-ink-100/70 text-ink-700 rounded-lg cursor-default font-sans"
                       title="Saved offline"
                     >
                       <RefreshCw className="h-3 w-3" />
@@ -824,16 +807,21 @@ export function EditPage() {
                   )
                 )}
 
-                {/* Clear, subtle active user identity */}
+                {/* Identity Pill: Subtle rounded pill [P Piyush ▾] */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1 text-sm font-medium text-ink-700 hover:text-ink-900 px-2 py-1.5 rounded-xl hover:bg-ink-100/60 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-ink-200/80 bg-white px-2.5 py-1 text-xs font-medium text-ink-800 hover:bg-ink-50 hover:border-ink-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 font-sans"
                       title="Active user: click to switch or edit profile"
                     >
-                      <span className="max-w-[100px] sm:max-w-[140px] truncate">{selectedParticipant?.name || "Member"}</span>
-                      <ChevronDown className="h-3.5 w-3.5 text-ink-400 shrink-0" />
+                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-[10px] font-bold text-leaf-800">
+                        {(selectedParticipant?.name || "M").charAt(0).toUpperCase()}
+                      </span>
+                      <span className="max-w-[100px] sm:max-w-[140px] truncate">
+                        {selectedParticipant?.name || "Member"}
+                      </span>
+                      <ChevronDown className="h-3 w-3 text-ink-400 shrink-0" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-52 max-h-72 overflow-y-auto">
@@ -856,13 +844,13 @@ export function EditPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* ⋯ Menu with relocated Add Member */}
+                {/* ⋮ Menu: Focused strictly on group actions */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-xl text-ink-600 hover:text-ink-900 hover:bg-ink-100/60 shadow-none"
+                      className="h-7 w-7 rounded-lg text-ink-600 hover:text-ink-900 hover:bg-ink-100/60 shadow-none"
                       aria-label="Group actions"
                     >
                       <MoreVertical className="h-4 w-4" />
@@ -907,23 +895,27 @@ export function EditPage() {
                         Install Splix App
                       </DropdownMenuItem>
                     )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setProfileOpen(true)}>
-                      <User className="h-4 w-4 shrink-0 text-ink-600" />
-                      Edit UPI / Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => {
-                        localStorage.removeItem(identityKey(editId));
-                        setSelectedParticipantId("");
-                      }}
-                    >
-                      <Users className="h-4 w-4 shrink-0 text-ink-600" />
-                      Switch Identity
-                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
+            </div>
+
+            {/* Bottom: Stacked balance (NOT split row, no hairline divider, no redundant +) */}
+            <div className="mt-3">
+              <p className="text-xs font-medium text-ink-500 font-sans">
+                {userNetBalance > 0 ? "You are owed" : userNetBalance < 0 ? "You owe" : "All settled"}
+              </p>
+              <p
+                className={`text-[28px] font-bold tabular-nums tracking-tight leading-tight font-sans ${
+                  userNetBalance > 0
+                    ? "text-leaf-600"
+                    : userNetBalance < 0
+                    ? "text-danger-600"
+                    : "text-ink-500"
+                }`}
+              >
+                {money(Math.abs(userNetBalance), snapshot.group.currency)}
+              </p>
             </div>
           </div>
 
@@ -935,26 +927,26 @@ export function EditPage() {
             onSync={syncNow}
           />
 
-          {/* Tabbed Navigation Layout: Underline-style navigation tabs */}
+          {/* Segmented Tabs Layout: Inset tinted gray track + crisp white active pill */}
           <Tabs defaultValue="expenses" className="w-full">
-            <TabsList className="sticky top-[57px] z-30 flex w-full justify-start gap-6 h-auto p-0 rounded-none bg-white border-b border-ink-200 shadow-none">
+            <TabsList className="bg-ink-100/80 p-1 rounded-xl flex gap-1 w-full h-auto border-0 shadow-none">
               <TabsTrigger
                 value="expenses"
-                className="rounded-none border-b-2 border-transparent px-1 pb-3 pt-2 text-sm font-medium text-ink-600 hover:text-ink-900 shadow-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:border-leaf-600 data-[state=active]:text-ink-900 data-[state=active]:font-semibold data-[state=active]:shadow-none transition-colors"
+                className="flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:bg-white data-[state=active]:text-ink-950 data-[state=active]:font-medium data-[state=active]:shadow-none border-0 shadow-none"
               >
                 <Receipt className="h-4 w-4 mr-1.5 hidden sm:inline" />
                 Expenses ({visibleExpenses.length})
               </TabsTrigger>
               <TabsTrigger
                 value="settlements"
-                className="rounded-none border-b-2 border-transparent px-1 pb-3 pt-2 text-sm font-medium text-ink-600 hover:text-ink-900 shadow-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:border-leaf-600 data-[state=active]:text-ink-900 data-[state=active]:font-semibold data-[state=active]:shadow-none transition-colors"
+                className="flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:bg-white data-[state=active]:text-ink-950 data-[state=active]:font-medium data-[state=active]:shadow-none border-0 shadow-none"
               >
                 <Wallet className="h-4 w-4 mr-1.5 hidden sm:inline" />
                 Settlements ({settlements.length})
               </TabsTrigger>
               <TabsTrigger
                 value="summary"
-                className="rounded-none border-b-2 border-transparent px-1 pb-3 pt-2 text-sm font-medium text-ink-600 hover:text-ink-900 shadow-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:border-leaf-600 data-[state=active]:text-ink-900 data-[state=active]:font-semibold data-[state=active]:shadow-none transition-colors"
+                className="flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:bg-white data-[state=active]:text-ink-950 data-[state=active]:font-medium data-[state=active]:shadow-none border-0 shadow-none"
               >
                 <Share2 className="h-4 w-4 mr-1.5 hidden sm:inline" />
                 <span className="sm:hidden">Summary</span>
@@ -975,6 +967,8 @@ export function EditPage() {
                 onDelete={onDelete}
                 canEdit={Boolean(selectedParticipantId)}
                 canDelete={Boolean(selectedParticipantId)}
+                filters={expenseFilters}
+                onFiltersChange={setExpenseFilters}
               />
             </TabsContent>
 
