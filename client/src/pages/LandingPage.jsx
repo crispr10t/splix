@@ -26,11 +26,7 @@ export function LandingPage() {
         <div className="hero-aside">
           <div className="hero-copy">
             <h1 id="hero-title" className="animate-fade-up">
-              Shared bills,{" "}
-              <span className="text-leaf-700 underline decoration-leaf-300 underline-offset-4 decoration-2">
-                settled
-              </span>{" "}
-              together.
+              Shared bills, settled together.
             </h1>
             <p className="hero-lede animate-fade-up [animation-delay:60ms]">
               Create a group, add expenses, and share balances. No account needed.

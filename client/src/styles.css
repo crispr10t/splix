@@ -427,8 +427,8 @@ button,
   height: 3rem;
   padding-inline: 1.75rem;
   border-radius: 0.75rem;
-  background-color: hsl(var(--leaf-600));
-  color: var(--primary-foreground);
+  background-color: hsl(var(--leaf-500));
+  color: hsl(var(--primary-foreground));
   font-weight: 600;
   font-size: 0.925rem;
   text-decoration: none;
@@ -438,8 +438,8 @@ button,
 }
 
 .closing-cta-btn:hover {
-  background-color: hsl(var(--leaf-700));
-  color: var(--primary-foreground);
+  background-color: hsl(var(--leaf-600));
+  color: hsl(var(--primary-foreground));
 }
 
 .closing-cta-btn:active {
