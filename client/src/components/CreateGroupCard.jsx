@@ -360,77 +360,69 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
             <div className="flex flex-col gap-2">
               {participants.map((participant, index) => {
                 const isInvalid = errors.memberIndex === index;
-                const placeholder =
-                  index === 0
-                    ? "Your name"
-                    : index === 1
-                    ? "Friend's name"
-                    : `Friend ${index + 1}`;
+                const placeholder = index === 0 ? "Your name" : "Friend's name";
 
                 return (
                   <div key={index} className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1 flex items-center">
-                        {(() => {
-                          const palette = AVATAR_PALETTES[index % AVATAR_PALETTES.length];
-                          const hasName = Boolean(participant.trim());
-                          return (
-                            <Avatar
+                    <div className="relative flex items-center">
+                      {(() => {
+                        const palette = AVATAR_PALETTES[index % AVATAR_PALETTES.length];
+                        const hasName = Boolean(participant.trim());
+                        return (
+                          <Avatar
+                            className={cn(
+                              "absolute left-2.5 h-6 w-6 text-[10px] font-bold pointer-events-none transition-colors duration-150",
+                              hasName
+                                ? cn(palette.bg, palette.text)
+                                : "bg-ink-100 text-ink-400"
+                            )}
+                          >
+                            <AvatarFallback
                               className={cn(
-                                "absolute left-2.5 h-6 w-6 text-[10px] font-bold pointer-events-none transition-colors duration-150",
+                                "font-bold flex items-center justify-center font-sans",
                                 hasName
                                   ? cn(palette.bg, palette.text)
                                   : "bg-ink-100 text-ink-400"
                               )}
                             >
-                              <AvatarFallback
-                                className={cn(
-                                  "font-bold flex items-center justify-center font-sans",
-                                  hasName
-                                    ? cn(palette.bg, palette.text)
-                                    : "bg-ink-100 text-ink-400"
-                                )}
-                              >
-                                {hasName ? (
-                                  getInitials(participant)
-                                ) : (
-                                  <User className="h-3.5 w-3.5 text-ink-400" aria-hidden="true" />
-                                )}
-                              </AvatarFallback>
-                            </Avatar>
+                              {hasName ? (
+                                getInitials(participant)
+                              ) : (
+                                <User className="h-3.5 w-3.5 text-ink-400" aria-hidden="true" />
+                              )}
+                            </AvatarFallback>
+                          </Avatar>
+                        );
+                      })()}
+                      <Input
+                        ref={(el) => (memberRefs.current[index] = el)}
+                        className={cn(
+                          "pl-10 h-10 text-xs sm:text-sm rounded-xl font-sans",
+                          index >= 2 ? "pr-9" : "pr-3",
+                          isInvalid && "border-danger-500 focus-visible:ring-danger-200"
+                        )}
+                        maxLength={32}
+                        placeholder={placeholder}
+                        value={participant}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setParticipants((curr) =>
+                            curr.map((item, i) => (i === index ? val : item))
                           );
-                        })()}
-                        <Input
-                          ref={(el) => (memberRefs.current[index] = el)}
-                          className={cn(
-                            "pl-10 h-10 text-xs sm:text-sm rounded-xl font-sans",
-                            isInvalid && "border-danger-500 focus-visible:ring-danger-200"
-                          )}
-                          maxLength={32}
-                          placeholder={placeholder}
-                          value={participant}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setParticipants((curr) =>
-                              curr.map((item, i) => (i === index ? val : item))
-                            );
-                            if (errors.members) {
-                              setErrors((prev) => ({
-                                ...prev,
-                                members: null,
-                                memberIndex: null
-                              }));
-                            }
-                          }}
-                          onFocus={() => void warmApi()}
-                        />
-                      </div>
+                          if (errors.members) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              members: null,
+                              memberIndex: null
+                            }));
+                          }
+                        }}
+                        onFocus={() => void warmApi()}
+                      />
                       {index >= 2 && (
-                        <Button
+                        <button
                           type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-10 w-10 text-ink-400 hover:text-danger-600 hover:bg-danger-50 rounded-xl shrink-0"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 !min-h-0 !min-w-0 h-7 w-7 inline-flex items-center justify-center p-0 text-ink-400 hover:text-danger-600 hover:bg-danger-50 transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-danger-400 cursor-pointer"
                           onClick={() => {
                             setParticipants((curr) =>
                               curr.filter((_, i) => i !== index)
@@ -443,11 +435,11 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                               }));
                             }
                           }}
+                          aria-label={`Remove ${participant.trim() || placeholder}`}
                           title="Remove person"
-                          aria-label={`Remove ${placeholder}`}
                         >
                           <Trash2 className="h-4 w-4" />
-                        </Button>
+                        </button>
                       )}
                     </div>
                     {isInvalid && errors.members && (
