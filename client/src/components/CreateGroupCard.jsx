@@ -61,6 +61,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
   const pinRef = useRef(null);
   const memberRefs = useRef([]);
   const pinTooltipRef = useRef(null);
+  const pendingFocusIndex = useRef(null);
 
   useEffect(() => {
     if (!showPinInfo) return;
@@ -84,6 +85,30 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [showPinInfo]);
+
+  const handleAddMember = () => {
+    pendingFocusIndex.current = participants.length;
+    setParticipants((curr) => [...curr, ""]);
+    if (errors.members) {
+      setErrors((prev) => ({
+        ...prev,
+        members: null,
+        memberIndex: null
+      }));
+    }
+  };
+
+  useEffect(() => {
+    if (pendingFocusIndex.current !== null) {
+      const idx = pendingFocusIndex.current;
+      pendingFocusIndex.current = null;
+      const el = memberRefs.current[idx];
+      if (el) {
+        el.focus({ preventScroll: true });
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [participants.length]);
 
   const validMemberCount = useMemo(
     () => participants.filter((p) => p.trim().length > 0).length,
@@ -247,6 +272,13 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 maxLength={50}
                 placeholder="e.g. Goa Trip, Flat 402"
                 value={name}
+                enterKeyHint="next"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    pinRef.current?.focus();
+                  }
+                }}
                 onChange={(e) => {
                   setName(e.target.value);
                   if (errors.name) {
@@ -326,6 +358,13 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                   inputMode="numeric"
                   autoComplete="new-password"
                   value={pin}
+                  enterKeyHint="next"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      memberRefs.current[0]?.focus();
+                    }
+                  }}
                   onChange={(e) => {
                     setPin(e.target.value.replace(/\D/g, ""));
                     if (errors.pin) {
@@ -395,7 +434,10 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                         );
                       })()}
                       <Input
-                        ref={(el) => (memberRefs.current[index] = el)}
+                        ref={(el) => {
+                          if (el) memberRefs.current[index] = el;
+                          else delete memberRefs.current[index];
+                        }}
                         className={cn(
                           "pl-10 h-10 text-xs sm:text-sm rounded-xl font-sans",
                           index >= 2 ? "pr-9" : "pr-3",
@@ -404,6 +446,17 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                         maxLength={32}
                         placeholder={placeholder}
                         value={participant}
+                        enterKeyHint={index < participants.length - 1 || participant.trim() ? "next" : "done"}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (index < participants.length - 1) {
+                              memberRefs.current[index + 1]?.focus();
+                            } else if (participant.trim()) {
+                              handleAddMember();
+                            }
+                          }
+                        }}
                         onChange={(e) => {
                           const val = e.target.value;
                           setParticipants((curr) =>
@@ -457,16 +510,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => {
-                  setParticipants((curr) => [...curr, ""]);
-                  if (errors.members) {
-                    setErrors((prev) => ({
-                      ...prev,
-                      members: null,
-                      memberIndex: null
-                    }));
-                  }
-                }}
+                onClick={handleAddMember}
                 className="rounded-xl border-dashed border-ink-300 text-ink-600 hover:border-leaf-400 hover:text-leaf-700 h-9 gap-1.5 text-xs font-semibold font-sans"
               >
                 <Plus className="h-3.5 w-3.5 text-leaf-600" />

@@ -564,9 +564,7 @@ button,
   }
 
   .hero-after {
-    grid-column: 1;
-    grid-row: 3;
-    margin-top: 0.5rem;
+    display: none;
   }
 
   .hero h1 {
