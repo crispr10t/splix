@@ -158,9 +158,10 @@ export function EditPage() {
     };
   }, [editId, token]);
 
-  const fetcher = useCallback(() => fetchEditSnapshot(editId, token), [editId, token]);
+  const fetcher = useCallback((opts) => fetchEditSnapshot(editId, token, opts), [editId, token]);
   const { snapshot, setSnapshot, loading, error, refetch } = usePollingSnapshot({
-    enabled: Boolean(token),
+    enabled: Boolean(token) && !addExpenseOpen && !profileOpen && !addMemberOpen && !editingExpense,
+    intervalMs: 25000,
     fetcher,
     cacheKey: `edit:${editId}`
   });
@@ -168,7 +169,7 @@ export function EditPage() {
   const { isOnline, pendingCount, isSyncing, syncNow, queueMutation } = useOfflineSync({
     editId,
     token,
-    onSynced: refetch
+    onSynced: () => refetch({ force: true })
   });
   const { canInstall, promptInstall } = usePwaInstall();
 
@@ -226,6 +227,11 @@ export function EditPage() {
     setSelectedParticipantId(participantId);
     toast.success("Identity selected");
   }
+
+  const handleAddExpenseOpenChange = useCallback((open) => {
+    setAddExpenseOpen(open);
+    if (!open) setEditingExpense(null);
+  }, []);
 
   async function onAdd(payload) {
     if (!token) return;
@@ -1050,10 +1056,7 @@ export function EditPage() {
           {/* Add / Edit Expense Drawer / Sheet */}
           <Sheet
             open={addExpenseOpen}
-            onOpenChange={(open) => {
-              setAddExpenseOpen(open);
-              if (!open) setEditingExpense(null);
-            }}
+            onOpenChange={handleAddExpenseOpenChange}
           >
             <SheetContent
               side={isDesktop ? "right" : "bottom"}

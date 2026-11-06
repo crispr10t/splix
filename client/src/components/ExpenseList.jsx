@@ -14,7 +14,7 @@ import {
   Trash2,
   X
 } from "lucide-react";
-import { formatCompactDate, money } from "@/utils/format";
+import { money } from "@/utils/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -227,10 +227,18 @@ export function ExpenseList({
       const dayKey = date ? `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}` : "unknown";
       const todayKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
       const yesterdayKey = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
-      const weekStart = new Date(today);
-      weekStart.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-      weekStart.setHours(0, 0, 0, 0);
-      const label = !date ? "Date unknown" : dayKey === todayKey ? "Today" : dayKey === yesterdayKey ? "Yesterday" : date >= weekStart && date <= today ? "This Week" : date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+      let label;
+      if (!date) {
+        label = "Date unknown";
+      } else if (dayKey === todayKey) {
+        label = "Today";
+      } else if (dayKey === yesterdayKey) {
+        label = "Yesterday";
+      } else if (date.getFullYear() === today.getFullYear()) {
+        label = date.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+      } else {
+        label = date.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+      }
       if (!groups.has(label)) groups.set(label, []);
       groups.get(label).push(expense);
     });
@@ -477,9 +485,6 @@ export function ExpenseList({
           const cat = getCategory(expense.category);
           const CategoryIcon = cat.icon;
           const displayDate = expense.date || expense.createdAt;
-          const compactDate = displayDate && entry.groupLabel !== "Today" && entry.groupLabel !== "Yesterday"
-            ? formatCompactDate(displayDate)
-            : "";
           const parsedDisplayDate = displayDate ? parseLocalDate(displayDate) : null;
           const fullDate = parsedDisplayDate && !Number.isNaN(parsedDisplayDate.getTime())
             ? parsedDisplayDate.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
@@ -555,17 +560,14 @@ export function ExpenseList({
                     {expense.title}
                   </h3>
 
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-ink-500">
-                    <span>
-                      Paid by <strong className="text-ink-800 font-medium">{payerName}</strong>{Boolean(compactDate) && ","}
+                  <div className="mt-0.5 flex min-w-0 items-center gap-x-1.5 text-xs text-ink-500">
+                    <span className="truncate">
+                      Paid by <strong className="font-medium text-ink-800">{payerName}</strong>
                     </span>
-                    {Boolean(compactDate) && (
-                      <span className="text-ink-500 font-medium">{compactDate}</span>
-                    )}
                     {expense.__pending && (
                       <Badge
                         variant="secondary"
-                        className="whitespace-nowrap text-[10px] py-0 px-1.5 motion-safe:animate-pulse"
+                        className="shrink-0 whitespace-nowrap px-1.5 py-0 text-[10px] motion-safe:animate-pulse"
                       >
                         Pending
                       </Badge>
@@ -573,7 +575,7 @@ export function ExpenseList({
                     {expense.__isOffline && (
                       <Badge
                         variant="outline"
-                        className="text-[10px] py-0 px-1.5 font-normal text-ink-500 border-ink-200 inline-flex items-center gap-1"
+                        className="inline-flex shrink-0 items-center gap-1 border-ink-200 px-1.5 py-0 text-[10px] font-normal text-ink-500"
                       >
                         <CloudOff className="h-2.5 w-2.5" />
                         <span>offline</span>

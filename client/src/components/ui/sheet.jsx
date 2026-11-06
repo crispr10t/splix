@@ -73,6 +73,10 @@ function SheetPortal({ children }) {
 const SheetContent = React.forwardRef(
   ({ side = "right", className, children, onOpenAutoFocus, ...props }, ref) => {
     const { open, onOpenChange } = React.useContext(SheetContext);
+    const onOpenChangeRef = React.useRef(onOpenChange);
+    React.useEffect(() => {
+      onOpenChangeRef.current = onOpenChange;
+    });
     const dragControls = useDragControls();
     const y = useMotionValue(0);
     const [isDragging, setIsDragging] = React.useState(false);
@@ -111,7 +115,7 @@ const SheetContent = React.forwardRef(
 
       function handlePopState() {
         isPoppedByBackButton = true;
-        onOpenChange?.(false);
+        onOpenChangeRef.current?.(false);
       }
 
       window.addEventListener("popstate", handlePopState);
@@ -123,19 +127,19 @@ const SheetContent = React.forwardRef(
           window.history.back();
         }
       };
-    }, [open, onOpenChange]);
+    }, [open]);
 
     // Escape key listener
     React.useEffect(() => {
       if (!open) return;
       function handleKeyDown(e) {
         if (e.key === "Escape") {
-          onOpenChange?.(false);
+          onOpenChangeRef.current?.(false);
         }
       }
       window.addEventListener("keydown", handleKeyDown);
       return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [open, onOpenChange]);
+    }, [open]);
 
     const springTransition = {
       type: "spring",
@@ -177,7 +181,7 @@ const SheetContent = React.forwardRef(
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="fixed inset-0 z-50 bg-ink-950/60"
-              onClick={() => onOpenChange?.(false)}
+              onClick={() => onOpenChangeRef.current?.(false)}
             />
           )}
           {open && (
@@ -196,7 +200,7 @@ const SheetContent = React.forwardRef(
               onDragEnd={(_, info) => {
                 setIsDragging(false);
                 if (info.offset.y > 100 || info.velocity.y > 500) {
-                  onOpenChange?.(false);
+                  onOpenChangeRef.current?.(false);
                 } else {
                   animate(y, 0, springTransition);
                 }
@@ -222,7 +226,7 @@ const SheetContent = React.forwardRef(
               {children}
               <button
                 type="button"
-                onClick={() => onOpenChange?.(false)}
+                onClick={() => onOpenChangeRef.current?.(false)}
                 className="absolute right-4 top-3.5 rounded-xl p-1.5 text-ink-500 hover:text-ink-800 hover:bg-ink-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 z-20"
                 aria-label="Close"
               >

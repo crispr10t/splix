@@ -112,7 +112,13 @@ const patchSettlementSchema = Joi.object({
 
 
 async function touchGroupActivity(groupId) {
-  await Group.updateOne({ _id: groupId }, { $set: { lastActivityAt: new Date() } });
+  await Group.updateOne(
+    { _id: groupId },
+    {
+      $set: { lastActivityAt: new Date() },
+      $inc: { version: 1 }
+    }
+  );
 }
 
 async function createGroup(req, res) {
@@ -122,7 +128,7 @@ async function createGroup(req, res) {
   const viewId = nanoid(18);
   let group = null;
   try {
-    group = await Group.create({ name, currency, pinHash, editId, viewId });
+    group = await Group.create({ name, currency, pinHash, editId, viewId, version: 1 });
 
     await Participant.insertMany(
       participants.map((participant) => ({
@@ -153,6 +159,15 @@ async function createGroup(req, res) {
 async function getViewSnapshot(req, res) {
   const group = await getGroupByViewId(req.params.viewId);
   if (!group) return res.status(404).json({ error: "Group not found" });
+
+  const currentVersion = group.version || (group.lastActivityAt ? new Date(group.lastActivityAt).getTime() : 1);
+  const since = req.query.since || req.headers["if-none-match"]?.replace(/["']/g, "");
+
+  if (since && String(since) === String(currentVersion)) {
+    setNoCache(res);
+    return res.status(200).json({ notModified: true, version: currentVersion });
+  }
+
   const snapshot = await getSnapshotByGroup(group);
   setNoCache(res);
   return res.json(snapshot);
@@ -161,6 +176,15 @@ async function getViewSnapshot(req, res) {
 async function getEditSnapshot(req, res) {
   const group = await getGroupByEditId(req.params.editId);
   if (!group) return res.status(404).json({ error: "Group not found" });
+
+  const currentVersion = group.version || (group.lastActivityAt ? new Date(group.lastActivityAt).getTime() : 1);
+  const since = req.query.since || req.headers["if-none-match"]?.replace(/["']/g, "");
+
+  if (since && String(since) === String(currentVersion)) {
+    setNoCache(res);
+    return res.status(200).json({ notModified: true, version: currentVersion });
+  }
+
   const snapshot = await getSnapshotByGroup(group);
   setNoCache(res);
   return res.json(snapshot);

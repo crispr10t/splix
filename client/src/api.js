@@ -13,6 +13,8 @@ async function apiRequest(path, options = {}) {
     }
   });
 
+  if (response.status === 304) return { notModified: true };
+
   if (!response.ok) {
     let message = "Request failed";
     try {
@@ -52,12 +54,14 @@ function createSession(payload) {
   });
 }
 
-function fetchViewSnapshot(viewId) {
-  return apiRequest(`/api/groups/view/${viewId}`);
+function fetchViewSnapshot(viewId, options = {}) {
+  const query = options.since !== undefined && options.since !== null ? `?since=${encodeURIComponent(options.since)}` : "";
+  return apiRequest(`/api/groups/view/${viewId}${query}`);
 }
 
-function fetchEditSnapshot(editId, token) {
-  return apiRequest(`/api/groups/edit/${editId}`, {
+function fetchEditSnapshot(editId, token, options = {}) {
+  const query = options.since !== undefined && options.since !== null ? `?since=${encodeURIComponent(options.since)}` : "";
+  return apiRequest(`/api/groups/edit/${editId}${query}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
 }
