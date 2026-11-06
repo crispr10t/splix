@@ -20,7 +20,7 @@
     --danger-50: 8 65% 97%; --danger-100: 8 60% 94%; --danger-200: 8 55% 87%;
     --danger-400: 8 65% 67%; --danger-500: 8 68% 56%; --danger-600: 8 72% 48%;
     --danger-800: 8 68% 32%; --danger-900: 8 70% 24%;
-    --background: 0 0% 100%;
+    --background: 150 18% 97%;
     --foreground: 155 26% 14%;
     --card: 0 0% 100%;
     --card-foreground: 155 26% 14%;
@@ -46,9 +46,9 @@
     --font-figure: "IBM Plex Mono", ui-monospace, monospace;
     --color-ink: oklch(24% 0.025 155);
     --color-ink-soft: oklch(38% 0.025 155);
-    --color-paper: #ffffff;
+    --color-paper: oklch(97% 0.012 155);
     --color-paper-2: oklch(93% 0.018 155);
-    --color-sheet: #ffffff;
+    --color-sheet: oklch(99% 0.006 155);
     --color-accent: oklch(46% 0.13 153);
     --color-accent-hover: oklch(39% 0.13 153);
     --color-rule: oklch(84% 0.018 155);
@@ -146,8 +146,6 @@
   gap: clamp(2rem, 6vw, 6rem);
   padding-bottom: clamp(4rem, 9vh, 7rem);
 }
-
-
 
 .hero-aside,
 .creator {
