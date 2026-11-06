@@ -468,7 +468,8 @@ export function ExpenseList({
           const expense = entry.expense;
           const isOpen = openId === expense.id;
           const payer = byId.get(expense.paidByParticipantId);
-          const payerName = payer?.name || "Unknown";
+          const isCurrentUserPayer = Boolean(selectedParticipantId && expense.paidByParticipantId === selectedParticipantId);
+          const payerName = isCurrentUserPayer ? "you" : payer?.name || "Unknown";
           const splitEntries =
             typeof expense.splitJson === "object" && expense.splitJson !== null
               ? Object.entries(expense.splitJson)
@@ -556,10 +557,10 @@ export function ExpenseList({
 
                   <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-ink-500">
                     <span>
-                      By <strong className="text-ink-800 font-medium">{payerName}</strong>{Boolean(compactDate) && ","}
+                      Paid by <strong className="text-ink-800 font-medium">{payerName}</strong>{Boolean(compactDate) && ","}
                     </span>
                     {Boolean(compactDate) && (
-                      <span className="text-ink-400">{compactDate}</span>
+                      <span className="text-ink-500 font-medium">{compactDate}</span>
                     )}
                     {expense.__pending && (
                       <Badge
@@ -588,7 +589,7 @@ export function ExpenseList({
                       {money(expense.amountMinor, currency)}
                     </span>
                     {selectedParticipantId && (
-                      <span className={`whitespace-nowrap text-[11px] tabular-nums ${shareMinor > 0 ? "text-ink-500 font-medium" : "text-ink-400"}`}>
+                      <span className={`whitespace-nowrap text-[10.5px] tabular-nums ${shareMinor > 0 ? "text-ink-400 font-normal" : "text-ink-300"}`}>
                         {shareMinor > 0 ? `Your share: ${money(shareMinor, currency)}` : "Not involved"}
                       </span>
                     )}
@@ -607,7 +608,7 @@ export function ExpenseList({
               >
                 <div className="overflow-hidden">
                   <div className="border-t border-ink-100 bg-ink-50/30 px-3.5 pb-3.5 pt-3 sm:px-4 sm:pb-4">
-                    {fullDate && <div className="text-[11px] font-sans text-ink-400">{fullDate}</div>}
+                    {fullDate && <div className="text-xs font-medium font-sans text-ink-600">{fullDate}</div>}
                     <div className="mt-1 text-xs font-medium text-ink-500 font-sans">Split details</div>
 
                     <div className="mt-2 text-sm font-sans">
