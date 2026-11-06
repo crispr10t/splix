@@ -16,6 +16,7 @@ import { formatCompactDate, money } from "@/utils/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getCategory } from "@/utils/categories";
 import { DEFAULT_FILTERS, ExpenseFilterSheet } from "@/components/ExpenseFilterSheet";
 import { hapticTap } from "@/utils/haptics";
@@ -80,6 +81,7 @@ export function ExpenseList({
   canEdit = false,
   canDelete = false,
   selectedParticipantId = "",
+  isUserOwed = false,
   filters: controlledFilters,
   onFiltersChange: controlledOnFiltersChange
 }) {
@@ -219,7 +221,10 @@ export function ExpenseList({
       if (!groups.has(label)) groups.set(label, []);
       groups.get(label).push(expense);
     });
-    return [...groups].flatMap(([label, items]) => [{ label }, ...items.map((expense) => ({ expense }))]);
+    return [...groups].flatMap(([label, items]) => [
+      { label },
+      ...items.map((expense) => ({ expense, groupLabel: label }))
+    ]);
   }, [filteredExpenses, filters.sort]);
 
   function clearAllFilters() {
@@ -425,11 +430,16 @@ export function ExpenseList({
           const cat = getCategory(expense.category);
           const CategoryIcon = cat.icon;
           const displayDate = expense.date || expense.createdAt;
-          const compactDate = displayDate && (filters.sort === "highest" || filters.sort === "lowest")
+          const compactDate = displayDate && entry.groupLabel !== "Today" && entry.groupLabel !== "Yesterday"
             ? formatCompactDate(displayDate)
             : "";
-          const fullDate = displayDate ? parseLocalDate(displayDate).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
-          const evenSplit = splitEntries.length > 1 && splitEntries.every(([, value]) => Number(value) === Number(splitEntries[0][1]));
+          const parsedDisplayDate = displayDate ? parseLocalDate(displayDate) : null;
+          const fullDate = parsedDisplayDate && !Number.isNaN(parsedDisplayDate.getTime())
+            ? parsedDisplayDate.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+            : "";
+          const shareMinor = selectedParticipantId
+            ? Number(expense.splitJson?.[selectedParticipantId] || 0)
+            : null;
 
           return (
             <motion.div
@@ -510,9 +520,16 @@ export function ExpenseList({
 
                 {/* Amount and Chevron (right aligned with tabular-nums) */}
                 <div className="flex items-center justify-end gap-2 shrink-0 pl-2 text-right">
-                  <span className="tabular-nums text-right text-base font-semibold text-ink-900">
-                    {money(expense.amountMinor, currency)}
-                  </span>
+                  <div className="flex min-w-0 flex-col items-end">
+                    <span className="whitespace-nowrap tabular-nums text-right text-base font-semibold text-ink-900">
+                      {money(expense.amountMinor, currency)}
+                    </span>
+                    {selectedParticipantId && (
+                      <span className={`whitespace-nowrap text-[11px] tabular-nums ${shareMinor > 0 ? isUserOwed ? "text-leaf-700" : "text-ink-500" : "text-ink-400"}`}>
+                        {shareMinor > 0 ? `Your share: ${money(shareMinor, currency)}` : "Not involved"}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-ink-400">
                     {isOpen ? (
                       <ChevronDown className="h-4 w-4" />
@@ -541,19 +558,12 @@ export function ExpenseList({
                     }}
                     className="overflow-hidden border-t border-ink-100 bg-ink-50/30 px-3.5 pb-3.5 pt-3 sm:px-4 sm:pb-4"
                   >
-                    <div className="text-xs font-medium text-ink-500 font-sans">
-                      Split breakdown ({splitEntries.length})
-                    </div>
-                    {fullDate && <div className="mt-1 text-xs text-ink-500">{fullDate}</div>}
+                    {fullDate && <div className="text-[11px] font-sans text-ink-400">{fullDate}</div>}
+                    <div className="mt-1 text-xs font-medium text-ink-500 font-sans">Split details</div>
 
                     <div className="mt-2 text-sm font-sans">
                       {splitEntries.length === 0 ? (
                         <div className="py-2 text-xs text-ink-400">No split details recorded</div>
-                      ) : evenSplit ? (
-                        <>
-                          <div className="flex items-center justify-between rounded-lg bg-ink-100/60 px-3 py-2.5 text-xs text-ink-700"><span>Split equally across {splitEntries.length} people</span><strong>{money(splitEntries[0][1], currency)} each</strong></div>
-                          <div className="mt-2 flex flex-wrap gap-1.5">{splitEntries.map(([participantId, value]) => <span key={participantId} className={`rounded-full border px-2 py-0.5 text-[11px] ${participantId === selectedParticipantId ? "border-leaf-300 bg-leaf-50 font-semibold text-leaf-800" : "border-ink-200 bg-white text-ink-700"}`}>{participantId === selectedParticipantId ? `You: ${money(value, currency)}` : byId.get(participantId)?.name || "Unknown"}</span>)}</div>
-                        </>
                       ) : (
                         splitEntries
                           .slice()
@@ -571,10 +581,17 @@ export function ExpenseList({
                             return (
                               <div
                                 key={participantId}
-                                className="flex items-center justify-between py-2 border-b border-ink-100 last:border-b-0"
+                                className={`flex items-center justify-between gap-3 rounded-lg px-2 py-2 ${isCurrentParticipant ? "bg-leaf-50/80" : ""}`}
                               >
-                                <span className={isCurrentParticipant ? "font-semibold text-leaf-800" : "text-ink-700"}>{isCurrentParticipant ? "You" : personName}</span>
-                                <span className={`tabular-nums font-medium ${isCurrentParticipant ? "text-leaf-800" : "text-ink-900"}`}>
+                                <div className="flex min-w-0 items-center gap-2">
+                                  <Avatar className="h-[22px] w-[22px] ring-0">
+                                    <AvatarFallback className={`text-[9px] ${isCurrentParticipant ? "bg-leaf-100 text-leaf-800" : "bg-ink-100 text-ink-600"}`}>
+                                      {personName.slice(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span className={`truncate ${isCurrentParticipant ? "font-semibold text-leaf-800" : "text-ink-700"}`}>{isCurrentParticipant ? "You" : personName}</span>
+                                </div>
+                                <span className={`shrink-0 tabular-nums font-medium ${isCurrentParticipant ? "text-leaf-800" : "text-ink-900"}`}>
                                   {money(valueMinor, currency)}
                                 </span>
                               </div>
