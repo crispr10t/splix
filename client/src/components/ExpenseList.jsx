@@ -469,7 +469,7 @@ export function ExpenseList({
           const isOpen = openId === expense.id;
           const payer = byId.get(expense.paidByParticipantId);
           const isCurrentUserPayer = Boolean(selectedParticipantId && expense.paidByParticipantId === selectedParticipantId);
-          const payerName = isCurrentUserPayer ? "you" : payer?.name || "Unknown";
+          const payerName = isCurrentUserPayer ? "You" : payer?.name || "Unknown";
           const splitEntries =
             typeof expense.splitJson === "object" && expense.splitJson !== null
               ? Object.entries(expense.splitJson)
