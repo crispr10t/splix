@@ -15,7 +15,9 @@ export function formatDateTime(value) {
 
 export function formatCompactDate(value) {
   if (!value) return "";
-  const d = new Date(value);
+  const d = typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? new Date(`${value}T00:00:00`)
+    : new Date(value);
   if (isNaN(d.getTime())) return "";
 
   const now = new Date();
@@ -31,21 +33,8 @@ export function formatCompactDate(value) {
     d.getMonth() === yesterday.getMonth() &&
     d.getFullYear() === yesterday.getFullYear();
 
-  const timeStr = d
-    .toLocaleTimeString("en-US", {
-      hour: "numeric",
-      minute: "2-digit",
-      hour12: true
-    })
-    .replace(/\s|[\u2000-\u200b\u202f]/g, " ")
-    .toLowerCase();
-
-  if (isToday) {
-    return `Today, ${timeStr}`;
-  }
-  if (isYesterday) {
-    return `Yesterday, ${timeStr}`;
-  }
+  if (isToday) return "";
+  if (isYesterday) return "";
 
   const isThisYear = d.getFullYear() === now.getFullYear();
   const day = d.getDate();

@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   ChevronDown,
   ChevronRight,
@@ -84,6 +85,8 @@ export function ExpenseList({
 }) {
   const byId = useMemo(() => new Map(participants.map((p) => [p.id, p])), [participants]);
   const [openId, setOpenId] = useState("");
+  const [pendingDeleteIds, setPendingDeleteIds] = useState(() => new Set());
+  const deleteTimers = useRef(new Map());
   const [searchQuery, setSearchQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -91,6 +94,36 @@ export function ExpenseList({
   const [internalFilters, setInternalFilters] = useState(DEFAULT_FILTERS);
   const filters = controlledFilters ?? internalFilters;
   const onFiltersChange = controlledOnFiltersChange ?? setInternalFilters;
+
+  function scheduleDelete(expense) {
+    if (deleteTimers.current.has(expense.id)) return;
+    setPendingDeleteIds((current) => new Set(current).add(expense.id));
+    const timer = setTimeout(() => {
+      deleteTimers.current.delete(expense.id);
+      setPendingDeleteIds((current) => {
+        const next = new Set(current);
+        next.delete(expense.id);
+        return next;
+      });
+      onDelete?.(expense.id, expense);
+    }, 4000);
+    deleteTimers.current.set(expense.id, timer);
+    toast("Expense deleted", {
+      duration: 4000,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          clearTimeout(deleteTimers.current.get(expense.id));
+          deleteTimers.current.delete(expense.id);
+          setPendingDeleteIds((current) => {
+            const next = new Set(current);
+            next.delete(expense.id);
+            return next;
+          });
+        }
+      }
+    });
+  }
 
   // Active filters count (Sort does NOT count toward badge)
   const activeFilterCount = useMemo(() => {
@@ -120,7 +153,9 @@ export function ExpenseList({
         }
 
         // 2. Payer filter
-        if (filters.payer !== "all" && expense.paidByParticipantId !== filters.payer) {
+        if (filters.payer === "involving_me" && selectedParticipantId) {
+          if (expense.paidByParticipantId !== selectedParticipantId && Number(expense.splitJson?.[selectedParticipantId] || 0) <= 0) return false;
+        } else if (filters.payer !== "all" && expense.paidByParticipantId !== filters.payer) {
           return false;
         }
 
@@ -157,7 +192,7 @@ export function ExpenseList({
         const dateB = new Date(b.date || b.createdAt || 0).getTime() || 0;
         return dateB - dateA;
       });
-  }, [expenses, hasSearch, searchQuery, byId, filters]);
+  }, [expenses, hasSearch, searchQuery, byId, filters, selectedParticipantId]);
 
   const totalSpentMinor = useMemo(() => {
     return expenses.reduce((sum, e) => sum + e.amountMinor, 0);
@@ -247,7 +282,7 @@ export function ExpenseList({
             <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
               {filters.payer !== "all" && (
                 <span className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-xs font-medium bg-leaf-50 text-leaf-800 border border-leaf-200/80">
-                  <span>Paid by {byId.get(filters.payer)?.name || "Member"}</span>
+                  <span>{filters.payer === "involving_me" ? "Involving me" : `Paid by ${byId.get(filters.payer)?.name || "Member"}`}</span>
                   <button
                     type="button"
                     onClick={() => onFiltersChange({ ...filters, payer: "all" })}
@@ -390,18 +425,39 @@ export function ExpenseList({
           const cat = getCategory(expense.category);
           const CategoryIcon = cat.icon;
           const displayDate = expense.date || expense.createdAt;
-          const compactDate = displayDate ? formatCompactDate(displayDate) : "";
+          const compactDate = displayDate && (filters.sort === "highest" || filters.sort === "lowest")
+            ? formatCompactDate(displayDate)
+            : "";
+          const fullDate = displayDate ? parseLocalDate(displayDate).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) : "";
+          const evenSplit = splitEntries.length > 1 && splitEntries.every(([, value]) => Number(value) === Number(splitEntries[0][1]));
 
           return (
-            <div
+            <motion.div
               key={expense.id}
-              className="relative overflow-hidden rounded-xl border border-ink-200/80 bg-white transition-colors duration-150"
+              layout
+              animate={pendingDeleteIds.has(expense.id)
+                ? { height: 0, opacity: 0, marginBottom: -8 }
+                : { height: "auto", opacity: 1, marginBottom: 0 }}
+              transition={{ duration: 0.24, ease: "easeInOut" }}
+              className="relative overflow-hidden rounded-xl border border-ink-200/80 bg-white"
             >
-              <div className="absolute inset-y-0 right-0 flex w-[140px] items-center justify-end gap-1 bg-ink-100 px-2">
-                {canEdit && <button type="button" className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white" onClick={() => onEdit?.(expense)}>Edit</button>}
-                {canDelete && <button type="button" className="rounded-lg bg-danger-600 px-3 py-2 text-xs font-semibold text-white" onClick={() => onDelete?.(expense.id)}>Delete</button>}
-              </div>
-              <motion.div drag="x" dragDirectionLock dragConstraints={{ left: -140, right: 0 }} dragElastic={0.04} onDragEnd={(_, info) => { if (info.offset.x < -70 || info.velocity.x < -350) hapticTap(12); }} className="relative bg-white touch-pan-y">
+              {canEdit && <div className="absolute inset-y-0 left-0 flex w-[90px] items-center gap-1.5 rounded-l-xl bg-ink-800 pl-3 text-white"><Edit2 className="h-4 w-4" /><span className="text-xs font-semibold">Edit</span></div>}
+              {canDelete && <div className="absolute inset-y-0 right-0 flex w-[90px] items-center justify-end gap-1.5 rounded-r-xl bg-danger-600 pr-3 text-white"><Trash2 className="h-4 w-4" /><span className="text-xs font-semibold">Delete</span></div>}
+              <motion.div
+                drag={isOpen || pendingDeleteIds.has(expense.id) || (!canEdit && !canDelete) ? false : "x"}
+                dragDirectionLock
+                dragConstraints={{ left: -100, right: 100 }}
+                dragElastic={0.1}
+                onDragEnd={(_, info) => {
+                  if (info.offset.x > 60 || info.velocity.x > 300) {
+                    if (canEdit) { hapticTap(15); onEdit?.(expense); }
+                  } else if (info.offset.x < -60 || info.velocity.x < -300) {
+                    if (canDelete) { hapticTap(20); scheduleDelete(expense); }
+                  }
+                }}
+                className="relative bg-white touch-pan-y"
+              >
+              {pendingDeleteIds.has(expense.id) && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.92 }} className="pointer-events-none absolute inset-0 z-10 bg-danger-600" />}
               <button
                 type="button"
                 aria-expanded={isOpen}
@@ -450,7 +506,6 @@ export function ExpenseList({
                       </Badge>
                     )}
                   </div>
-                  {selectedParticipantId && <span className={`mt-1 block text-[10px] ${Number(expense.splitJson?.[selectedParticipantId] || 0) > 0 ? "text-ink-500" : "text-ink-400"}`}>{Number(expense.splitJson?.[selectedParticipantId] || 0) > 0 ? `Your share ${money(Number(expense.splitJson[selectedParticipantId]), currency)}` : "Not involved"}</span>}
                 </div>
 
                 {/* Amount and Chevron (right aligned with tabular-nums) */}
@@ -489,10 +544,16 @@ export function ExpenseList({
                     <div className="text-xs font-medium text-ink-500 font-sans">
                       Split breakdown ({splitEntries.length})
                     </div>
+                    {fullDate && <div className="mt-1 text-xs text-ink-500">{fullDate}</div>}
 
                     <div className="mt-2 text-sm font-sans">
                       {splitEntries.length === 0 ? (
                         <div className="py-2 text-xs text-ink-400">No split details recorded</div>
+                      ) : evenSplit ? (
+                        <>
+                          <div className="flex items-center justify-between rounded-lg bg-ink-100/60 px-3 py-2.5 text-xs text-ink-700"><span>Split equally across {splitEntries.length} people</span><strong>{money(splitEntries[0][1], currency)} each</strong></div>
+                          <div className="mt-2 flex flex-wrap gap-1.5">{splitEntries.map(([participantId, value]) => <span key={participantId} className={`rounded-full border px-2 py-0.5 text-[11px] ${participantId === selectedParticipantId ? "border-leaf-300 bg-leaf-50 font-semibold text-leaf-800" : "border-ink-200 bg-white text-ink-700"}`}>{participantId === selectedParticipantId ? `You: ${money(value, currency)}` : byId.get(participantId)?.name || "Unknown"}</span>)}</div>
+                        </>
                       ) : (
                         splitEntries
                           .slice()
@@ -505,14 +566,15 @@ export function ExpenseList({
                             });
                           })
                           .map(([participantId, valueMinor]) => {
+                            const isCurrentParticipant = participantId === selectedParticipantId;
                             const personName = byId.get(participantId)?.name || "Unknown";
                             return (
                               <div
                                 key={participantId}
                                 className="flex items-center justify-between py-2 border-b border-ink-100 last:border-b-0"
                               >
-                                <span className="text-ink-700">{personName}</span>
-                                <span className="tabular-nums font-medium text-ink-900">
+                                <span className={isCurrentParticipant ? "font-semibold text-leaf-800" : "text-ink-700"}>{isCurrentParticipant ? "You" : personName}</span>
+                                <span className={`tabular-nums font-medium ${isCurrentParticipant ? "text-leaf-800" : "text-ink-900"}`}>
                                   {money(valueMinor, currency)}
                                 </span>
                               </div>
@@ -537,7 +599,7 @@ export function ExpenseList({
                           <button
                             type="button"
                             className="inline-flex items-center gap-1.5 text-xs font-medium text-danger-600 hover:text-danger-800 transition-colors py-1 px-2.5 rounded-xl hover:bg-danger-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-400 font-sans"
-                            onClick={() => onDelete(expense.id)}
+                            onClick={() => scheduleDelete(expense)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             <span>Delete</span>
@@ -549,7 +611,7 @@ export function ExpenseList({
                 )}
               </AnimatePresence>
               </motion.div>
-            </div>
+            </motion.div>
           );
         })}
       </div>

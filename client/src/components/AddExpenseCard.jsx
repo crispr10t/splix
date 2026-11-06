@@ -30,6 +30,13 @@ function toMinor(value) {
   return Number.isFinite(num) ? Math.round(num * 100) : 0;
 }
 
+function localDateInputValue(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function buildClientSplitJson({ amountMinor, mode, selectedIds, amountMap, percentMap }) {
   if (mode === "even") {
     const base = Math.floor(amountMinor / selectedIds.length);
@@ -101,7 +108,7 @@ export function AddExpenseCard({
   const [date, setDate] = useState(
     initialExpense?.date
       ? initialExpense.date.slice(0, 10)
-      : new Date().toISOString().slice(0, 10)
+      : localDateInputValue()
   );
 
   const [mode, setMode] = useState("even");
@@ -110,8 +117,11 @@ export function AddExpenseCard({
   const [percentMap, setPercentMap] = useState({});
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [amountError, setAmountError] = useState("");
+  const [titleError, setTitleError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
   const knownParticipantIdsRef = useRef([]);
+  const titleInputRef = useRef(null);
+  const amountInputRef = useRef(null);
 
   useEffect(() => {
     if (initialExpense) {
@@ -122,7 +132,7 @@ export function AddExpenseCard({
       setDate(
         initialExpense.date
           ? initialExpense.date.slice(0, 10)
-          : new Date().toISOString().slice(0, 10)
+          : localDateInputValue()
       );
 
       const splitKeys = Object.keys(initialExpense.splitJson || {});
@@ -194,13 +204,18 @@ export function AddExpenseCard({
     event.preventDefault();
 
     if (!title.trim()) {
-      toast.error("Please enter an expense title");
+      setTitleError("Enter an expense title");
+      titleInputRef.current?.focus();
+      hapticTap([30, 50, 30]);
       return;
     }
+    setTitleError("");
 
     const amountMinor = toMinor(amount);
     if (!amount || amountMinor <= 0) {
-      toast.error("Please enter a valid amount");
+      setAmountError("Enter an amount");
+      amountInputRef.current?.focus();
+      hapticTap([30, 50, 30]);
       return;
     }
 
@@ -210,7 +225,8 @@ export function AddExpenseCard({
     }
 
     if (selectedIds.length === 0) {
-      toast.error("Please select at least one person to split with");
+      toast.error("Select at least 1 person to split with");
+      hapticTap([30, 50, 30]);
       return;
     }
 
@@ -271,7 +287,7 @@ export function AddExpenseCard({
       setPaidByParticipantId(defaultPayerId || "");
       setSelectedIds(sortedParticipants.map((p) => p.id));
       setCategory("general");
-      setDate(new Date().toISOString().slice(0, 10));
+      setDate(localDateInputValue());
       setAmountMap({});
       setPercentMap({});
       setDetailsOpen(false);
@@ -298,13 +314,15 @@ export function AddExpenseCard({
             Expense Title
           </label>
           <Input
+            ref={titleInputRef}
             autoFocus={!isEditMode}
             className="mt-1 text-sm sm:text-base font-medium"
             maxLength={60}
             placeholder="Dinner, cab ride, groceries…"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => { setTitle(e.target.value); setTitleError(""); }}
           />
+          {titleError && <p className="mt-1 text-xs text-danger-600">{titleError}</p>}
         </div>
 
         {/* Amount */}
@@ -318,6 +336,7 @@ export function AddExpenseCard({
                 {currency}
               </span>
               <Input
+                ref={amountInputRef}
                 className="pl-14 text-sm sm:text-base font-bold"
                 inputMode="decimal"
                 placeholder="0.00"
@@ -365,7 +384,7 @@ export function AddExpenseCard({
               type="date"
               className="h-11 text-sm font-medium text-ink-900 bg-white cursor-pointer"
               value={date}
-              max={new Date().toISOString().slice(0, 10)}
+              max={localDateInputValue()}
               onChange={(e) => setDate(e.target.value)}
             />
           </div>
@@ -383,7 +402,7 @@ export function AddExpenseCard({
                 <motion.button whileTap={{ scale: 0.93 }}
                   key={cat.id}
                   type="button"
-                  className={`relative h-9 w-full min-w-0 inline-flex items-center justify-center gap-1 px-1.5 text-[11px] font-medium rounded-full !rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
+                  className={`relative h-9 w-full min-w-0 inline-flex items-center justify-center gap-1 px-1.5 text-[11px] font-medium rounded-full !rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 last:col-start-2 [-webkit-tap-highlight-color:transparent] ${
                     isSelected
                       ? "text-white font-semibold"
                       : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
@@ -541,7 +560,7 @@ export function AddExpenseCard({
         <Button
           type="submit"
           className="flex-1 h-11 text-sm font-semibold rounded-xl bg-leaf-600 hover:bg-leaf-700 shadow-md text-white"
-          disabled={disabled || adding || !title.trim() || toMinor(amount) <= 0 || !paidByParticipantId || selectedIds.length === 0}
+          disabled={disabled || adding}
         >
           {isEditMode ? (
             <>
@@ -556,6 +575,9 @@ export function AddExpenseCard({
           )}
         </Button>
       </div>
+      {!isEditMode && (!title.trim() || toMinor(amount) <= 0 || selectedIds.length === 0) && (
+        <p className="-mt-2 text-center text-[11px] text-ink-400">Add title, amount, and split to save</p>
+      )}
     </form>
   );
 }
