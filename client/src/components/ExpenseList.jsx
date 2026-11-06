@@ -509,13 +509,10 @@ export function ExpenseList({
 
                   <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-xs text-ink-500">
                     <span>
-                      By <strong className="text-ink-800 font-medium">{payerName}</strong>
+                      By <strong className="text-ink-800 font-medium">{payerName}</strong>{Boolean(compactDate) && ","}
                     </span>
                     {Boolean(compactDate) && (
-                      <>
-                        <span className="text-ink-300 select-none" aria-hidden="true">·</span>
-                        <span className="text-ink-400">{compactDate}</span>
-                      </>
+                      <span className="text-ink-400">{compactDate}</span>
                     )}
                     {expense.__pending && (
                       <Badge
