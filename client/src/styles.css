@@ -20,7 +20,7 @@
     --danger-50: 8 65% 97%; --danger-100: 8 60% 94%; --danger-200: 8 55% 87%;
     --danger-400: 8 65% 67%; --danger-500: 8 68% 56%; --danger-600: 8 72% 48%;
     --danger-800: 8 68% 32%; --danger-900: 8 70% 24%;
-    --background: 150 18% 97%;
+    --background: 0 0% 100%;
     --foreground: 155 26% 14%;
     --card: 0 0% 100%;
     --card-foreground: 155 26% 14%;
@@ -46,9 +46,9 @@
     --font-figure: "IBM Plex Mono", ui-monospace, monospace;
     --color-ink: oklch(24% 0.025 155);
     --color-ink-soft: oklch(38% 0.025 155);
-    --color-paper: oklch(97% 0.012 155);
+    --color-paper: #ffffff;
     --color-paper-2: oklch(93% 0.018 155);
-    --color-sheet: oklch(99% 0.006 155);
+    --color-sheet: #ffffff;
     --color-accent: oklch(46% 0.13 153);
     --color-accent-hover: oklch(39% 0.13 153);
     --color-rule: oklch(84% 0.018 155);
@@ -147,19 +147,7 @@
   padding-bottom: clamp(4rem, 9vh, 7rem);
 }
 
-.hero::before {
-  content: "";
-  position: absolute;
-  top: -12%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 68rem;
-  height: 90%;
-  background: radial-gradient(ellipse 75% 50% at 50% 15%, hsl(var(--leaf-100) / 0.65), transparent 72%);
-  pointer-events: none;
-  z-index: 0;
-}
+
 
 .hero-aside,
 .creator {
@@ -339,15 +327,7 @@ button,
   list-style: none;
 }
 
-.timeline-list::before {
-  content: "";
-  position: absolute;
-  top: 1.5rem;
-  bottom: 2rem;
-  left: 1rem;
-  width: 2px;
-  background-color: hsl(var(--leaf-200));
-}
+
 
 .timeline-item {
   position: relative;
@@ -355,6 +335,17 @@ button,
   align-items: flex-start;
   gap: 1.25rem;
   padding-bottom: 2.25rem;
+}
+
+.timeline-item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  bottom: -0.5rem;
+  left: 1rem;
+  transform: translateX(-50%);
+  width: 2px;
+  background-color: hsl(var(--leaf-200));
 }
 
 .timeline-item:last-child {
