@@ -27,7 +27,7 @@ export function PinGateCard({
   loading = false
 }) {
   const [pin, setPin] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused] = useState(true);
   const [isShaking, setIsShaking] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -35,13 +35,29 @@ export function PinGateCard({
 
   const inputRef = useRef(null);
 
-  // Auto focus input on mount
+  // Auto focus input on mount and keep focused when PIN is required
   useEffect(() => {
-    const timer = setTimeout(() => {
+    inputRef.current?.focus();
+
+    const timer1 = setTimeout(() => {
       inputRef.current?.focus();
-    }, 150);
-    return () => clearTimeout(timer);
+    }, 50);
+
+    const timer2 = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 200);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!loading && !isUnlocked) {
+      inputRef.current?.focus();
+    }
+  }, [loading, isUnlocked]);
 
   async function attemptSubmit(code) {
     if (loading || isUnlocked) return;
@@ -133,6 +149,7 @@ export function PinGateCard({
         {/* PIN Input & Submit Section */}
         <form
           className="mt-6 space-y-4"
+          onClick={handleContainerClick}
           onSubmit={(e) => {
             e.preventDefault();
             if (pin.length === 4) {
@@ -159,7 +176,7 @@ export function PinGateCard({
                 onChange={handlePinChange}
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
-                className="sr-only"
+                className="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer caret-transparent"
                 aria-label="4-digit PIN"
               />
 
