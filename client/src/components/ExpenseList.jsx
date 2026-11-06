@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getCategory } from "@/utils/categories";
 import { DEFAULT_FILTERS, ExpenseFilterSheet } from "@/components/ExpenseFilterSheet";
+import { hapticTap } from "@/utils/haptics";
 
 function parseLocalDate(dateStr) {
   if (!dateStr) return null;
@@ -77,6 +78,7 @@ export function ExpenseList({
   onDelete,
   canEdit = false,
   canDelete = false,
+  selectedParticipantId = "",
   filters: controlledFilters,
   onFiltersChange: controlledOnFiltersChange
 }) {
@@ -164,6 +166,26 @@ export function ExpenseList({
   const filteredSpentMinor = useMemo(() => {
     return filteredExpenses.reduce((sum, e) => sum + e.amountMinor, 0);
   }, [filteredExpenses]);
+
+  const displayedExpenses = useMemo(() => {
+    if (filters.sort === "highest" || filters.sort === "lowest") return filteredExpenses.map((expense) => ({ expense }));
+    const groups = new Map();
+    filteredExpenses.forEach((expense) => {
+      const date = parseLocalDate(expense.date || expense.createdAt);
+      const today = new Date();
+      const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+      const dayKey = date ? `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}` : "unknown";
+      const todayKey = `${today.getFullYear()}-${today.getMonth()}-${today.getDate()}`;
+      const yesterdayKey = `${yesterday.getFullYear()}-${yesterday.getMonth()}-${yesterday.getDate()}`;
+      const weekStart = new Date(today);
+      weekStart.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+      weekStart.setHours(0, 0, 0, 0);
+      const label = !date ? "Date unknown" : dayKey === todayKey ? "Today" : dayKey === yesterdayKey ? "Yesterday" : date >= weekStart && date <= today ? "This Week" : date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+      if (!groups.has(label)) groups.set(label, []);
+      groups.get(label).push(expense);
+    });
+    return [...groups].flatMap(([label, items]) => [{ label }, ...items.map((expense) => ({ expense }))]);
+  }, [filteredExpenses, filters.sort]);
 
   function clearAllFilters() {
     setSearchQuery("");
@@ -355,7 +377,9 @@ export function ExpenseList({
 
       {/* Expense Items List with pb-24 clearance */}
       <div className="space-y-2 pb-24">
-        {filteredExpenses.map((expense) => {
+        {displayedExpenses.map((entry) => {
+          if (entry.label) return <div key={`date-${entry.label}`} className="sticky top-0 z-10 bg-ink-50/90 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500 backdrop-blur-sm">{entry.label}</div>;
+          const expense = entry.expense;
           const isOpen = openId === expense.id;
           const payer = byId.get(expense.paidByParticipantId);
           const payerName = payer?.name || "Unknown";
@@ -371,8 +395,13 @@ export function ExpenseList({
           return (
             <div
               key={expense.id}
-              className="overflow-hidden rounded-xl border border-ink-200/80 bg-white transition-colors duration-150"
+              className="relative overflow-hidden rounded-xl border border-ink-200/80 bg-white transition-colors duration-150"
             >
+              <div className="absolute inset-y-0 right-0 flex w-[140px] items-center justify-end gap-1 bg-ink-100 px-2">
+                {canEdit && <button type="button" className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white" onClick={() => onEdit?.(expense)}>Edit</button>}
+                {canDelete && <button type="button" className="rounded-lg bg-danger-600 px-3 py-2 text-xs font-semibold text-white" onClick={() => onDelete?.(expense.id)}>Delete</button>}
+              </div>
+              <motion.div drag="x" dragDirectionLock dragConstraints={{ left: -140, right: 0 }} dragElastic={0.04} onDragEnd={(_, info) => { if (info.offset.x < -70 || info.velocity.x < -350) hapticTap(12); }} className="relative bg-white touch-pan-y">
               <button
                 type="button"
                 aria-expanded={isOpen}
@@ -421,6 +450,7 @@ export function ExpenseList({
                       </Badge>
                     )}
                   </div>
+                  {selectedParticipantId && <span className={`mt-1 block text-[10px] ${Number(expense.splitJson?.[selectedParticipantId] || 0) > 0 ? "text-ink-500" : "text-ink-400"}`}>{Number(expense.splitJson?.[selectedParticipantId] || 0) > 0 ? `Your share ${money(Number(expense.splitJson[selectedParticipantId]), currency)}` : "Not involved"}</span>}
                 </div>
 
                 {/* Amount and Chevron (right aligned with tabular-nums) */}
@@ -518,6 +548,7 @@ export function ExpenseList({
                   </motion.div>
                 )}
               </AnimatePresence>
+              </motion.div>
             </div>
           );
         })}

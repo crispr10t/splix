@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
   Calendar,
@@ -306,8 +307,8 @@ export function AddExpenseCard({
           />
         </div>
 
-        {/* Amount & Currency */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {/* Amount */}
+        <div>
           <div>
             <label className="text-xs font-semibold tracking-normal text-ink-500">
               Amount
@@ -322,16 +323,19 @@ export function AddExpenseCard({
                 placeholder="0.00"
                 value={amount}
                 onChange={(e) => {
-                  const val = e.target.value;
+                  const raw = e.target.value;
+                  const val = raw.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1");
                   setAmount(val);
-                  setAmountError(val === "" || isNumericDraft(val) ? "" : "Numbers only");
+                  setAmountError("");
                 }}
               />
             </div>
             {amountError && <p className="mt-1 text-xs text-danger-600">{amountError}</p>}
           </div>
+        </div>
 
-          {/* Paid by selection */}
+        {/* Payer and date share one row on every viewport */}
+        <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-xs font-semibold tracking-normal text-ink-500">
               Paid By
@@ -351,10 +355,8 @@ export function AddExpenseCard({
               <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-400" />
             </div>
           </div>
-        </div>
-
-        {/* Expense Date Picker */}
-        <div>
+          {/* Expense Date Picker */}
+          <div>
           <label className="text-xs font-semibold tracking-normal text-ink-500">
             Date
           </label>
@@ -367,29 +369,31 @@ export function AddExpenseCard({
               onChange={(e) => setDate(e.target.value)}
             />
           </div>
+          </div>
         </div>
 
         {/* Quick Category Chips */}
         <div>
           <label className="text-xs font-semibold text-ink-500">Category</label>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
+          <div className="mt-1.5 grid grid-cols-3 gap-1.5">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isSelected = category === cat.id;
               return (
-                <button
+                <motion.button whileTap={{ scale: 0.93 }}
                   key={cat.id}
                   type="button"
-                  className={`h-8 inline-flex items-center gap-1.5 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
+                  className={`relative h-9 w-full min-w-0 inline-flex items-center justify-center gap-1 px-1.5 text-[11px] font-medium rounded-full !rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
                     isSelected
-                      ? "bg-leaf-600 text-white font-semibold shadow-sm"
+                      ? "text-white font-semibold"
                       : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
                   }`}
                   onClick={() => setCategory(cat.id)}
                 >
-                  <Icon className="h-3.5 w-3.5" />
-                  <span>{cat.shortLabel || cat.label}</span>
-                </button>
+                  {isSelected && <motion.span layoutId="add-expense-category" className="absolute inset-0 -z-0 rounded-full bg-leaf-600 shadow-sm" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}
+                  <Icon className="relative z-10 h-3.5 w-3.5 shrink-0" />
+                  <span className="relative z-10 whitespace-nowrap">{cat.shortLabel || cat.label}</span>
+                </motion.button>
               );
             })}
           </div>
@@ -418,19 +422,20 @@ export function AddExpenseCard({
             const Icon = item.icon;
             const isSelected = mode === item.id;
             return (
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 key={item.id}
                 type="button"
-                className={`h-9 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
+                className={`relative h-9 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
                   isSelected
-                    ? "bg-leaf-600 text-white font-semibold shadow-sm"
+                    ? "text-white font-semibold"
                     : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
                 }`}
                 onClick={() => setMode(item.id)}
               >
-                <Icon className="h-3.5 w-3.5" />
-                <span>{item.label}</span>
-              </button>
+                {isSelected && <motion.span layoutId="add-expense-split-method" className="absolute inset-0 -z-0 rounded-full bg-leaf-600 shadow-sm" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}
+                <Icon className="relative z-10 h-3.5 w-3.5" />
+                <span className="relative z-10">{item.label}</span>
+              </motion.button>
             );
           })}
         </div>

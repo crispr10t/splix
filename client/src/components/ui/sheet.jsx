@@ -3,6 +3,7 @@ import * as SheetPrimitive from "@radix-ui/react-dialog";
 import { cva } from "class-variance-authority";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const Sheet = SheetPrimitive.Root;
 const SheetTrigger = SheetPrimitive.Trigger;
@@ -28,7 +29,7 @@ const sheetVariants = cva(
       side: {
         top: "inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
         bottom:
-          "inset-x-0 bottom-0 max-h-[92vh] overflow-y-auto rounded-t-[2rem] border-t border-ink-200 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+          "inset-x-0 bottom-0 h-auto max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-[2rem] border-t border-ink-200 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
         left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-md",
         right:
           "inset-y-0 right-0 h-full w-full border-l border-ink-200 data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-lg overflow-y-auto"
@@ -43,7 +44,24 @@ const sheetVariants = cva(
 const SheetContent = React.forwardRef(({ side = "right", className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
-    <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+    <SheetPrimitive.Content asChild {...props}>
+      <motion.div
+        ref={ref}
+        initial={{ opacity: 0, scale: 0.985 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ opacity: { duration: 0.16 }, scale: { duration: 0.18 } }}
+        drag={side === "bottom" ? "y" : false}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0, bottom: 0.5 }}
+        onDragEnd={(event, info) => {
+          if (side === "bottom" && (info.offset.y > 90 || info.velocity.y > 400)) {
+            document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+          }
+          props.onDragEnd?.(event, info);
+        }}
+        style={{ willChange: "transform" }}
+        className={cn(sheetVariants({ side }), className)}
+      >
       {side === "bottom" && (
         <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-ink-300" />
       )}
@@ -52,6 +70,7 @@ const SheetContent = React.forwardRef(({ side = "right", className, children, ..
         <X className="h-5 w-5 text-ink-500" />
         <span className="sr-only">Close</span>
       </SheetPrimitive.Close>
+      </motion.div>
     </SheetPrimitive.Content>
   </SheetPortal>
 ));
