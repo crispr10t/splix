@@ -118,15 +118,6 @@ export function EditPage() {
   }, []);
 
   useEffect(() => {
-    if (!addExpenseOpen) return;
-    const marker = { ...window.history.state, splixExpenseSheet: true };
-    window.history.pushState(marker, "", window.location.href);
-    const closeOnBack = () => setAddExpenseOpen(false);
-    window.addEventListener("popstate", closeOnBack);
-    return () => window.removeEventListener("popstate", closeOnBack);
-  }, [addExpenseOpen]);
-
-  useEffect(() => {
     if (token || !editId) return;
     let active = true;
 
@@ -958,7 +949,7 @@ export function EditPage() {
               <TabsTrigger
                 value="expenses"
                 unwrapChildren
-                className="relative flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:text-ink-950 data-[state=active]:font-medium border-0 bg-transparent shadow-none"
+                className="relative flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:text-ink-950 data-[state=active]:font-medium border-0 bg-transparent shadow-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 ring-0"
               >
                 {activeEditTab === "expenses" && <motion.span layoutId="activeEditTabPill" className="pointer-events-none absolute inset-0 -z-0 rounded-lg bg-white shadow-sm" transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 450, damping: 35 }} />}
                 <span className="relative z-10 flex items-center justify-center gap-1.5"><Receipt className="hidden h-4 w-4 sm:inline" />Expenses</span>
@@ -966,7 +957,7 @@ export function EditPage() {
               <TabsTrigger
                 value="settlements"
                 unwrapChildren
-                className="relative flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:text-ink-950 data-[state=active]:font-medium border-0 bg-transparent shadow-none"
+                className="relative flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:text-ink-950 data-[state=active]:font-medium border-0 bg-transparent shadow-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 ring-0"
               >
                 {activeEditTab === "settlements" && <motion.span layoutId="activeEditTabPill" className="pointer-events-none absolute inset-0 -z-0 rounded-lg bg-white shadow-sm" transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 450, damping: 35 }} />}
                 <span className="relative z-10 flex items-center justify-center gap-1.5"><Wallet className="hidden h-4 w-4 sm:inline" />Settlements</span>
@@ -974,7 +965,7 @@ export function EditPage() {
               <TabsTrigger
                 value="summary"
                 unwrapChildren
-                className="relative flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:text-ink-950 data-[state=active]:font-medium border-0 bg-transparent shadow-none"
+                className="relative flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:text-ink-950 data-[state=active]:font-medium border-0 bg-transparent shadow-none outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 ring-0"
               >
                 {activeEditTab === "summary" && <motion.span layoutId="activeEditTabPill" className="pointer-events-none absolute inset-0 -z-0 rounded-lg bg-white shadow-sm" transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 450, damping: 35 }} />}
                 <span className="relative z-10 flex items-center justify-center gap-1.5"><Share2 className="hidden h-4 w-4 sm:inline" />Summary</span>
@@ -1064,16 +1055,22 @@ export function EditPage() {
               if (!open) setEditingExpense(null);
             }}
           >
-            <SheetContent side={isDesktop ? "right" : "bottom"}>
-              <SheetHeader>
-                <SheetTitle>{editingExpense ? "Edit Expense" : "Add Expense"}</SheetTitle>
-                <SheetDescription>
-                  {editingExpense
-                    ? "Update expense title, amount, payer, category, date, or split shares."
-                    : "Enter the bill details and pick how it gets split across the group."}
-                </SheetDescription>
-              </SheetHeader>
-              <div className="mt-4 pb-6">
+            <SheetContent
+              side={isDesktop ? "right" : "bottom"}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+              className={isDesktop ? "" : "flex flex-col h-[92dvh] max-h-[92dvh] p-0 overflow-hidden rounded-t-[1.75rem]"}
+            >
+              <div className="px-5 pt-1 pb-1 shrink-0">
+                <SheetHeader>
+                  <SheetTitle>{editingExpense ? "Edit Expense" : "Add Expense"}</SheetTitle>
+                  <SheetDescription>
+                    {editingExpense
+                      ? "Update expense title, amount, payer, category, date, or split shares."
+                      : "Enter the bill details and pick how it gets split across the group."}
+                  </SheetDescription>
+                </SheetHeader>
+              </div>
+              <div className={isDesktop ? "mt-4 pb-6" : "flex-1 overflow-y-auto overscroll-contain px-5 pb-6 pt-2"}>
                 <AddExpenseCard
                   participants={orderedParticipants}
                   currency={snapshot.group.currency}

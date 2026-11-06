@@ -141,15 +141,15 @@ export function ViewPage() {
           {/* Tabbed Navigation */}
           <Tabs defaultValue="expenses" className="w-full">
             <TabsList className="grid w-full grid-cols-3 h-12 p-1.5 rounded-2xl bg-ink-100">
-              <TabsTrigger value="expenses" className="rounded-xl text-xs sm:text-sm font-semibold">
+              <TabsTrigger value="expenses" className="rounded-xl text-xs sm:text-sm font-semibold outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 ring-0">
                 <Receipt className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
                 Expenses ({snapshot.expenses.length})
               </TabsTrigger>
-              <TabsTrigger value="settlements" className="rounded-xl text-xs sm:text-sm font-semibold">
+              <TabsTrigger value="settlements" className="rounded-xl text-xs sm:text-sm font-semibold outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 ring-0">
                 <Wallet className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
                 Settlements ({snapshot.settlements?.length || 0})
               </TabsTrigger>
-              <TabsTrigger value="summary" className="rounded-xl text-xs sm:text-sm font-semibold">
+              <TabsTrigger value="summary" className="rounded-xl text-xs sm:text-sm font-semibold outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0 ring-0">
                 <Share2 className="h-3.5 w-3.5 mr-1.5 hidden sm:inline" />
                 Summary
               </TabsTrigger>

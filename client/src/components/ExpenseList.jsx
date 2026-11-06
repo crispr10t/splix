@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -91,6 +91,17 @@ export function ExpenseList({
   const deleteTimers = useRef(new Map());
   const [searchQuery, setSearchQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(
+    typeof window !== "undefined" ? window.innerWidth >= 768 : false
+  );
+
+  useEffect(() => {
+    function handleResize() {
+      setIsDesktop(window.innerWidth >= 768);
+    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Controlled or uncontrolled filter state
   const [internalFilters, setInternalFilters] = useState(DEFAULT_FILTERS);
@@ -242,8 +253,8 @@ export function ExpenseList({
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <Input
-                className="h-11 pl-10 pr-9 text-xs sm:text-sm rounded-xl bg-white border border-ink-200/90 shadow-none focus-visible:ring-leaf-400 font-sans"
-                placeholder="Search by title, payer, or category…"
+                className="h-11 pl-10 pr-9 text-xs sm:text-sm rounded-xl bg-white border border-ink-200/90 shadow-none focus-visible:ring-leaf-400 font-sans truncate placeholder:truncate"
+                placeholder={isDesktop ? "Search by title, payer, or category…" : "Search expenses…"}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -353,9 +364,9 @@ export function ExpenseList({
             </div>
           )}
 
-          {/* Row 3: Result Line */}
-          <div className="flex items-center justify-between px-0.5 text-xs text-ink-500 font-sans">
-            {isFiltered ? (
+          {/* Row 3: Result Line (only when filters or search are active) */}
+          {isFiltered && (
+            <div className="flex items-center justify-between px-0.5 text-xs text-ink-500 font-sans">
               <p>
                 <strong className="text-ink-800 font-medium tabular-nums">
                   {filteredExpenses.length}
@@ -367,18 +378,6 @@ export function ExpenseList({
                   {money(filteredSpentMinor, currency)}
                 </strong>
               </p>
-            ) : (
-              <p>
-                <span className="tabular-nums">{expenses.length}</span> expense
-                {expenses.length === 1 ? "" : "s"}{" "}
-                <span className="text-ink-300 select-none" aria-hidden="true">&middot;</span>{" "}
-                Total:{" "}
-                <span className="tabular-nums font-medium text-ink-700">
-                  {money(totalSpentMinor, currency)}
-                </span>
-              </p>
-            )}
-            {isFiltered && (
               <button
                 type="button"
                 className="text-leaf-700 hover:text-leaf-800 hover:underline font-semibold rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 transition-colors"
@@ -386,8 +385,8 @@ export function ExpenseList({
               >
                 Clear filters
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -444,37 +443,57 @@ export function ExpenseList({
           return (
             <motion.div
               key={expense.id}
-              layout
               animate={pendingDeleteIds.has(expense.id)
-                ? { height: 0, opacity: 0, marginBottom: -8 }
-                : { height: "auto", opacity: 1, marginBottom: 0 }}
-              transition={{ duration: 0.24, ease: "easeInOut" }}
+                ? { height: 0, opacity: 0, scale: 0.96, marginBottom: -8 }
+                : undefined}
+              transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
               className="relative overflow-hidden rounded-xl border border-ink-200/80 bg-white"
             >
-              {canEdit && <div className="absolute inset-y-0 left-0 flex w-[90px] items-center gap-1.5 rounded-l-xl bg-ink-800 pl-3 text-white"><Edit2 className="h-4 w-4" /><span className="text-xs font-semibold">Edit</span></div>}
-              {canDelete && <div className="absolute inset-y-0 right-0 flex w-[90px] items-center justify-end gap-1.5 rounded-r-xl bg-danger-600 pr-3 text-white"><Trash2 className="h-4 w-4" /><span className="text-xs font-semibold">Delete</span></div>}
+              {!isOpen && !isDesktop && canEdit && (
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex w-[90px] items-center gap-1.5 rounded-l-xl bg-ink-800 pl-3 text-white">
+                  <Edit2 className="h-4 w-4" />
+                  <span className="text-xs font-semibold">Edit</span>
+                </div>
+              )}
+              {!isOpen && !isDesktop && canDelete && (
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex w-[90px] items-center justify-end gap-1.5 rounded-r-xl bg-danger-600 pr-3 text-white">
+                  <Trash2 className="h-4 w-4" />
+                  <span className="text-xs font-semibold">Delete</span>
+                </div>
+              )}
               <motion.div
-                drag={isOpen || pendingDeleteIds.has(expense.id) || (!canEdit && !canDelete) ? false : "x"}
+                animate={{ x: 0 }}
+                transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                drag={!isDesktop && !isOpen && !pendingDeleteIds.has(expense.id) && (canEdit || canDelete) ? "x" : false}
+                dragSnapToOrigin
                 dragDirectionLock
-                dragConstraints={{ left: -100, right: 100 }}
-                dragElastic={0.1}
+                dragConstraints={{ left: canDelete ? -120 : 0, right: canEdit ? 120 : 0 }}
+                dragElastic={0.2}
                 onDragEnd={(_, info) => {
-                  if (info.offset.x > 60 || info.velocity.x > 300) {
+                  if (info.offset.x > 80 || info.velocity.x > 500) {
                     if (canEdit) { hapticTap(15); onEdit?.(expense); }
-                  } else if (info.offset.x < -60 || info.velocity.x < -300) {
+                  } else if (info.offset.x < -80 || info.velocity.x < -500) {
                     if (canDelete) { hapticTap(20); scheduleDelete(expense); }
                   }
                 }}
                 className="relative bg-white touch-pan-y"
               >
-              {pendingDeleteIds.has(expense.id) && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.92 }} className="pointer-events-none absolute inset-0 z-10 bg-danger-600" />}
+              {pendingDeleteIds.has(expense.id) && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-danger-600 text-white font-medium text-xs gap-1.5"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  <span>Deleting expense…</span>
+                </motion.div>
+              )}
               <button
                 type="button"
                 aria-expanded={isOpen}
                 aria-controls={`expense-breakdown-${expense.id}`}
-                className={`w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left transition-colors hover:bg-ink-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
-                  isOpen ? "rounded-t-xl" : "rounded-xl"
-                }`}
+                className="w-full p-3.5 sm:p-4 flex items-center justify-between gap-3 text-left transition-colors hover:bg-ink-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 rounded-xl"
                 onClick={() => setOpenId(isOpen ? "" : expense.id)}
               >
                 {/* Category Icon */}
@@ -531,33 +550,19 @@ export function ExpenseList({
                     )}
                   </div>
                   <div className="text-ink-400">
-                    {isOpen ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4" />
-                    )}
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ease-out ${isOpen ? "rotate-180 text-leaf-800" : "rotate-0 text-ink-400"}`} />
                   </div>
                 </div>
               </button>
 
               {/* Expandable Split Details */}
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    id={`expense-breakdown-${expense.id}`}
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{
-                      duration:
-                        typeof window !== "undefined" &&
-                        window.matchMedia("(prefers-reduced-motion: reduce)").matches
-                          ? 0
-                          : 0.2,
-                      ease: "easeOut"
-                    }}
-                    className="overflow-hidden border-t border-ink-100 bg-ink-50/30 px-3.5 pb-3.5 pt-3 sm:px-4 sm:pb-4"
-                  >
+              <div
+                id={`expense-breakdown-${expense.id}`}
+                data-state={isOpen ? "open" : "closed"}
+                className="accordion-grid"
+              >
+                <div className="overflow-hidden">
+                  <div className="border-t border-ink-100 bg-ink-50/30 px-3.5 pb-3.5 pt-3 sm:px-4 sm:pb-4">
                     {fullDate && <div className="text-[11px] font-sans text-ink-400">{fullDate}</div>}
                     <div className="mt-1 text-xs font-medium text-ink-500 font-sans">Split details</div>
 
@@ -624,9 +629,9 @@ export function ExpenseList({
                         )}
                       </div>
                     )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
+                </div>
+              </div>
               </motion.div>
             </motion.div>
           );

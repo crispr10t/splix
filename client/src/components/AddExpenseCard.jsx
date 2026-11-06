@@ -315,7 +315,7 @@ export function AddExpenseCard({
           </label>
           <Input
             ref={titleInputRef}
-            autoFocus={!isEditMode}
+            autoFocus={false}
             className="mt-1 text-sm sm:text-base font-medium"
             maxLength={60}
             placeholder="Dinner, cab ride, groceries…"
@@ -546,7 +546,7 @@ export function AddExpenseCard({
       </div>
 
       {/* Action Buttons */}
-      <div className="sticky bottom-0 z-10 -mx-4 flex gap-2 border-t border-ink-100 bg-white/95 px-4 pb-[env(safe-area-inset-bottom)] pt-3 backdrop-blur-sm sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+      <div className="sticky bottom-0 z-10 -mx-4 flex gap-2 border-t border-ink-100 bg-white px-4 pb-[env(safe-area-inset-bottom)] pt-3 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
         {isEditMode && onCancel && (
           <Button
             type="button"
