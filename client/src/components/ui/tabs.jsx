@@ -17,7 +17,7 @@ const TabsList = React.forwardRef(({ className, ...props }, ref) => (
 ));
 TabsList.displayName = TabsPrimitive.List.displayName;
 
-const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => (
+const TabsTrigger = React.forwardRef(({ className, children, unwrapChildren = false, ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
@@ -26,7 +26,7 @@ const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => (
     )}
     {...props}
   >
-    <span className="relative z-[1]">{props.children}</span>
+    {unwrapChildren ? children : <span className="relative z-[1]">{children}</span>}
     {props["data-state"] === "active" && <motion.span layoutId="activeTabIndicator" transition={{ type: "spring", stiffness: 450, damping: 35 }} className="pointer-events-none absolute inset-0 rounded-xl bg-white shadow-sm" />}
   </TabsPrimitive.Trigger>
 ));

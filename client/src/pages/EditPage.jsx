@@ -53,7 +53,7 @@ import { identityKey, tokenKey } from "@/utils/storage";
 import { isValidUpiId, normalizeUpiId } from "@/utils/upiValidation";
 import { money } from "@/utils/format";
 import { hapticTap } from "@/utils/haptics";
-import { motion, useMotionValueEvent, useScroll } from "framer-motion";
+import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -77,6 +77,7 @@ import {
 
 export function EditPage() {
   const { id: editId = "" } = useParams();
+  const shouldReduceMotion = useReducedMotion();
   const [token, setToken] = useState(() => localStorage.getItem(tokenKey(editId)) || "");
   const [selectedParticipantId, setSelectedParticipantId] = useState(
     () => localStorage.getItem(identityKey(editId)) || ""
@@ -952,76 +953,88 @@ export function EditPage() {
           />
 
           {/* Segmented Tabs Layout: Inset tinted gray track + crisp white active pill */}
-          <Tabs value={activeEditTab} onValueChange={(value) => { setActiveEditTab(value); hapticTap(); }} className="w-full">
+          <Tabs value={activeEditTab} onValueChange={(value) => { setActiveEditTab(value); hapticTap(10); }} className="w-full">
             <TabsList className="sticky top-0 z-20 bg-ink-50/95 backdrop-blur-md pt-2 pb-1 bg-ink-100/80 p-1 rounded-xl flex gap-1 w-full h-auto border-0 shadow-none">
               <TabsTrigger
                 value="expenses"
-                className="flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:bg-white data-[state=active]:text-ink-950 data-[state=active]:font-medium data-[state=active]:shadow-none border-0 shadow-none"
+                unwrapChildren
+                className="relative flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:text-ink-950 data-[state=active]:font-medium border-0 bg-transparent shadow-none"
               >
-                <Receipt className="h-4 w-4 mr-1.5 hidden sm:inline" />
-                Expenses ({visibleExpenses.length})
+                {activeEditTab === "expenses" && <motion.span layoutId="activeEditTabPill" className="pointer-events-none absolute inset-0 -z-0 rounded-lg bg-white shadow-sm" transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 450, damping: 35 }} />}
+                <span className="relative z-10 flex items-center justify-center gap-1.5"><Receipt className="hidden h-4 w-4 sm:inline" />Expenses</span>
               </TabsTrigger>
               <TabsTrigger
                 value="settlements"
-                className="flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:bg-white data-[state=active]:text-ink-950 data-[state=active]:font-medium data-[state=active]:shadow-none border-0 shadow-none"
+                unwrapChildren
+                className="relative flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:text-ink-950 data-[state=active]:font-medium border-0 bg-transparent shadow-none"
               >
-                <Wallet className="h-4 w-4 mr-1.5 hidden sm:inline" />
-                Settlements ({settlements.length})
+                {activeEditTab === "settlements" && <motion.span layoutId="activeEditTabPill" className="pointer-events-none absolute inset-0 -z-0 rounded-lg bg-white shadow-sm" transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 450, damping: 35 }} />}
+                <span className="relative z-10 flex items-center justify-center gap-1.5"><Wallet className="hidden h-4 w-4 sm:inline" />Settlements</span>
               </TabsTrigger>
               <TabsTrigger
                 value="summary"
-                className="flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:bg-white data-[state=active]:text-ink-950 data-[state=active]:font-medium data-[state=active]:shadow-none border-0 shadow-none"
+                unwrapChildren
+                className="relative flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:text-ink-950 data-[state=active]:font-medium border-0 bg-transparent shadow-none"
               >
-                <Share2 className="h-4 w-4 mr-1.5 hidden sm:inline" />
-                Summary
+                {activeEditTab === "summary" && <motion.span layoutId="activeEditTabPill" className="pointer-events-none absolute inset-0 -z-0 rounded-lg bg-white shadow-sm" transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 450, damping: 35 }} />}
+                <span className="relative z-10 flex items-center justify-center gap-1.5"><Share2 className="hidden h-4 w-4 sm:inline" />Summary</span>
               </TabsTrigger>
             </TabsList>
 
-            {/* Tab 1: Expenses */}
-            <TabsContent value="expenses" className="mt-3">
-              <ExpenseList
-                expenses={visibleExpenses}
-                participants={orderedParticipants}
-                currency={snapshot.group.currency}
-                onEdit={(expense) => {
-                  setEditingExpense(expense);
-                  setAddExpenseOpen(true);
-                }}
-                onDelete={onDelete}
-                canEdit={Boolean(selectedParticipantId)}
-                canDelete={Boolean(selectedParticipantId)}
-                selectedParticipantId={selectedParticipantId}
-                filters={expenseFilters}
-                onFiltersChange={setExpenseFilters}
-              />
-            </TabsContent>
-
-            {/* Tab 2: Settlements */}
-            <TabsContent value="settlements" className="mt-4">
-              <SettlementList
-                settlements={settlements}
-                settlementHistory={snapshot.settlementHistory || []}
-                participants={orderedParticipants}
-                balances={balances}
-                currency={snapshot.group.currency}
-                groupName={snapshot.group.name}
-                onRecordSettlement={onRecordSettlement}
-                onDeleteSettlement={onDeleteSettlement}
-                readOnly={false}
-              />
-            </TabsContent>
-
-            {/* Tab 3: Summary & Analytics */}
-            <TabsContent value="summary" className="mt-4 space-y-4">
-              <ShareCard
-                editId={snapshot.group.editId}
-                viewId={snapshot.group.viewId}
-                groupName={snapshot.group.name}
-                expenses={visibleExpenses}
-                participants={orderedParticipants}
-                settlements={settlements}
-                currency={snapshot.group.currency}
-              />
+            <TabsContent value={activeEditTab} className="mt-3">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activeEditTab}
+                  initial={shouldReduceMotion ? false : { opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={shouldReduceMotion ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
+                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.18, ease: "easeOut" }}
+                  className={activeEditTab === "summary" ? "mt-1 space-y-4" : activeEditTab === "settlements" ? "mt-1" : ""}
+                >
+                  {activeEditTab === "expenses" && (
+                    <ExpenseList
+                      expenses={visibleExpenses}
+                      participants={orderedParticipants}
+                      currency={snapshot.group.currency}
+                      onEdit={(expense) => {
+                        setEditingExpense(expense);
+                        setAddExpenseOpen(true);
+                      }}
+                      onDelete={onDelete}
+                      canEdit={Boolean(selectedParticipantId)}
+                      canDelete={Boolean(selectedParticipantId)}
+                      selectedParticipantId={selectedParticipantId}
+                      isUserOwed={userNetBalance > 0}
+                      filters={expenseFilters}
+                      onFiltersChange={setExpenseFilters}
+                    />
+                  )}
+                  {activeEditTab === "settlements" && (
+                    <SettlementList
+                      settlements={settlements}
+                      settlementHistory={snapshot.settlementHistory || []}
+                      participants={orderedParticipants}
+                      balances={balances}
+                      currency={snapshot.group.currency}
+                      groupName={snapshot.group.name}
+                      onRecordSettlement={onRecordSettlement}
+                      onDeleteSettlement={onDeleteSettlement}
+                      readOnly={false}
+                    />
+                  )}
+                  {activeEditTab === "summary" && (
+                    <ShareCard
+                      editId={snapshot.group.editId}
+                      viewId={snapshot.group.viewId}
+                      groupName={snapshot.group.name}
+                      expenses={visibleExpenses}
+                      participants={orderedParticipants}
+                      settlements={settlements}
+                      currency={snapshot.group.currency}
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
             </TabsContent>
           </Tabs>
 
