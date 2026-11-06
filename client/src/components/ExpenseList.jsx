@@ -89,8 +89,6 @@ export function ExpenseList({
 }) {
   const byId = useMemo(() => new Map(participants.map((p) => [p.id, p])), [participants]);
   const [openId, setOpenId] = useState("");
-  const [pendingDeleteIds, setPendingDeleteIds] = useState(() => new Set());
-  const deleteTimers = useRef(new Map());
   const [searchQuery, setSearchQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(
@@ -110,34 +108,10 @@ export function ExpenseList({
   const filters = controlledFilters ?? internalFilters;
   const onFiltersChange = controlledOnFiltersChange ?? setInternalFilters;
 
-  function scheduleDelete(expense) {
-    if (deleteTimers.current.has(expense.id)) return;
-    setPendingDeleteIds((current) => new Set(current).add(expense.id));
-    const timer = setTimeout(() => {
-      deleteTimers.current.delete(expense.id);
-      setPendingDeleteIds((current) => {
-        const next = new Set(current);
-        next.delete(expense.id);
-        return next;
-      });
-      onDelete?.(expense.id, expense, { suppressSuccessToast: true });
-    }, 4000);
-    deleteTimers.current.set(expense.id, timer);
-    toast("Expense deleted", {
-      duration: 4000,
-      action: {
-        label: "Undo",
-        onClick: () => {
-          clearTimeout(deleteTimers.current.get(expense.id));
-          deleteTimers.current.delete(expense.id);
-          setPendingDeleteIds((current) => {
-            const next = new Set(current);
-            next.delete(expense.id);
-            return next;
-          });
-        }
-      }
-    });
+  function handleDelete(expense) {
+    hapticTap(20);
+    setOpenId("");
+    onDelete?.(expense.id, expense);
   }
 
   // Active filters count (Sort does NOT count toward badge)
@@ -471,37 +445,57 @@ export function ExpenseList({
 
       {/* Expense Items List with pb-24 clearance */}
       <div className="space-y-2 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
-        {displayedExpenses.map((entry) => {
-          if (entry.label) return <div key={`date-${entry.label}`} className="sticky top-0 z-10 bg-ink-50/90 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500 backdrop-blur-sm">{entry.label}</div>;
-          const expense = entry.expense;
-          const isOpen = openId === expense.id;
-          const payer = byId.get(expense.paidByParticipantId);
-          const isCurrentUserPayer = Boolean(selectedParticipantId && expense.paidByParticipantId === selectedParticipantId);
-          const payerName = isCurrentUserPayer ? "You" : payer?.name || "Unknown";
-          const splitEntries =
-            typeof expense.splitJson === "object" && expense.splitJson !== null
-              ? Object.entries(expense.splitJson)
-              : [];
-          const cat = getCategory(expense.category);
-          const CategoryIcon = cat.icon;
-          const displayDate = expense.date || expense.createdAt;
-          const parsedDisplayDate = displayDate ? parseLocalDate(displayDate) : null;
-          const fullDate = parsedDisplayDate && !Number.isNaN(parsedDisplayDate.getTime())
-            ? parsedDisplayDate.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
-            : "";
-          const shareMinor = selectedParticipantId
-            ? Number(expense.splitJson?.[selectedParticipantId] || 0)
-            : null;
+        <AnimatePresence initial={false}>
+          {displayedExpenses.map((entry) => {
+            if (entry.label) {
+              return (
+                <motion.div
+                  key={`date-${entry.label}`}
+                  layout
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="sticky top-0 z-10 bg-ink-50/90 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500 backdrop-blur-sm"
+                >
+                  {entry.label}
+                </motion.div>
+              );
+            }
+            const expense = entry.expense;
+            const isOpen = openId === expense.id;
+            const payer = byId.get(expense.paidByParticipantId);
+            const isCurrentUserPayer = Boolean(selectedParticipantId && expense.paidByParticipantId === selectedParticipantId);
+            const payerName = isCurrentUserPayer ? "You" : payer?.name || "Unknown";
+            const splitEntries =
+              typeof expense.splitJson === "object" && expense.splitJson !== null
+                ? Object.entries(expense.splitJson)
+                : [];
+            const cat = getCategory(expense.category);
+            const CategoryIcon = cat.icon;
+            const displayDate = expense.date || expense.createdAt;
+            const parsedDisplayDate = displayDate ? parseLocalDate(displayDate) : null;
+            const fullDate = parsedDisplayDate && !Number.isNaN(parsedDisplayDate.getTime())
+              ? parsedDisplayDate.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+              : "";
+            const shareMinor = selectedParticipantId
+              ? Number(expense.splitJson?.[selectedParticipantId] || 0)
+              : null;
 
-          return (
-            <motion.div
-              key={expense.id}
-              animate={pendingDeleteIds.has(expense.id)
-                ? { height: 0, opacity: 0, scale: 0.96, marginBottom: -8 }
-                : undefined}
-              transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
-              className="relative overflow-hidden rounded-xl border border-ink-200/80 bg-white"
-            >
+            return (
+              <motion.div
+                key={expense.id}
+                layout
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{
+                  opacity: 0,
+                  height: 0,
+                  scale: 0.96,
+                  marginBottom: 0,
+                  transition: { duration: 0.22, ease: [0.25, 1, 0.5, 1] }
+                }}
+                className="relative overflow-hidden rounded-xl border border-ink-200/80 bg-white"
+              >
               {!isOpen && !isDesktop && canEdit && (
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex w-[90px] items-center gap-1.5 rounded-l-xl bg-ink-800 pl-3 text-white">
                   <Edit2 className="h-4 w-4" />
@@ -517,7 +511,7 @@ export function ExpenseList({
               <motion.div
                 animate={{ x: 0 }}
                 transition={{ type: "spring", stiffness: 450, damping: 35 }}
-                drag={!isDesktop && !isOpen && !pendingDeleteIds.has(expense.id) && (canEdit || canDelete) ? "x" : false}
+                drag={!isDesktop && !isOpen && (canEdit || canDelete) ? "x" : false}
                 dragSnapToOrigin
                 dragDirectionLock
                 dragConstraints={{ left: canDelete ? -120 : 0, right: canEdit ? 120 : 0 }}
@@ -526,22 +520,11 @@ export function ExpenseList({
                   if (info.offset.x > 80 || info.velocity.x > 500) {
                     if (canEdit) { hapticTap(15); onEdit?.(expense); }
                   } else if (info.offset.x < -80 || info.velocity.x < -500) {
-                    if (canDelete) { hapticTap(20); scheduleDelete(expense); }
+                    if (canDelete) { handleDelete(expense); }
                   }
                 }}
                 className="relative bg-white touch-pan-y"
               >
-              {pendingDeleteIds.has(expense.id) && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.95 }}
-                  transition={{ duration: 0.2 }}
-                  className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center bg-danger-600 text-white font-medium text-xs gap-1.5"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  <span>Deleting expense…</span>
-                </motion.div>
-              )}
               <button
                 type="button"
                 aria-expanded={isOpen}
@@ -668,7 +651,7 @@ export function ExpenseList({
                           <button
                             type="button"
                             className="inline-flex items-center gap-1.5 text-xs font-medium text-danger-600 hover:text-danger-800 transition-colors py-1 px-2.5 rounded-xl hover:bg-danger-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-400 font-sans"
-                            onClick={() => scheduleDelete(expense)}
+                            onClick={() => handleDelete(expense)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                             <span>Delete</span>
@@ -683,6 +666,8 @@ export function ExpenseList({
             </motion.div>
           );
         })}
+
+        </AnimatePresence>
       </div>
 
       {/* Filter Bottom Sheet */}

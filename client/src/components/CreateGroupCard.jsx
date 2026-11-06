@@ -338,10 +338,12 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                     <div
                       id="pin-tooltip-text"
                       role="tooltip"
-                      className="absolute top-full right-0 sm:left-1/2 sm:-translate-x-1/2 mt-1.5 w-52 sm:w-56 p-2.5 rounded-xl bg-ink-950 text-white text-[11px] font-normal leading-relaxed shadow-xl z-50 pointer-events-none animate-fade-up"
+                      className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 w-52 sm:w-56 z-50 pointer-events-none"
                     >
-                      <span>4-digit code that protects your edit link. Share it only with people who should edit.</span>
-                      <div className="absolute bottom-full right-2 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 border-4 border-transparent border-b-ink-950" />
+                      <div className="relative p-2.5 rounded-xl bg-ink-950 text-white text-[11px] font-normal leading-relaxed shadow-xl animate-fade-up">
+                        <span>4-digit code that protects your edit link. Share it only with people who should edit.</span>
+                        <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-ink-950" />
+                      </div>
                     </div>
                   )}
                 </div>

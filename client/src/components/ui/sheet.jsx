@@ -92,16 +92,45 @@ const SheetContent = React.forwardRef(
       }
     }, [open, y]);
 
-    // Lock body scroll while sheet is open to prevent scroll bleed and background jitter
+    // Lock body and document scroll while sheet is open to prevent background panning on mobile
     React.useEffect(() => {
       if (!open) return;
-      const originalOverflow = document.body.style.overflow;
-      const originalTouchAction = document.body.style.touchAction;
+      const scrollY = window.scrollY;
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalBodyPosition = document.body.style.position;
+      const originalBodyTop = document.body.style.top;
+      const originalBodyWidth = document.body.style.width;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+
       document.body.style.overflow = "hidden";
-      document.body.style.touchAction = "none";
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.documentElement.style.overflow = "hidden";
+
+      function handleViewport() {
+        if (window.scrollY !== 0) {
+          window.scrollTo(0, 0);
+        }
+      }
+
+      const vv = window.visualViewport;
+      if (vv) {
+        vv.addEventListener("resize", handleViewport);
+        vv.addEventListener("scroll", handleViewport);
+      }
+
       return () => {
-        document.body.style.overflow = originalOverflow;
-        document.body.style.touchAction = originalTouchAction;
+        document.body.style.overflow = originalBodyOverflow;
+        document.body.style.position = originalBodyPosition;
+        document.body.style.top = originalBodyTop;
+        document.body.style.width = originalBodyWidth;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        window.scrollTo(0, scrollY);
+        if (vv) {
+          vv.removeEventListener("resize", handleViewport);
+          vv.removeEventListener("scroll", handleViewport);
+        }
       };
     }, [open]);
 

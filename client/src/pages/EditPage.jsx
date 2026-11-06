@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -13,12 +13,15 @@ import {
   Plus,
   Receipt,
   RefreshCw,
+  RotateCcw,
   Share2,
   Sparkles,
+  Trash2,
   User,
   UserCheck,
   UserPlus,
-  Wallet
+  Wallet,
+  X
 } from "lucide-react";
 import {
   addExpense,
@@ -96,6 +99,8 @@ export function EditPage() {
   const [metaLoading, setMetaLoading] = useState(false);
   const [pendingExpenses, setPendingExpenses] = useState([]);
   const [optimisticRemovedIds, setOptimisticRemovedIds] = useState([]);
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const pendingDeleteRef = useRef(null);
   const [isDesktop, setIsDesktop] = useState(
     typeof window !== "undefined" ? window.innerWidth >= 768 : false
   );
@@ -391,9 +396,14 @@ export function EditPage() {
     }
   }
 
-  async function onDelete(expenseId, _expense, { suppressSuccessToast = false } = {}) {
-    if (!token) return;
+    const commitPendingDelete = useCallback(async () => {
+    const current = pendingDeleteRef.current;
+    if (!current) return;
+    clearTimeout(current.timer);
+    pendingDeleteRef.current = null;
+    setPendingDelete(null);
 
+    const { expenseId } = current;
     const isOfflineMode = !isOnline || (typeof navigator !== "undefined" && !navigator.onLine);
 
     if (isOfflineMode) {
@@ -410,14 +420,11 @@ export function EditPage() {
         saveCachedSnapshot(`edit:${editId}`, updated);
         return updated;
       });
-      if (!suppressSuccessToast) toast.success("Expense deleted offline.");
       return;
     }
 
-    setOptimisticRemovedIds((curr) => [...curr, expenseId]);
     try {
       await deleteExpense(editId, expenseId, token);
-      if (!suppressSuccessToast) toast.success("Expense deleted");
       await refetch();
       setOptimisticRemovedIds((curr) => curr.filter((item) => item !== expenseId));
     } catch (err) {
@@ -436,13 +443,61 @@ export function EditPage() {
           saveCachedSnapshot(`edit:${editId}`, updated);
           return updated;
         });
-        if (!suppressSuccessToast) toast.success("Deleted offline.");
       } else {
         setOptimisticRemovedIds((curr) => curr.filter((item) => item !== expenseId));
-        toast.error(err.message || "Delete failed");
+        toast.error(err.message || "Failed to delete expense");
       }
     }
-  }
+  }, [editId, isOnline, queueMutation, refetch, setSnapshot, token]);
+
+  const undoPendingDelete = useCallback(() => {
+    const current = pendingDeleteRef.current;
+    if (!current) return;
+    clearTimeout(current.timer);
+    hapticTap(15);
+    setOptimisticRemovedIds((curr) => curr.filter((item) => item !== current.expenseId));
+    pendingDeleteRef.current = null;
+    setPendingDelete(null);
+  }, []);
+
+  const onDelete = useCallback((expenseId, expense) => {
+    if (!token) return;
+
+    // If another deletion is already waiting, commit it first immediately
+    if (pendingDeleteRef.current) {
+      commitPendingDelete();
+    }
+
+    hapticTap(20);
+    // 0ms instant optimistic row removal and balance update
+    setOptimisticRemovedIds((curr) => [...curr, expenseId]);
+
+    const expObj = expense || visibleExpenses.find((e) => e.id === expenseId) || { id: expenseId, title: "Expense" };
+
+    const timer = setTimeout(() => {
+      commitPendingDelete();
+    }, 4500);
+
+    const pendingItem = { expenseId, expense: expObj, timer };
+    pendingDeleteRef.current = pendingItem;
+    setPendingDelete(pendingItem);
+  }, [commitPendingDelete, token, visibleExpenses]);
+
+  // Commit any pending deletion when user leaves the page or unmounts
+  useEffect(() => {
+    function handleBeforeUnload() {
+      if (pendingDeleteRef.current) {
+        commitPendingDelete();
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      if (pendingDeleteRef.current) {
+        commitPendingDelete();
+      }
+    };
+  }, [commitPendingDelete]);
 
   async function onAddMember(payload) {
     if (!token) return;
@@ -1053,6 +1108,60 @@ export function EditPage() {
             </motion.button>
           </div>
 
+          {/* Floating Bottom Undo Snackbar */}
+          <AnimatePresence>
+            {pendingDelete && (
+              <motion.div
+                initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 16, scale: 0.96 }}
+                transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                style={{ bottom: "max(5.75rem, calc(5.25rem + env(safe-area-inset-bottom)))" }}
+                className="fixed inset-x-4 z-40 mx-auto max-w-sm sm:max-w-md overflow-hidden rounded-2xl border border-ink-800 bg-ink-950/95 text-white shadow-2xl backdrop-blur-md"
+              >
+                <div className="flex items-center justify-between gap-3 px-4 py-3">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-danger-500/20 text-danger-400">
+                      <Trash2 className="h-4 w-4" />
+                    </div>
+                    <span className="truncate text-xs font-medium text-ink-100 font-sans">
+                      <strong className="font-semibold text-white">“{pendingDelete.expense.title}”</strong> deleted
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={undoPendingDelete}
+                      className="flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-xs font-bold text-ink-900 transition-all hover:bg-ink-100 active:scale-95 shadow-sm"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      <span>Undo</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={commitPendingDelete}
+                      className="rounded-lg p-1 text-ink-400 hover:text-white transition-colors"
+                      aria-label="Dismiss"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Animated countdown line */}
+                <div className="h-0.5 w-full bg-ink-800/80 overflow-hidden">
+                  <motion.div
+                    initial={{ width: "100%" }}
+                    animate={{ width: "0%" }}
+                    transition={{ duration: 4.5, ease: "linear" }}
+                    className="h-full bg-leaf-400"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Add / Edit Expense Drawer / Sheet */}
           <Sheet
             open={addExpenseOpen}
@@ -1063,7 +1172,7 @@ export function EditPage() {
               onOpenAutoFocus={(e) => e.preventDefault()}
               className={isDesktop ? "" : "flex flex-col h-[92dvh] max-h-[92dvh] p-0 overflow-hidden rounded-t-[1.75rem]"}
             >
-              <div className="px-5 pt-1 pb-1 shrink-0">
+              <div className="px-5 pt-1 pb-3 shrink-0 bg-white border-b border-ink-100/80 z-10">
                 <SheetHeader>
                   <SheetTitle>{editingExpense ? "Edit Expense" : "Add Expense"}</SheetTitle>
                   <SheetDescription>
