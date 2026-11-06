@@ -953,7 +953,7 @@ export function EditPage() {
 
           {/* Segmented Tabs Layout: Inset tinted gray track + crisp white active pill */}
           <Tabs value={activeEditTab} onValueChange={(value) => { setActiveEditTab(value); hapticTap(); }} className="w-full">
-            <TabsList className="bg-ink-100/80 p-1 rounded-xl flex gap-1 w-full h-auto border-0 shadow-none">
+            <TabsList className="sticky top-0 z-20 bg-ink-50/95 backdrop-blur-md pt-2 pb-1 bg-ink-100/80 p-1 rounded-xl flex gap-1 w-full h-auto border-0 shadow-none">
               <TabsTrigger
                 value="expenses"
                 className="flex-1 rounded-lg py-2 px-3 text-xs sm:text-sm font-medium transition-colors text-ink-600 hover:text-ink-900 data-[state=active]:bg-white data-[state=active]:text-ink-950 data-[state=active]:font-medium data-[state=active]:shadow-none border-0 shadow-none"
