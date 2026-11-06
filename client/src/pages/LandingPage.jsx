@@ -18,7 +18,7 @@ const steps = [
 
 export function LandingPage() {
   return (
-    <main className="site-main bg-white" id="main">
+    <main className="site-main" id="main">
       <section className="hero container" aria-labelledby="hero-title">
         <div className="hero-aside">
           <div className="hero-copy">
