@@ -24,3 +24,7 @@ build/
 *.log
 .env.production
 .env.development
+
+.tmp-build/
+.agents/
+.hallmark/

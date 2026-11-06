@@ -50,9 +50,9 @@ export function ExpenseFilterSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className="flex flex-col gap-0 max-h-[88vh] sm:max-w-lg sm:mx-auto p-0 overflow-hidden rounded-t-2xl sm:rounded-2xl border-ink-200"
+        className="flex flex-col gap-0 h-[70dvh] max-h-[70dvh] sm:max-w-lg sm:mx-auto p-0 overflow-hidden rounded-t-[1.75rem] sm:rounded-2xl border-ink-200"
       >
-        <SheetHeader className="px-5 py-3 border-b border-ink-100 text-left space-y-0">
+        <SheetHeader className="px-5 py-3 border-b border-ink-100 text-left space-y-0 shrink-0">
           <SheetTitle className="text-base font-bold text-ink-900 font-sans">
             Filters
           </SheetTitle>
@@ -62,7 +62,7 @@ export function ExpenseFilterSheet({
         </SheetHeader>
 
         {/* Scrollable Sheet Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-3.5 space-y-5">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-3.5 space-y-5">
           {/* 1. Paid by: Everyone / each member */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-ink-700 font-sans">
