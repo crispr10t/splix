@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const Tabs = TabsPrimitive.Root;
 
@@ -20,11 +21,14 @@ const TabsTrigger = React.forwardRef(({ className, ...props }, ref) => (
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs sm:text-sm font-semibold ring-offset-background transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-leaf-900 data-[state=active]:shadow-sm",
+      "relative inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-xl px-3.5 py-1.5 text-xs sm:text-sm font-semibold ring-offset-background transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:text-leaf-900",
       className
     )}
     {...props}
-  />
+  >
+    <span className="relative z-[1]">{props.children}</span>
+    {props["data-state"] === "active" && <motion.span layoutId="activeTabIndicator" transition={{ type: "spring", stiffness: 450, damping: 35 }} className="pointer-events-none absolute inset-0 rounded-xl bg-white shadow-sm" />}
+  </TabsPrimitive.Trigger>
 ));
 TabsTrigger.displayName = TabsPrimitive.Trigger.displayName;
 

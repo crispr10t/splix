@@ -52,6 +52,8 @@ import { deriveBalances, simplifyDebts } from "@/utils/settlement";
 import { identityKey, tokenKey } from "@/utils/storage";
 import { isValidUpiId, normalizeUpiId } from "@/utils/upiValidation";
 import { money } from "@/utils/format";
+import { hapticTap } from "@/utils/haptics";
+import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -96,6 +98,15 @@ export function EditPage() {
   const [isDesktop, setIsDesktop] = useState(
     typeof window !== "undefined" ? window.innerWidth >= 768 : false
   );
+  const { scrollY } = useScroll();
+  const [fabCollapsed, setFabCollapsed] = useState(false);
+  const [activeEditTab, setActiveEditTab] = useState("expenses");
+  useMotionValueEvent(scrollY, "change", (current) => {
+    const previous = scrollY.getPrevious() ?? 0;
+    if (current < 40) setFabCollapsed(false);
+    else if (current > previous + 3) setFabCollapsed(true);
+    else if (current < previous - 3) setFabCollapsed(false);
+  });
 
   useEffect(() => {
     function handleResize() {
@@ -104,6 +115,15 @@ export function EditPage() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    if (!addExpenseOpen) return;
+    const marker = { ...window.history.state, splixExpenseSheet: true };
+    window.history.pushState(marker, "", window.location.href);
+    const closeOnBack = () => setAddExpenseOpen(false);
+    window.addEventListener("popstate", closeOnBack);
+    return () => window.removeEventListener("popstate", closeOnBack);
+  }, [addExpenseOpen]);
 
   useEffect(() => {
     if (token || !editId) return;
@@ -905,7 +925,11 @@ export function EditPage() {
               <p className="text-xs font-medium text-ink-500 font-sans">
                 {userNetBalance > 0 ? "You are owed" : userNetBalance < 0 ? "You owe" : "All settled"}
               </p>
-              <p
+              <motion.p
+                key={userNetBalance}
+                initial={{ scale: 0.96, opacity: 0.7 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 400, damping: 28 }}
                 className={`text-2xl sm:text-3xl font-bold tabular-nums tracking-tight leading-tight font-sans ${
                   userNetBalance > 0
                     ? "text-leaf-600"
@@ -915,7 +939,7 @@ export function EditPage() {
                 }`}
               >
                 {money(Math.abs(userNetBalance), snapshot.group.currency)}
-              </p>
+              </motion.p>
             </div>
           </div>
 
@@ -928,7 +952,7 @@ export function EditPage() {
           />
 
           {/* Segmented Tabs Layout: Inset tinted gray track + crisp white active pill */}
-          <Tabs defaultValue="expenses" className="w-full">
+          <Tabs value={activeEditTab} onValueChange={(value) => { setActiveEditTab(value); hapticTap(); }} className="w-full">
             <TabsList className="bg-ink-100/80 p-1 rounded-xl flex gap-1 w-full h-auto border-0 shadow-none">
               <TabsTrigger
                 value="expenses"
@@ -966,6 +990,7 @@ export function EditPage() {
                 onDelete={onDelete}
                 canEdit={Boolean(selectedParticipantId)}
                 canDelete={Boolean(selectedParticipantId)}
+                selectedParticipantId={selectedParticipantId}
                 filters={expenseFilters}
                 onFiltersChange={setExpenseFilters}
               />
@@ -1002,17 +1027,20 @@ export function EditPage() {
 
           {/* Floating Action Button (FAB) for Adding Expense */}
           <div className="fixed right-6 z-30 sm:bottom-8 sm:right-8" style={{ bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))" }}>
-            <Button
-              size="lg"
-              className="h-14 rounded-xl bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl hover:shadow-leaf-500/30 px-5 gap-2 text-sm font-bold active:scale-95 transition-colors duration-150"
+            <motion.button
+              layout
+              transition={{ type: "spring", stiffness: 450, damping: 35 }}
+              aria-label="Add expense"
+              className={`inline-flex items-center justify-center h-14 ${fabCollapsed ? "w-14 rounded-full px-0" : "rounded-xl px-5"} bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl gap-2 text-sm font-bold active:scale-95 transition-colors duration-150`}
               onClick={() => {
+                hapticTap();
                 setEditingExpense(null);
                 setAddExpenseOpen(true);
               }}
             >
               <Plus className="h-5 w-5" />
-              <span>Add Expense</span>
-            </Button>
+              {!fabCollapsed && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>Add Expense</motion.span>}
+            </motion.button>
           </div>
 
           {/* Add / Edit Expense Drawer / Sheet */}

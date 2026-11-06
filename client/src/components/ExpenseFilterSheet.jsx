@@ -9,6 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CATEGORIES } from "@/utils/categories";
+import { motion } from "framer-motion";
+import { hapticTap } from "@/utils/haptics";
 
 export const DEFAULT_FILTERS = {
   payer: "all",
@@ -67,32 +69,32 @@ export function ExpenseFilterSheet({
               Paid by
             </label>
             <div className="flex flex-wrap items-center gap-1.5">
-              <button
+              <motion.button whileTap={{ scale: 0.95 }}
                 type="button"
-                className={`h-8 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                className={`relative h-9 min-h-[44px] px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                   draft.payer === "all"
-                    ? "bg-leaf-600 text-white font-semibold"
+                    ? "text-white font-semibold"
                     : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
                 }`}
-                onClick={() => setDraft((d) => ({ ...d, payer: "all" }))}
+                onClick={() => { hapticTap(); setDraft((d) => ({ ...d, payer: "all" })); }}
               >
-                Everyone
-              </button>
+                {draft.payer === "all" && <motion.span layoutId="payer-pill" className="absolute inset-0 -z-0 rounded-full bg-leaf-600" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}<span className="relative z-10">Everyone</span>
+              </motion.button>
               {participants.map((p) => {
                 const isSelected = draft.payer === p.id;
                 return (
-                  <button
+                  <motion.button whileTap={{ scale: 0.95 }}
                     key={p.id}
                     type="button"
-                    className={`h-8 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                    className={`relative h-9 min-h-[44px] px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                       isSelected
-                        ? "bg-leaf-600 text-white font-semibold"
+                        ? "text-white font-semibold"
                         : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
                     }`}
-                    onClick={() => setDraft((d) => ({ ...d, payer: p.id }))}
+                    onClick={() => { hapticTap(); setDraft((d) => ({ ...d, payer: p.id })); }}
                   >
-                    {p.name}
-                  </button>
+                    {isSelected && <motion.span layoutId="payer-pill" className="absolute inset-0 -z-0 rounded-full bg-leaf-600" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}<span className="relative z-10">{p.name}</span>
+                  </motion.button>
                 );
               })}
             </div>
@@ -108,15 +110,16 @@ export function ExpenseFilterSheet({
                 const Icon = cat.icon;
                 const isSelected = draft.categories.includes(cat.id);
                 return (
-                  <button
+                  <motion.button whileTap={{ scale: 0.93 }}
                     key={cat.id}
                     type="button"
-                    className={`h-8 inline-flex items-center gap-1.5 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                className={`relative h-9 min-h-[44px] inline-flex items-center gap-1.5 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                       isSelected
-                        ? "bg-leaf-600 text-white font-semibold"
+                        ? "text-white font-semibold"
                         : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
                     }`}
                     onClick={() => {
+                      hapticTap(8);
                       setDraft((d) => {
                         const exists = d.categories.includes(cat.id);
                         const next = exists
@@ -126,9 +129,10 @@ export function ExpenseFilterSheet({
                       });
                     }}
                   >
+                    {isSelected && <motion.span layoutId={`category-pill-${cat.id}`} className="absolute inset-0 -z-0 rounded-full bg-leaf-600" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}
                     <Icon className="h-3.5 w-3.5" />
-                    <span>{cat.shortLabel || cat.label}</span>
-                  </button>
+                    <span className="relative z-10">{cat.shortLabel || cat.label}</span>
+                  </motion.button>
                 );
               })}
             </div>
@@ -148,18 +152,18 @@ export function ExpenseFilterSheet({
               ].map((opt) => {
                 const isSelected = draft.dateRange === opt.id;
                 return (
-                  <button
+                  <motion.button whileTap={{ scale: 0.95 }}
                     key={opt.id}
                     type="button"
-                    className={`h-8 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                    className={`relative h-9 min-h-[44px] px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                       isSelected
                         ? "bg-leaf-600 text-white font-semibold"
                         : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
                     }`}
-                    onClick={() => setDraft((d) => ({ ...d, dateRange: opt.id }))}
+                    onClick={() => { hapticTap(); setDraft((d) => ({ ...d, dateRange: opt.id })); }}
                   >
-                    {opt.label}
-                  </button>
+                    {isSelected && <motion.span layoutId="date-range-pill" className="absolute inset-0 -z-0 rounded-full bg-leaf-600" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}<span className="relative z-10">{opt.label}</span>
+                  </motion.button>
                 );
               })}
             </div>
@@ -210,18 +214,18 @@ export function ExpenseFilterSheet({
               ].map((opt) => {
                 const isSelected = draft.sort === opt.id;
                 return (
-                  <button
+                  <motion.button whileTap={{ scale: 0.95 }}
                     key={opt.id}
                     type="button"
-                    className={`h-8 px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
+                    className={`relative h-9 min-h-[44px] px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${
                       isSelected
-                        ? "bg-leaf-600 text-white font-semibold"
+                        ? "text-white font-semibold"
                         : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
                     }`}
-                    onClick={() => setDraft((d) => ({ ...d, sort: opt.id }))}
+                    onClick={() => { hapticTap(); setDraft((d) => ({ ...d, sort: opt.id })); }}
                   >
-                    {opt.label}
-                  </button>
+                    {isSelected && <motion.span layoutId="sort-pill" className="absolute inset-0 -z-0 rounded-full bg-leaf-600" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}<span className="relative z-10">{opt.label}</span>
+                  </motion.button>
                 );
               })}
             </div>
