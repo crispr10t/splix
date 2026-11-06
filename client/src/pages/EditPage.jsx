@@ -393,7 +393,7 @@ export function EditPage() {
     }
   }
 
-  async function onDelete(expenseId) {
+  async function onDelete(expenseId, _expense, { suppressSuccessToast = false } = {}) {
     if (!token) return;
 
     const isOfflineMode = !isOnline || (typeof navigator !== "undefined" && !navigator.onLine);
@@ -412,14 +412,14 @@ export function EditPage() {
         saveCachedSnapshot(`edit:${editId}`, updated);
         return updated;
       });
-      toast.success("Expense deleted offline.");
+      if (!suppressSuccessToast) toast.success("Expense deleted offline.");
       return;
     }
 
     setOptimisticRemovedIds((curr) => [...curr, expenseId]);
     try {
       await deleteExpense(editId, expenseId, token);
-      toast.success("Expense deleted");
+      if (!suppressSuccessToast) toast.success("Expense deleted");
       await refetch();
       setOptimisticRemovedIds((curr) => curr.filter((item) => item !== expenseId));
     } catch (err) {
@@ -438,7 +438,7 @@ export function EditPage() {
           saveCachedSnapshot(`edit:${editId}`, updated);
           return updated;
         });
-        toast.success("Deleted offline.");
+        if (!suppressSuccessToast) toast.success("Deleted offline.");
       } else {
         setOptimisticRemovedIds((curr) => curr.filter((item) => item !== expenseId));
         toast.error(err.message || "Delete failed");
