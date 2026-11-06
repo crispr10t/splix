@@ -394,7 +394,7 @@ export function AddExpenseCard({
         {/* Quick Category Chips */}
         <div>
           <label className="text-xs font-semibold text-ink-500">Category</label>
-          <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+          <div className="mt-1.5 grid grid-cols-4 gap-1.5">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isSelected = category === cat.id;
@@ -402,7 +402,7 @@ export function AddExpenseCard({
                 <motion.button whileTap={{ scale: 0.93 }}
                   key={cat.id}
                   type="button"
-                  className={`relative h-9 w-full min-w-0 inline-flex items-center justify-center gap-1 px-1.5 text-[11px] font-medium rounded-full !rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 last:col-start-2 [-webkit-tap-highlight-color:transparent] ${
+                  className={`relative h-9 w-full min-w-0 inline-flex items-center justify-center gap-1 px-1.5 text-[11px] font-medium rounded-full !rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${cat.id === "entertainment" ? "col-span-2" : ""} [-webkit-tap-highlight-color:transparent] ${
                     isSelected
                       ? "text-white font-semibold"
                       : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"

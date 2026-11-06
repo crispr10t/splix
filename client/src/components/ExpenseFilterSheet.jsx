@@ -80,6 +80,9 @@ export function ExpenseFilterSheet({
               >
                 {draft.payer === "all" && <motion.span layoutId="payer-pill" className="absolute inset-0 -z-0 rounded-full bg-leaf-600" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}<span className="relative z-10">Everyone</span>
               </motion.button>
+              <motion.button whileTap={{ scale: 0.95 }} type="button" className={`relative h-9 min-h-[44px] px-3 text-xs font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${draft.payer === "involving_me" ? "text-white font-semibold" : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"}`} onClick={() => { hapticTap(); setDraft((d) => ({ ...d, payer: "involving_me" })); }}>
+                {draft.payer === "involving_me" && <motion.span layoutId="payer-pill" className="absolute inset-0 -z-0 rounded-full bg-leaf-600" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}<span className="relative z-10">Involving me</span>
+              </motion.button>
               {participants.map((p) => {
                 const isSelected = draft.payer === p.id;
                 return (
@@ -97,9 +100,6 @@ export function ExpenseFilterSheet({
                   </motion.button>
                 );
               })}
-              <motion.button whileTap={{ scale: 0.95 }} type="button" className={`relative h-9 min-h-[44px] px-3 text-xs font-medium rounded-full shrink-0 ${draft.payer === "involving_me" ? "text-white" : "bg-ink-100/70 text-ink-700"}`} onClick={() => { hapticTap(); setDraft((d) => ({ ...d, payer: "involving_me" })); }}>
-                {draft.payer === "involving_me" && <motion.span layoutId="payer-pill" className="absolute inset-0 -z-0 rounded-full bg-leaf-600" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}<span className="relative z-10">Involving me</span>
-              </motion.button>
             </div>
           </div>
 
@@ -108,7 +108,7 @@ export function ExpenseFilterSheet({
             <label className="text-xs font-semibold text-ink-700 font-sans">
               Category
             </label>
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-4 gap-1.5">
               {CATEGORIES.map((cat) => {
                 const Icon = cat.icon;
                 const isSelected = draft.categories.includes(cat.id);
@@ -116,7 +116,7 @@ export function ExpenseFilterSheet({
                   <motion.button whileTap={{ scale: 0.93 }}
                     key={cat.id}
                     type="button"
-                className={`relative h-9 min-h-[44px] w-full inline-flex items-center justify-center gap-1 px-1 text-[11px] font-medium rounded-full !rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 last:col-start-2 ${
+                className={`relative h-9 min-h-[44px] w-full inline-flex items-center justify-center gap-1 px-1 text-[11px] font-medium rounded-full !rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${cat.id === "entertainment" ? "col-span-2" : ""} ${
                       isSelected
                         ? "text-white font-semibold"
                         : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
