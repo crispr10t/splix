@@ -7,8 +7,10 @@ import {
   CloudOff,
   Edit2,
   Filter,
+  FilterX,
   Receipt,
   Search,
+  SearchX,
   Trash2,
   X
 } from "lucide-react";
@@ -238,6 +240,33 @@ export function ExpenseList({
     ]);
   }, [filteredExpenses, filters.sort]);
 
+  const filterDescription = useMemo(() => {
+    const parts = [];
+    if (searchQuery.trim()) {
+      parts.push(`“${searchQuery.trim()}”`);
+    }
+    if (filters.payer !== "all") {
+      parts.push(filters.payer === "involving_me" ? "involving you" : `paid by ${byId.get(filters.payer)?.name || "selected member"}`);
+    }
+    if (filters.categories?.length > 0) {
+      if (filters.categories.length === 1) {
+        parts.push(getCategory(filters.categories[0])?.label || "category");
+      } else {
+        parts.push(`${filters.categories.length} categories`);
+      }
+    }
+    if (filters.dateRange !== "all") {
+      const labels = {
+        today: "today",
+        yesterday: "yesterday",
+        this_week: "this week",
+        custom: "selected dates"
+      };
+      parts.push(labels[filters.dateRange] || "date range");
+    }
+    return parts.join(" · ");
+  }, [searchQuery, filters, byId]);
+
   function clearAllFilters() {
     setSearchQuery("");
     onFiltersChange({ ...DEFAULT_FILTERS });
@@ -402,20 +431,38 @@ export function ExpenseList({
       ) : null}
 
       {expenses.length > 0 && !filteredExpenses.length && (
-        <div className="rounded-xl border border-dashed border-ink-200 bg-ink-50/50 p-6 text-center text-ink-500 text-xs">
-          <p className="font-medium text-ink-700 font-sans">No expenses match these filters</p>
-          <button
-            type="button"
-            className="mt-2 text-xs font-semibold text-leaf-700 hover:text-leaf-800 underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 transition-colors font-sans"
-            onClick={clearAllFilters}
-          >
-            Clear filters
-          </button>
+        <div className="rounded-2xl border border-dashed border-ink-200 bg-ink-50/50 p-6 sm:p-8 text-center text-ink-500">
+          <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-2xl bg-ink-100/80 text-ink-500 mb-3">
+            {searchQuery.trim() ? (
+              <SearchX className="h-5 w-5" />
+            ) : (
+              <FilterX className="h-5 w-5" />
+            )}
+          </div>
+          <p className="font-semibold text-ink-900 font-sans text-sm sm:text-base">
+            No matching expenses
+          </p>
+          <p className="mt-1 text-xs text-ink-500 font-sans max-w-xs mx-auto">
+            {filterDescription
+              ? `No expenses found for ${filterDescription}`
+              : "Try adjusting or resetting your search and active filters."}
+          </p>
+          <div className="mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-9 px-4 rounded-xl text-xs font-semibold text-ink-700 hover:text-ink-900 bg-white border-ink-200 shadow-none font-sans"
+              onClick={clearAllFilters}
+            >
+              Reset filters
+            </Button>
+          </div>
         </div>
       )}
 
       {/* Expense Items List with pb-24 clearance */}
-      <div className="space-y-2 pb-24">
+      <div className="space-y-2 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
         {displayedExpenses.map((entry) => {
           if (entry.label) return <div key={`date-${entry.label}`} className="sticky top-0 z-10 bg-ink-50/90 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500 backdrop-blur-sm">{entry.label}</div>;
           const expense = entry.expense;
