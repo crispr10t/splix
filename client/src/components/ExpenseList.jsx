@@ -105,7 +105,7 @@ export function ExpenseList({
         next.delete(expense.id);
         return next;
       });
-      onDelete?.(expense.id, expense);
+      onDelete?.(expense.id, expense, { suppressSuccessToast: true });
     }, 4000);
     deleteTimers.current.set(expense.id, timer);
     toast("Expense deleted", {
