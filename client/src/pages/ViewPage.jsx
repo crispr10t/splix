@@ -25,11 +25,12 @@ import {
 export function ViewPage() {
   const { id: viewId = "" } = useParams();
   const { canInstall, promptInstall } = usePwaInstall();
-  const fetcher = useCallback(() => fetchViewSnapshot(viewId), [viewId]);
+  const fetcher = useCallback((opts) => fetchViewSnapshot(viewId, opts), [viewId]);
   const { snapshot, loading, error, refetch } = usePollingSnapshot({
     fetcher,
     enabled: Boolean(viewId),
-    cacheKey: `view:${viewId}`
+    cacheKey: `view:${viewId}`,
+    intervalMs: 25000
   });
 
   const totalAmountMinor = useMemo(

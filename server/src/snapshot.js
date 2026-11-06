@@ -12,7 +12,9 @@ function mapGroup(group) {
     currency: group.currency,
     editId: group.editId,
     viewId: group.viewId,
-    createdAt: group.createdAt
+    createdAt: group.createdAt,
+    lastActivityAt: group.lastActivityAt,
+    version: group.version || (group.lastActivityAt ? new Date(group.lastActivityAt).getTime() : 1)
   };
 }
 

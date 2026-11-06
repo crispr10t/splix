@@ -7,6 +7,7 @@ const groupSchema = new mongoose.Schema(
     editId: { type: String, required: true, unique: true, index: true },
     viewId: { type: String, required: true, unique: true, index: true },
     lastActivityAt: { type: Date, default: Date.now, index: true },
+    version: { type: Number, default: 1 },
     settlementStates: {
       type: [
         {
