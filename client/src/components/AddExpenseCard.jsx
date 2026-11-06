@@ -557,23 +557,33 @@ export function AddExpenseCard({
             Cancel
           </Button>
         )}
-        <Button
-          type="submit"
-          className="flex-1 h-11 text-sm font-semibold rounded-xl bg-leaf-600 hover:bg-leaf-700 shadow-md text-white"
-          disabled={disabled || adding}
-        >
-          {isEditMode ? (
-            <>
-              <Save className="h-4 w-4 mr-1.5" />
-              {adding ? "Saving changes…" : "Update Expense"}
-            </>
-          ) : (
-            <>
-              <Plus className="h-4 w-4 mr-1" />
-              {adding ? "Adding expense…" : "Add Expense"}
-            </>
-          )}
-        </Button>
+        {/* Form completeness check for visual button feedback */}
+        {(() => {
+          const isFormIncomplete = !isEditMode && (!title.trim() || toMinor(amount) <= 0 || selectedIds.length === 0);
+          return (
+            <Button
+              type="submit"
+              className={`flex-1 h-11 text-sm font-semibold rounded-xl text-white transition-all ${
+                isFormIncomplete || disabled || adding
+                  ? "bg-ink-200 text-ink-400 cursor-not-allowed shadow-none hover:bg-ink-200"
+                  : "bg-leaf-600 hover:bg-leaf-700 shadow-md active:scale-98"
+              }`}
+              disabled={disabled || adding || isFormIncomplete}
+            >
+              {isEditMode ? (
+                <>
+                  <Save className="h-4 w-4 mr-1.5" />
+                  {adding ? "Saving changes…" : "Update Expense"}
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 mr-1" />
+                  {adding ? "Adding expense…" : "Add Expense"}
+                </>
+              )}
+            </Button>
+          );
+        })()}
       </div>
       {!isEditMode && (!title.trim() || toMinor(amount) <= 0 || selectedIds.length === 0) && (
         <p className="-mt-2 text-center text-[11px] text-ink-400">Add title, amount, and split to save</p>
