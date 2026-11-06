@@ -588,7 +588,7 @@ export function ExpenseList({
                       {money(expense.amountMinor, currency)}
                     </span>
                     {selectedParticipantId && (
-                      <span className={`whitespace-nowrap text-[11px] tabular-nums ${shareMinor > 0 ? isUserOwed ? "text-leaf-700" : "text-ink-500" : "text-ink-400"}`}>
+                      <span className={`whitespace-nowrap text-[11px] tabular-nums ${shareMinor > 0 ? "text-ink-500 font-medium" : "text-ink-400"}`}>
                         {shareMinor > 0 ? `Your share: ${money(shareMinor, currency)}` : "Not involved"}
                       </span>
                     )}
