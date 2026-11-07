@@ -6,7 +6,7 @@ import { ViewPage } from "./pages/ViewPage";
 
 export default function App() {
   return (
-    <div id="app-canvas" className="min-h-screen text-ink-900 bg-[hsl(var(--paper))]">
+    <div className="min-h-screen text-ink-900">
       <AppHeader /> {/*top header */}
       <Routes>
         <Route path="/" element={<LandingPage />} />

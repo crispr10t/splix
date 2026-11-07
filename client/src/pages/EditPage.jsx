@@ -1086,8 +1086,7 @@ export function EditPage() {
           {/* Floating Action Button (FAB) for Adding Expense */}
           {typeof document !== "undefined" && createPortal(
             <div
-              id="floating-action-btn"
-              className="fixed right-6 z-30 sm:bottom-8 sm:right-8 transition-all duration-200"
+              className="fixed right-6 z-30 sm:bottom-8 sm:right-8"
               style={{ bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))" }}
             >
               <button
