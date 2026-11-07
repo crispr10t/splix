@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { getCurrencySymbol } from "@/utils/format";
 
 const standardCurrencies = [
   "AED", "AUD", "BRL", "CAD", "CHF", "CNY", "EUR", "GBP",
@@ -309,11 +310,14 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                   onChange={(e) => setCurrency(e.target.value)}
                   onFocus={() => void warmApi()}
                 >
-                  {standardCurrencies.map((code) => (
-                    <option key={code} value={code}>
-                      {code}
-                    </option>
-                  ))}
+                  {standardCurrencies.map((code) => {
+                    const sym = getCurrencySymbol(code);
+                    return (
+                      <option key={code} value={code}>
+                        {sym && sym !== code ? `${code} (${sym})` : code}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>

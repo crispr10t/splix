@@ -1,5 +1,36 @@
-export function money(amountMinor, currency) {
-  return `${currency} ${(Number(amountMinor || 0) / 100).toFixed(2)}`;
+export function getCurrencySymbol(currency = "INR") {
+  if (!currency) return "₹";
+  const curr = String(currency).trim().toUpperCase();
+  if (curr === "INR") return "₹";
+  try {
+    const parts = new Intl.NumberFormat(curr === "INR" ? "en-IN" : "en-US", {
+      style: "currency",
+      currency: curr
+    }).formatToParts(0);
+    return parts.find((p) => p.type === "currency")?.value || curr;
+  } catch {
+    return curr;
+  }
+}
+
+export function money(amountMinor, currency = "INR") {
+  const minor = Math.round(Number(amountMinor || 0));
+  const isWhole = Math.abs(minor) % 100 === 0;
+  const value = minor / 100;
+  const curr = String(currency || "INR").trim().toUpperCase();
+  try {
+    const locale = curr === "INR" ? "en-IN" : "en-US";
+    return new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency: curr,
+      minimumFractionDigits: isWhole ? 0 : 2,
+      maximumFractionDigits: isWhole ? 0 : 2
+    }).format(value);
+  } catch {
+    const symbol = getCurrencySymbol(curr);
+    const spacing = symbol.length > 1 ? " " : "";
+    return `${symbol}${spacing}${isWhole ? value.toFixed(0) : value.toFixed(2)}`;
+  }
 }
 
 export function formatDateTime(value) {
@@ -45,4 +76,3 @@ export function formatCompactDate(value) {
   }
   return `${day} ${month} ${d.getFullYear()}`;
 }
-

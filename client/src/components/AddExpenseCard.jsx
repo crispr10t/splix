@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { sortByName } from "@/utils/sort";
 import { CATEGORIES, getCategory } from "@/utils/categories";
+import { getCurrencySymbol, money } from "@/utils/format";
 
 function isNumericDraft(value) {
   return /^\d*\.?\d*$/.test(value);
@@ -96,6 +97,7 @@ export function AddExpenseCard({
 }) {
   const sortedParticipants = sortByName(participants);
   const isEditMode = Boolean(initialExpense);
+  const currencySymbol = getCurrencySymbol(currency);
 
   const [title, setTitle] = useState(initialExpense?.title || "");
   const [amount, setAmount] = useState(
@@ -236,7 +238,7 @@ export function AddExpenseCard({
         0
       );
       if (splitTotalMinor !== amountMinor) {
-        toast.error(`Split amounts must total ${currency} ${(amountMinor / 100).toFixed(2)}`);
+        toast.error(`Split amounts must total ${money(amountMinor, currency)}`);
         return;
       }
     }
@@ -333,11 +335,11 @@ export function AddExpenseCard({
             </label>
             <div className="relative mt-1">
               <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-ink-400 font-semibold text-sm">
-                {currency}
+                {currencySymbol}
               </span>
               <Input
                 ref={amountInputRef}
-                className="pl-14 text-sm sm:text-base font-bold"
+                className={`${currencySymbol.length > 2 ? "pl-14" : "pl-9"} text-sm sm:text-base font-bold`}
                 inputMode="decimal"
                 placeholder="0.00"
                 value={amount}
@@ -427,7 +429,7 @@ export function AddExpenseCard({
           </label>
           {perPersonShare && (
             <Badge variant="success" className="text-[11px]">
-              {currency} {perPersonShare} / person
+              {currencySymbol}{currencySymbol.length > 1 ? " " : ""}{perPersonShare} / person
             </Badge>
           )}
         </div>
@@ -515,7 +517,7 @@ export function AddExpenseCard({
                         <Input
                           className="h-8 text-xs font-semibold text-right"
                           inputMode="decimal"
-                          placeholder={mode === "amount" ? `${currency} 0.00` : "%"}
+                          placeholder={mode === "amount" ? `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}0.00` : "%"}
                           value={mode === "amount" ? amountMap[p.id] || "" : percentMap[p.id] || ""}
                           onChange={(e) => {
                             if (mode === "amount") {
