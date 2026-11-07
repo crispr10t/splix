@@ -11,7 +11,6 @@ import {
 } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { hapticTap } from "@/utils/haptics";
 
 const SheetContext = React.createContext({
   open: false,
@@ -50,7 +49,6 @@ const SheetClose = React.forwardRef(({ className, onClick, children, ...props },
       type="button"
       className={className}
       onClick={(e) => {
-        hapticTap(20);
         onClick?.(e);
         onOpenChange(false);
       }}
@@ -94,18 +92,10 @@ const SheetContent = React.forwardRef(
       }
     }, [open, y]);
 
-    // Handle drawer open/close side effects: card stack class on <html>, body scroll lock, and haptics
+    // Lock body and document scroll while sheet is open to prevent background panning on mobile
     React.useEffect(() => {
       if (!open) return;
-
       const scrollY = window.scrollY;
-
-      if (isBottom) {
-        hapticTap(15);
-        document.documentElement.style.setProperty("--scroll-y", `${scrollY}px`);
-        document.documentElement.classList.add("drawer-open");
-      }
-
       const originalBodyOverflow = document.body.style.overflow;
       const originalBodyPosition = document.body.style.position;
       const originalBodyTop = document.body.style.top;
@@ -131,15 +121,6 @@ const SheetContent = React.forwardRef(
       }
 
       return () => {
-        if (isBottom) {
-          document.documentElement.classList.remove("drawer-open");
-          // Retain --scroll-y during return transition so origin doesn't jump
-          setTimeout(() => {
-            if (!document.documentElement.classList.contains("drawer-open")) {
-              document.documentElement.style.removeProperty("--scroll-y");
-            }
-          }, 450);
-        }
         document.body.style.overflow = originalBodyOverflow;
         document.body.style.position = originalBodyPosition;
         document.body.style.top = originalBodyTop;
@@ -151,7 +132,7 @@ const SheetContent = React.forwardRef(
           vv.removeEventListener("scroll", handleViewport);
         }
       };
-    }, [open, isBottom]);
+    }, [open]);
 
     // Android hardware back button integration (push dummy state, popstate closes sheet)
     React.useEffect(() => {
@@ -191,9 +172,9 @@ const SheetContent = React.forwardRef(
 
     const springTransition = {
       type: "spring",
-      damping: 26,
-      stiffness: 340,
-      mass: 0.85
+      damping: 32,
+      stiffness: 320,
+      mass: 0.9
     };
 
     const motionProps = shouldReduceMotion
@@ -207,10 +188,7 @@ const SheetContent = React.forwardRef(
       ? {
           initial: { y: "100%" },
           animate: { y: 0 },
-          exit: {
-            y: "100%",
-            transition: { duration: 0.28, ease: [0.32, 0.72, 0, 1] }
-          },
+          exit: { y: "100%", transition: { duration: 0.22, ease: "easeIn" } },
           transition: springTransition
         }
       : {
@@ -230,15 +208,9 @@ const SheetContent = React.forwardRef(
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className={cn(
-                "fixed inset-0 z-50",
-                isBottom ? "bg-black/35 backdrop-blur-[2px]" : "bg-ink-950/60"
-              )}
-              onClick={() => {
-                hapticTap(20);
-                onOpenChangeRef.current?.(false);
-              }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="fixed inset-0 z-50 bg-ink-950/60"
+              onClick={() => onOpenChangeRef.current?.(false)}
             />
           )}
           {open && (
@@ -253,17 +225,12 @@ const SheetContent = React.forwardRef(
               dragListener={false}
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={{ top: 0, bottom: 0.6 }}
-              onDragStart={() => {
-                setIsDragging(true);
-                hapticTap(10);
-              }}
+              onDragStart={() => setIsDragging(true)}
               onDragEnd={(_, info) => {
                 setIsDragging(false);
                 if (info.offset.y > 100 || info.velocity.y > 500) {
-                  hapticTap(20);
                   onOpenChangeRef.current?.(false);
                 } else {
-                  hapticTap(10);
                   animate(y, 0, springTransition);
                 }
               }}
@@ -288,10 +255,7 @@ const SheetContent = React.forwardRef(
               {children}
               <button
                 type="button"
-                onClick={() => {
-                  hapticTap(20);
-                  onOpenChangeRef.current?.(false);
-                }}
+                onClick={() => onOpenChangeRef.current?.(false)}
                 className="absolute right-4 top-3.5 rounded-xl p-1.5 text-ink-500 hover:text-ink-800 hover:bg-ink-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 z-20"
                 aria-label="Close"
               >
