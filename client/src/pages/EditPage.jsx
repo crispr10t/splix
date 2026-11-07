@@ -12,6 +12,7 @@ import {
   Link2,
   Lock,
   MoreVertical,
+  Pencil,
   Plus,
   Receipt,
   RefreshCw,
@@ -929,11 +930,13 @@ export function EditPage() {
                             <button
                               type="button"
                               onClick={() => setProfileOpen(true)}
-                              className="flex items-center gap-1 text-[11px] font-mono text-leaf-700 hover:text-leaf-800 transition-colors mt-0.5 text-left truncate group cursor-pointer"
-                              title="Click to edit UPI ID"
+                              className="inline-flex items-center gap-1.5 max-w-full px-2 py-0.5 mt-1 rounded-md bg-leaf-50 hover:bg-leaf-100/80 border border-leaf-200/60 transition-colors text-left group cursor-pointer"
+                              title={`UPI: ${selectedParticipant.upiId} (Click to edit)`}
                             >
-                              <span className="truncate">UPI: {selectedParticipant.upiId}</span>
-                              <span className="text-[10px] text-ink-400 group-hover:text-ink-600 font-sans shrink-0">· Edit</span>
+                              <span className="text-[11px] font-mono text-leaf-700 truncate max-w-[150px] sm:max-w-[180px]">
+                                {selectedParticipant.upiId}
+                              </span>
+                              <Pencil className="h-2.5 w-2.5 text-leaf-600/70 group-hover:text-leaf-900 shrink-0" />
                             </button>
                           ) : (
                             <button

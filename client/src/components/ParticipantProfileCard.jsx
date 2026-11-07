@@ -1,9 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
-import { Check } from "lucide-react";
+import { Check, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/ui/avatar";
-import { isValidUpiId, normalizeUpiId } from "@/utils/upiValidation";
+import { isValidUpiId, normalizeUpiId, getUpiValidationMessage } from "@/utils/upiValidation";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,10 @@ export function ParticipantProfileDialog({
 
   const isDirty = normalized !== normalizeUpiId(participant?.upiId || "");
   const showError = touched && Boolean(normalized) && !isValid;
+  const validationError = useMemo(() => {
+    if (!showError) return null;
+    return getUpiValidationMessage(normalized) || "Looks incomplete (e.g. yourname@okaxis)";
+  }, [showError, normalized]);
 
   const handleSave = () => {
     if (!isValid && normalized) return;
@@ -117,38 +121,39 @@ export function ParticipantProfileDialog({
               </div>
             </div>
 
-            {/* Inline validation hint */}
+            {/* Smart inline validation hint */}
             {showError && (
               <p className="text-[11px] font-medium text-danger-600">
-                Looks incomplete (e.g. yourname@okaxis)
+                {validationError}
               </p>
             )}
 
-            {/* Helper value statement & visibility note */}
-            <div className="space-y-0.5 pt-1 text-xs text-ink-500">
-              <p>Friends can pay you in one tap or by QR.</p>
-              <p className="text-ink-400">Visible to everyone in this group.</p>
-            </div>
+            {/* Helper value statement */}
+            <p className="text-xs text-ink-500 pt-0.5">
+              Friends can pay you in one tap or by QR.
+            </p>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col items-center gap-2 pt-1">
             <Button
-              className="w-full h-11 bg-leaf-600 hover:bg-leaf-700 text-white rounded-xl shadow-xs text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full h-11 bg-leaf-600 hover:bg-leaf-700 text-white rounded-xl shadow-xs text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               disabled={saving || !isValid || (!isDirty && hasExisting)}
               onClick={handleSave}
             >
-              {saving ? "Saving…" : "Save UPI ID"}
+              <Check className="h-4 w-4 stroke-[2.5]" />
+              <span>{saving ? "Saving…" : "Save UPI ID"}</span>
             </Button>
 
             {hasExisting && (
               <button
                 type="button"
-                className="text-xs text-danger-600 hover:text-danger-700 hover:underline font-medium transition-colors cursor-pointer py-1"
+                className="inline-flex items-center gap-1.5 text-xs text-danger-600 hover:text-danger-700 hover:underline font-medium transition-colors cursor-pointer py-1"
                 disabled={saving}
                 onClick={handleRemove}
               >
-                Remove UPI ID
+                <Trash2 className="h-3.5 w-3.5" />
+                <span>Remove UPI ID</span>
               </button>
             )}
           </div>
