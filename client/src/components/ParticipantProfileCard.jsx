@@ -7,7 +7,6 @@ import {
   isValidUpiId,
   normalizeUpiId,
   getUpiValidationMessage,
-  getUpiPspInfo,
   POPULAR_UPI_HANDLES
 } from "@/utils/upiValidation";
 import {
@@ -40,8 +39,6 @@ export function ParticipantProfileDialog({
     if (!normalized) return false;
     return isValidUpiId(normalized);
   }, [normalized]);
-
-  const pspInfo = useMemo(() => (isValid ? getUpiPspInfo(normalized) : null), [isValid, normalized]);
 
   const isDirty = normalized !== normalizeUpiId(participant?.upiId || "");
   const showError = touched && Boolean(normalized) && !isValid;
@@ -152,15 +149,6 @@ export function ParticipantProfileDialog({
             {showError && (
               <p className="text-[11px] font-medium text-danger-600">
                 {validationError}
-              </p>
-            )}
-
-            {/* Recognized PSP info */}
-            {isValid && pspInfo && (
-              <p className="text-[11px] font-medium text-leaf-700 flex items-center gap-1">
-                <span>Recognized:</span>
-                <span className="font-semibold">{pspInfo.app}</span>
-                <span className="text-leaf-600">({pspInfo.bank})</span>
               </p>
             )}
 
