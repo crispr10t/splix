@@ -33,6 +33,10 @@ export const CURRENCY_OPTIONS = [
   { code: "ZAR", symbol: "R", name: "South African Rand" }
 ];
 
+export const ALPHABETICAL_CURRENCIES = [...CURRENCY_OPTIONS].sort((a, b) =>
+  a.code.localeCompare(b.code)
+);
+
 export function CurrencySelect({
   value = "INR",
   onChange,
@@ -66,8 +70,8 @@ export function CurrencySelect({
 
   const filteredCurrencies = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return CURRENCY_OPTIONS;
-    return CURRENCY_OPTIONS.filter(
+    if (!q) return ALPHABETICAL_CURRENCIES;
+    return ALPHABETICAL_CURRENCIES.filter(
       (c) =>
         c.code.toLowerCase().includes(q) ||
         c.name.toLowerCase().includes(q) ||
@@ -123,7 +127,7 @@ export function CurrencySelect({
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search currency or country..."
+            placeholder="Search"
             className="w-full rounded-xl border border-ink-200 bg-ink-50/70 pl-8 pr-7 py-1.5 text-xs text-ink-900 placeholder:text-ink-400 focus:outline-none focus:border-leaf-500 focus:bg-white transition-colors"
           />
           {search && (
