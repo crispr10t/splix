@@ -60,6 +60,7 @@ import { money } from "@/utils/format";
 import { hapticTap } from "@/utils/haptics";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
