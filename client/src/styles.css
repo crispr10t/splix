@@ -66,7 +66,7 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
-    background-color: #ffffff;
+    background-color: hsl(var(--paper));
   }
 
   body {

@@ -16,8 +16,8 @@ export default defineConfig({
         name: "Splix - Group Expense Splitter",
         short_name: "Splix",
         description: "Zero-friction group expense splitter with offline support",
-        theme_color: "#18181b",
-        background_color: "#ffffff",
+        theme_color: "#fcfdfc",
+        background_color: "#fcfdfc",
         display: "standalone",
         start_url: "/",
         icons: [
