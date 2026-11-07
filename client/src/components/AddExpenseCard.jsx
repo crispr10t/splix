@@ -610,8 +610,8 @@ export function AddExpenseCard({
                     className={cn(
                       "relative h-14 shrink-0 flex items-center justify-between rounded-xl border px-3 transition-colors duration-150 gap-2.5",
                       checked
-                        ? "border-leaf-200/90 bg-white shadow-2xs opacity-100"
-                        : "border-ink-200/60 bg-ink-100/30 opacity-45 hover:opacity-60"
+                        ? "border-leaf-200/90 bg-white shadow-2xs"
+                        : "border-ink-200/70 bg-ink-100/30 hover:bg-ink-100/50"
                     )}
                   >
                     <label className="relative flex flex-1 min-w-0 cursor-pointer items-center gap-2.5 select-none py-1">
@@ -637,12 +637,12 @@ export function AddExpenseCard({
                       <UserAvatar
                         name={p.name}
                         size="xs"
-                        className={cn("h-6 w-6 shrink-0 transition-opacity", !checked && "opacity-40")}
+                        className={cn("h-6 w-6 shrink-0 transition-opacity", !checked && "opacity-75")}
                       />
                       <span
                         className={cn(
-                          "truncate text-xs sm:text-sm font-semibold transition-colors",
-                          checked ? "text-ink-900" : "text-ink-500"
+                          "truncate text-xs sm:text-sm transition-colors",
+                          checked ? "text-ink-900 font-semibold" : "text-ink-600 font-medium"
                         )}
                       >
                         {p.name}
