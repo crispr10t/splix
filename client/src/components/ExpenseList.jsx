@@ -471,7 +471,7 @@ export function ExpenseList({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="sticky top-0 z-10 bg-ink-50/90 py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500 backdrop-blur-sm"
+                  className="py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500"
                 >
                   {entry.label}
                 </motion.div>
