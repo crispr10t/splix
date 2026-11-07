@@ -1101,7 +1101,7 @@ export function EditPage() {
 
           {/* Segmented Tabs Layout: Inset tinted gray track + crisp white active pill */}
           <Tabs value={activeEditTab} onValueChange={(value) => { setActiveEditTab(value); hapticTap(10); }} className="w-full">
-            <TabsList className="sticky top-0 z-20 bg-ink-50/95 backdrop-blur-md pt-2 pb-1 bg-ink-100/80 p-1 rounded-xl flex gap-1 w-full h-auto border-0 shadow-none">
+            <TabsList className="sticky top-0 z-20 bg-ink-50/95 pt-2 pb-1 bg-ink-100/80 p-1 rounded-xl flex gap-1 w-full h-auto border-0 shadow-none">
               <TabsTrigger
                 value="expenses"
                 unwrapChildren
@@ -1275,7 +1275,7 @@ export function EditPage() {
               className={
                 isDesktop
                   ? "flex flex-col h-full p-0 overflow-clip sm:max-w-lg border-l border-ink-200"
-                  : "flex flex-col h-[92dvh] max-h-[92dvh] p-0 overflow-clip rounded-t-[1.75rem]"
+                  : "flex flex-col h-[min(92dvh,calc(100dvh-var(--kb,0px)-0.5rem))] max-h-[92dvh] p-0 overflow-clip rounded-t-[1.75rem]"
               }
             >
               <div className="px-5 sm:px-6 pt-3 sm:pt-4 pb-3 shrink-0 bg-white border-b border-ink-100/80 z-10">

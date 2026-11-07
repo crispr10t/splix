@@ -85,12 +85,46 @@ const SheetContent = React.forwardRef(
     const shouldReduceMotion = useReducedMotion();
     const isBottom = side === "bottom";
 
+    const panelRef = React.useRef(null);
+    const setRefs = React.useCallback(
+      (node) => {
+        panelRef.current = node;
+        if (typeof ref === "function") ref(node);
+        else if (ref) ref.current = node;
+      },
+      [ref]
+    );
+
     React.useEffect(() => {
       if (open) {
         y.set(0);
         setIsDragging(false);
       }
     }, [open, y]);
+
+    // Track visual viewport to cleanly follow the virtual keyboard on mobile without layout stutter
+    React.useEffect(() => {
+      if (!open || !isBottom) return;
+      const vv = window.visualViewport;
+      if (!vv) return;
+      let raf = 0;
+      const sync = () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+          panelRef.current?.style.setProperty("--kb", `${kb}px`);
+        });
+      };
+      sync();
+      vv.addEventListener("resize", sync);
+      vv.addEventListener("scroll", sync);
+      return () => {
+        cancelAnimationFrame(raf);
+        panelRef.current?.style.removeProperty("--kb");
+        vv.removeEventListener("resize", sync);
+        vv.removeEventListener("scroll", sync);
+      };
+    }, [open, isBottom]);
 
     // Lock body and document scroll while sheet is open to prevent background panning on mobile
     React.useEffect(() => {
@@ -108,18 +142,6 @@ const SheetContent = React.forwardRef(
       document.body.style.width = "100%";
       document.documentElement.style.overflow = "hidden";
 
-      function handleViewport() {
-        if (window.scrollY !== 0) {
-          window.scrollTo(0, 0);
-        }
-      }
-
-      const vv = window.visualViewport;
-      if (vv) {
-        vv.addEventListener("resize", handleViewport);
-        vv.addEventListener("scroll", handleViewport);
-      }
-
       return () => {
         document.body.style.overflow = originalBodyOverflow;
         document.body.style.position = originalBodyPosition;
@@ -127,10 +149,6 @@ const SheetContent = React.forwardRef(
         document.body.style.width = originalBodyWidth;
         document.documentElement.style.overflow = originalHtmlOverflow;
         window.scrollTo(0, scrollY);
-        if (vv) {
-          vv.removeEventListener("resize", handleViewport);
-          vv.removeEventListener("scroll", handleViewport);
-        }
       };
     }, [open]);
 
@@ -216,7 +234,7 @@ const SheetContent = React.forwardRef(
           {open && (
             <motion.div
               key="sheet-panel"
-              ref={ref}
+              ref={setRefs}
               role="dialog"
               aria-modal="true"
               style={isBottom ? { y } : undefined}
@@ -235,9 +253,9 @@ const SheetContent = React.forwardRef(
                 }
               }}
               className={cn(
-                "fixed z-50 bg-white shadow-2xl will-change-transform",
+                "fixed z-50 bg-white shadow-2xl",
                 isBottom
-                  ? "inset-x-0 bottom-0 rounded-t-[1.75rem] border-t border-ink-200"
+                  ? "inset-x-0 bottom-[var(--kb,0px)] rounded-t-[1.75rem] border-t border-ink-200"
                   : "inset-y-0 right-0 h-full w-full sm:max-w-lg border-l border-ink-200 overflow-y-auto",
                 className
               )}

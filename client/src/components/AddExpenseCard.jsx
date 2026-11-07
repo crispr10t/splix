@@ -407,7 +407,7 @@ export function AddExpenseCard({
           <Input
             ref={titleInputRef}
             autoFocus={autoFocus}
-            className="mt-1 text-sm sm:text-base font-medium"
+            className="mt-1 text-base sm:text-sm font-medium"
             maxLength={60}
             placeholder="Dinner, cab ride, groceries…"
             value={title}
@@ -428,7 +428,7 @@ export function AddExpenseCard({
               </span>
               <Input
                 ref={amountInputRef}
-                className={`${currencySymbol.length > 2 ? "pl-14" : "pl-9"} text-sm sm:text-base font-bold`}
+                className={`${currencySymbol.length > 2 ? "pl-14" : "pl-9"} text-base sm:text-base font-bold`}
                 inputMode="decimal"
                 placeholder="0.00"
                 value={amount}
@@ -659,7 +659,7 @@ export function AddExpenseCard({
                         ) : null
                       ) : checked ? (
                         <Input
-                          className="h-9 w-full text-xs sm:text-sm font-semibold font-mono text-right rounded-lg border-ink-200 bg-white focus:border-leaf-500 shadow-2xs"
+                          className="h-9 w-full text-base sm:text-sm font-semibold font-mono text-right rounded-lg border-ink-200 bg-white focus:border-leaf-500 shadow-2xs"
                           inputMode="decimal"
                           placeholder={mode === "amount" ? `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}0.00` : "%"}
                           value={mode === "amount" ? amountMap[p.id] || "" : percentMap[p.id] || ""}
