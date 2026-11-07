@@ -25,6 +25,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { sortByName } from "@/utils/sort";
 import { CATEGORIES, getCategory } from "@/utils/categories";
 import { getCurrencySymbol, money } from "@/utils/format";
+import { hapticTap } from "@/utils/haptics";
 import { cn } from "@/lib/utils";
 
 function isNumericDraft(value) {
@@ -607,13 +608,13 @@ export function AddExpenseCard({
                   <div
                     key={p.id}
                     className={cn(
-                      "h-14 shrink-0 flex items-center justify-between rounded-xl border px-3 transition-colors duration-150 gap-2.5",
+                      "relative h-14 shrink-0 flex items-center justify-between rounded-xl border px-3 transition-colors duration-150 gap-2.5",
                       checked
                         ? "border-leaf-200/90 bg-white shadow-2xs opacity-100"
                         : "border-ink-200/60 bg-ink-100/30 opacity-45 hover:opacity-60"
                     )}
                   >
-                    <label className="flex flex-1 min-w-0 cursor-pointer items-center gap-2.5 select-none py-1">
+                    <label className="relative flex flex-1 min-w-0 cursor-pointer items-center gap-2.5 select-none py-1">
                       <input
                         type="checkbox"
                         checked={checked}

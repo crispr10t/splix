@@ -1274,8 +1274,8 @@ export function EditPage() {
               }}
               className={
                 isDesktop
-                  ? "flex flex-col h-full p-0 overflow-hidden sm:max-w-lg border-l border-ink-200"
-                  : "flex flex-col h-[92dvh] max-h-[92dvh] p-0 overflow-hidden rounded-t-[1.75rem]"
+                  ? "flex flex-col h-full p-0 overflow-clip sm:max-w-lg border-l border-ink-200"
+                  : "flex flex-col h-[92dvh] max-h-[92dvh] p-0 overflow-clip rounded-t-[1.75rem]"
               }
             >
               <div className="px-5 sm:px-6 pt-3 sm:pt-4 pb-3 shrink-0 bg-white border-b border-ink-100/80 z-10">
@@ -1288,7 +1288,7 @@ export function EditPage() {
                   </SheetDescription>
                 </SheetHeader>
               </div>
-              <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              <div className="flex-1 flex flex-col min-h-0 overflow-clip">
                 <AddExpenseCard
                   participants={orderedParticipants}
                   currency={snapshot.group.currency}
