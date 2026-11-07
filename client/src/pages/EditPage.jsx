@@ -57,7 +57,7 @@ import { identityKey, tokenKey } from "@/utils/storage";
 import { isValidUpiId, normalizeUpiId } from "@/utils/upiValidation";
 import { money } from "@/utils/format";
 import { hapticTap } from "@/utils/haptics";
-import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -105,33 +105,14 @@ export function EditPage() {
   const [isDesktop, setIsDesktop] = useState(
     typeof window !== "undefined" ? window.innerWidth >= 768 : false
   );
-  const { scrollY } = useScroll();
-  const [fabCollapsed, setFabCollapsed] = useState(false);
   const [activeEditTab, setActiveEditTab] = useState("expenses");
-  const isFabCollapsed = !isDesktop && fabCollapsed;
-
-  useMotionValueEvent(scrollY, "change", (current) => {
-    if (isDesktop) return;
-    const previous = scrollY.getPrevious() ?? 0;
-    if (current < 40) setFabCollapsed(false);
-    else if (current > previous + 3) setFabCollapsed(true);
-    else if (current < previous - 3) setFabCollapsed(false);
-  });
 
   useEffect(() => {
     function handleResize() {
       setIsDesktop(window.innerWidth >= 768);
-      if (window.scrollY < 40) setFabCollapsed(false);
-    }
-    function handleScroll() {
-      if (window.scrollY < 40) setFabCollapsed(false);
     }
     window.addEventListener("resize", handleResize);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      window.removeEventListener("scroll", handleScroll);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -1102,42 +1083,26 @@ export function EditPage() {
             </TabsContent>
           </Tabs>
 
-          {/* Floating Action Button (FAB) for Adding Expense - portaled directly to body with layout="size" & spring physics */}
+          {/* Floating Action Button (FAB) for Adding Expense */}
           {typeof document !== "undefined" && createPortal(
-            <motion.div
-              layoutRoot
-              className="fixed right-6 z-30 sm:bottom-8 sm:right-8 pointer-events-auto"
+            <div
+              className="fixed right-6 z-30 sm:bottom-8 sm:right-8"
               style={{ bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))" }}
             >
-              <motion.button
-                layout="size"
-                transition={{ type: "spring", stiffness: 450, damping: 35 }}
+              <button
+                type="button"
                 aria-label="Add expense"
-                className={`inline-flex items-center justify-center h-14 ${
-                  isFabCollapsed ? "w-14 rounded-full px-0 gap-0" : "rounded-xl px-5 gap-2"
-                } bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl text-sm font-bold active:scale-95 transition-colors duration-150`}
+                className="inline-flex items-center justify-center h-14 w-14 rounded-full sm:w-auto sm:rounded-xl sm:px-5 sm:gap-2 bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl text-sm font-bold active:scale-95 transition-transform duration-150"
                 onClick={() => {
                   hapticTap();
                   setEditingExpense(null);
                   setAddExpenseOpen(true);
                 }}
               >
-                <Plus className="h-5 w-5 shrink-0" />
-                <AnimatePresence initial={false}>
-                  {!isFabCollapsed && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                      className="whitespace-nowrap"
-                    >
-                      Add Expense
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            </motion.div>,
+                <Plus className="h-6 w-6 sm:h-5 sm:w-5 shrink-0" />
+                <span className="hidden sm:inline">Add Expense</span>
+              </button>
+            </div>,
             document.body
           )}
 

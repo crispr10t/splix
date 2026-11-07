@@ -423,7 +423,7 @@ export function ExpenseList({
           <Receipt className="mx-auto h-8 w-8 text-ink-400 mb-2" />
           <p className="font-semibold text-ink-900 font-sans">No expenses recorded yet</p>
           <p className="mt-1 text-xs text-ink-500 font-sans">
-            Tap &ldquo;+ Add Expense&rdquo; below to record the first shared bill.
+            Tap &ldquo;{isDesktop ? "+ Add Expense" : "+"}&rdquo; below to record the first shared bill.
           </p>
         </div>
       ) : null}
