@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -8,8 +8,8 @@ import {
   ChevronUp,
   Coins,
   DollarSign,
+  Equal,
   IndianRupee,
-  Layers,
   Percent,
   Plus,
   Save,
@@ -25,6 +25,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { sortByName } from "@/utils/sort";
 import { CATEGORIES, getCategory } from "@/utils/categories";
 import { getCurrencySymbol, money } from "@/utils/format";
+import { cn } from "@/lib/utils";
 
 function isNumericDraft(value) {
   return /^\d*\.?\d*$/.test(value);
@@ -307,10 +308,85 @@ export function AddExpenseCard({
     }
   }
 
-  const perPersonShare =
-    mode === "even" && selectedIds.length > 0 && toMinor(amount) > 0
-      ? (toMinor(amount) / selectedIds.length / 100).toFixed(2)
-      : null;
+  // Live split status calculations for amount and percentage
+  const splitStatus = useMemo(() => {
+    const totalMinor = toMinor(amount);
+
+    if (mode === "even") {
+      if (selectedIds.length > 0 && totalMinor > 0) {
+        const share = (totalMinor / selectedIds.length / 100).toFixed(2);
+        return {
+          type: "even",
+          variant: "success",
+          text: `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}${share} / person`
+        };
+      }
+      return null;
+    }
+
+    if (mode === "amount") {
+      if (totalMinor <= 0) return null;
+      const assignedMinor = selectedIds.reduce(
+        (sum, id) => sum + toMinor(amountMap[id] || 0),
+        0
+      );
+      const diffMinor = totalMinor - assignedMinor;
+
+      if (diffMinor === 0) {
+        return {
+          type: "balanced",
+          variant: "success",
+          text: "✓ Balanced"
+        };
+      }
+      if (diffMinor > 0) {
+        return {
+          type: "remaining",
+          variant: "warning",
+          text: `${money(diffMinor, currency)} remaining`
+        };
+      }
+      return {
+        type: "over",
+        variant: "destructive",
+        text: `${money(Math.abs(diffMinor), currency)} over`
+      };
+    }
+
+    if (mode === "percentage") {
+      const assignedPercent = selectedIds.reduce(
+        (sum, id) => sum + Number(percentMap[id] || 0),
+        0
+      );
+      const diffPercent = 100 - assignedPercent;
+
+      if (Math.abs(diffPercent) < 0.01) {
+        return {
+          type: "balanced",
+          variant: "success",
+          text: "✓ 100% allocated"
+        };
+      }
+      if (diffPercent > 0) {
+        const remainingStr = Number.isInteger(diffPercent) ? diffPercent : diffPercent.toFixed(1);
+        return {
+          type: "remaining",
+          variant: "warning",
+          text: `${remainingStr}% remaining`
+        };
+      }
+      const overStr = Number.isInteger(Math.abs(diffPercent))
+        ? Math.abs(diffPercent)
+        : Math.abs(diffPercent).toFixed(1);
+      return {
+        type: "over",
+        variant: "destructive",
+        text: `${overStr}% over`
+      };
+    }
+
+    return null;
+  }, [mode, amount, selectedIds, amountMap, percentMap, currencySymbol, currency]);
 
   return (
     <form className="space-y-4" onSubmit={submit}>
@@ -415,18 +491,26 @@ export function AddExpenseCard({
 
       {/* Split Mode Selector */}
       <div className="rounded-2xl border border-ink-200/90 bg-ink-50/70 p-3 sm:p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between min-h-[22px]">
           <label className="text-xs font-semibold tracking-normal text-ink-500">
             Split Method
           </label>
-          {perPersonShare && (
-            <Badge variant="success" className="text-[11px]">
-              {currencySymbol}{currencySymbol.length > 1 ? " " : ""}{perPersonShare} / person
-            </Badge>
+          {splitStatus && (
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition-all",
+                splitStatus.variant === "success" && "border-leaf-200 bg-leaf-50 text-leaf-800",
+                splitStatus.variant === "warning" && "border-amber-200 bg-amber-50 text-amber-800",
+                splitStatus.variant === "destructive" && "border-danger-200 bg-danger-50 text-danger-700"
+              )}
+            >
+              {splitStatus.text}
+            </span>
           )}
         </div>
 
-        <div className="mt-2.5 grid grid-cols-3 gap-1.5 sm:gap-2">
+        {/* Unified Segmented Control */}
+        <div className="mt-2.5 flex items-center p-1 rounded-xl bg-ink-200/60 border border-ink-200/50 gap-1" role="radiogroup" aria-label="Split method">
           {(() => {
             const SplitAmountIcon =
               currency === "INR" || currencySymbol === "₹"
@@ -435,48 +519,72 @@ export function AddExpenseCard({
                 ? DollarSign
                 : Coins;
             return [
-              { id: "even", label: "Equally", icon: Layers },
-              { id: "amount", label: "By Amount", icon: SplitAmountIcon },
-              { id: "percentage", label: "By %", icon: Percent }
+              { id: "even", label: "Equal", icon: Equal },
+              { id: "amount", label: "Amount", icon: SplitAmountIcon },
+              { id: "percentage", label: "Percent", icon: Percent }
             ].map((item) => {
               const Icon = item.icon;
               const isSelected = mode === item.id;
               return (
-                <motion.button whileTap={{ scale: 0.95 }}
+                <button
                   key={item.id}
                   type="button"
-                  className={`relative h-9 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
+                  role="radio"
+                  aria-checked={isSelected}
+                  className={cn(
+                    "relative flex-1 h-8.5 sm:h-9 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-medium rounded-lg transition-colors cursor-pointer select-none outline-none focus:outline-none [-webkit-tap-highlight-color:transparent]",
                     isSelected
                       ? "text-white font-semibold"
-                      : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
-                  }`}
+                      : "text-ink-600 hover:text-ink-900 hover:bg-ink-200/40"
+                  )}
                   onClick={() => setMode(item.id)}
                 >
-                  {isSelected && <motion.span layoutId="add-expense-split-method" className="absolute inset-0 -z-0 rounded-full bg-leaf-600 shadow-sm" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}
-                  <Icon className="relative z-10 h-3.5 w-3.5" />
-                  <span className="relative z-10">{item.label}</span>
-                </motion.button>
+                  {isSelected && (
+                    <motion.span
+                      layoutId="add-expense-split-method"
+                      className="absolute inset-0 rounded-lg bg-leaf-600 shadow-xs"
+                      transition={{ type: "spring", stiffness: 450, damping: 35 }}
+                    />
+                  )}
+                  <Icon className="relative z-10 h-3.5 w-3.5 shrink-0" />
+                  <span className="relative z-10 truncate">{item.label}</span>
+                </button>
               );
             });
           })()}
         </div>
+
+        {/* Dynamic Helper Note */}
+        <p className="mt-2 text-[11px] text-ink-500 px-0.5 font-medium">
+          {mode === "even" && "Everyone pays an equal share."}
+          {mode === "amount" && "Enter the exact amount paid for each person."}
+          {mode === "percentage" && "Enter percentages totaling 100%."}
+        </p>
 
         {/* Participants Selector Toggle */}
         <div className="mt-3.5 border-t border-ink-200/80 pt-3">
           <div className="flex items-center justify-between">
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-700 hover:text-ink-900"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-700 hover:text-ink-900 cursor-pointer select-none"
               onClick={() => setDetailsOpen((c) => !c)}
             >
-              <Users className="h-3.5 w-3.5 text-leaf-600" />
-              <span>Split across {selectedIds.length} of {sortedParticipants.length} people</span>
-              {detailsOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+              <Users className="h-3.5 w-3.5 text-leaf-600 shrink-0" />
+              <span>
+                {selectedIds.length === sortedParticipants.length
+                  ? `All members (${sortedParticipants.length})`
+                  : `${selectedIds.length} of ${sortedParticipants.length} people included`}
+              </span>
+              {detailsOpen ? (
+                <ChevronUp className="h-3.5 w-3.5 text-ink-400" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 text-ink-400" />
+              )}
             </button>
             {detailsOpen && selectedIds.length !== sortedParticipants.length && (
               <button
                 type="button"
-                className="text-xs font-semibold text-leaf-700 hover:underline"
+                className="text-xs font-semibold text-leaf-700 hover:underline cursor-pointer"
                 onClick={selectAll}
               >
                 Select all
