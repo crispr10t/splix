@@ -966,26 +966,44 @@ export function EditPage() {
               </div>
             </div>
 
-            {/* Bottom: Stacked balance (NOT split row, no hairline divider, no redundant +) */}
-            <div className="mt-3">
-              <p className="text-xs font-medium text-ink-500 font-sans">
-                {userNetBalance > 0 ? "You are owed" : userNetBalance < 0 ? "You owe" : "All settled"}
-              </p>
-              <motion.p
-                key={userNetBalance}
-                initial={{ scale: 0.96, opacity: 0.7 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                className={`text-2xl sm:text-3xl font-bold tabular-nums tracking-tight leading-tight font-sans ${
-                  userNetBalance > 0
-                    ? "text-leaf-600"
-                    : userNetBalance < 0
-                    ? "text-danger-600"
-                    : "text-ink-500"
-                }`}
-              >
-                {money(Math.abs(userNetBalance), snapshot.group.currency)}
-              </motion.p>
+            {/* Bottom: Stacked balance + desktop primary Add Expense button */}
+            <div className="mt-3 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-ink-500 font-sans">
+                  {userNetBalance > 0 ? "You are owed" : userNetBalance < 0 ? "You owe" : "All settled"}
+                </p>
+                <motion.p
+                  key={userNetBalance}
+                  initial={{ scale: 0.96, opacity: 0.7 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                  className={`text-2xl sm:text-3xl font-bold tabular-nums tracking-tight leading-tight font-sans ${
+                    userNetBalance > 0
+                      ? "text-leaf-600"
+                      : userNetBalance < 0
+                      ? "text-danger-600"
+                      : "text-ink-500"
+                  }`}
+                >
+                  {money(Math.abs(userNetBalance), snapshot.group.currency)}
+                </motion.p>
+              </div>
+
+              {/* Desktop primary Add Expense button */}
+              {isDesktop && (
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-leaf-600 hover:bg-leaf-700 text-white font-semibold text-sm shadow-sm hover:shadow transition-all active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400"
+                  onClick={() => {
+                    hapticTap();
+                    setEditingExpense(null);
+                    setAddExpenseOpen(true);
+                  }}
+                >
+                  <Plus className="h-4 w-4 shrink-0" />
+                  <span>Add Expense</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -1083,24 +1101,23 @@ export function EditPage() {
             </TabsContent>
           </Tabs>
 
-          {/* Floating Action Button (FAB) for Adding Expense */}
-          {typeof document !== "undefined" && createPortal(
+          {/* Floating Action Button (FAB) for Adding Expense (Mobile only) */}
+          {!isDesktop && typeof document !== "undefined" && createPortal(
             <div
-              className="fixed right-6 z-30 sm:bottom-8 sm:right-8"
+              className="fixed right-6 z-30"
               style={{ bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))" }}
             >
               <button
                 type="button"
                 aria-label="Add expense"
-                className="inline-flex items-center justify-center h-14 w-14 rounded-full sm:w-auto sm:rounded-xl sm:px-5 sm:gap-2 bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl text-sm font-bold active:scale-95 transition-transform duration-150"
+                className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl text-sm font-bold active:scale-95 transition-transform duration-150"
                 onClick={() => {
                   hapticTap();
                   setEditingExpense(null);
                   setAddExpenseOpen(true);
                 }}
               >
-                <Plus className="h-6 w-6 sm:h-5 sm:w-5 shrink-0" />
-                <span className="hidden sm:inline">Add Expense</span>
+                <Plus className="h-6 w-6 shrink-0" />
               </button>
             </div>,
             document.body
@@ -1167,10 +1184,16 @@ export function EditPage() {
           >
             <SheetContent
               side={isDesktop ? "right" : "bottom"}
-              onOpenAutoFocus={(e) => e.preventDefault()}
-              className={isDesktop ? "" : "flex flex-col h-[92dvh] max-h-[92dvh] p-0 overflow-hidden rounded-t-[1.75rem]"}
+              onOpenAutoFocus={(e) => {
+                if (!isDesktop) e.preventDefault();
+              }}
+              className={
+                isDesktop
+                  ? "flex flex-col h-full p-0 overflow-hidden sm:max-w-lg border-l border-ink-200"
+                  : "flex flex-col h-[92dvh] max-h-[92dvh] p-0 overflow-hidden rounded-t-[1.75rem]"
+              }
             >
-              <div className="px-5 pt-1 pb-3 shrink-0 bg-white border-b border-ink-100/80 z-10">
+              <div className="px-5 sm:px-6 pt-3 sm:pt-4 pb-3 shrink-0 bg-white border-b border-ink-100/80 z-10">
                 <SheetHeader>
                   <SheetTitle>{editingExpense ? "Edit Expense" : "Add Expense"}</SheetTitle>
                   <SheetDescription>
@@ -1180,7 +1203,7 @@ export function EditPage() {
                   </SheetDescription>
                 </SheetHeader>
               </div>
-              <div className={isDesktop ? "mt-4 pb-6" : "flex-1 overflow-y-auto overscroll-contain px-5 pb-6 pt-2"}>
+              <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 pb-6 pt-3">
                 <AddExpenseCard
                   participants={orderedParticipants}
                   currency={snapshot.group.currency}
@@ -1198,6 +1221,7 @@ export function EditPage() {
                     setAddExpenseOpen(false);
                     setEditingExpense(null);
                   }}
+                  autoFocus={isDesktop}
                 />
               </div>
             </SheetContent>

@@ -21,6 +21,8 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getCategory } from "@/utils/categories";
 import { DEFAULT_FILTERS, ExpenseFilterSheet } from "@/components/ExpenseFilterSheet";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ExpenseFilterContent } from "@/components/ExpenseFilterContent";
 import { hapticTap } from "@/utils/haptics";
 
 function parseLocalDate(dateStr) {
@@ -105,8 +107,10 @@ export function ExpenseList({
     }, 150);
     return () => clearTimeout(timer);
   }, [openId, shouldReduceMotion]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [popoverOpen, setPopoverOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(
     typeof window !== "undefined" ? window.innerWidth >= 768 : false
   );
@@ -131,13 +135,20 @@ export function ExpenseList({
   }
 
   // Active filters count (Sort does NOT count toward badge)
+  const isScopeInvolvingMe = filters.scope === "involving_me" || filters.payer === "involving_me";
+  const activePayerId =
+    filters.payer && filters.payer !== "all" && filters.payer !== "involving_me"
+      ? filters.payer
+      : null;
+
   const activeFilterCount = useMemo(() => {
     let count = 0;
-    if (filters.payer !== "all") count += 1;
+    if (isScopeInvolvingMe) count += 1;
+    if (activePayerId) count += 1;
     count += (filters.categories || []).length;
     if (filters.dateRange !== "all") count += 1;
     return count;
-  }, [filters]);
+  }, [isScopeInvolvingMe, activePayerId, filters]);
 
   const hasSearch = Boolean(searchQuery.trim());
   const isFiltered = activeFilterCount > 0 || hasSearch;
@@ -157,10 +168,15 @@ export function ExpenseList({
           }
         }
 
-        // 2. Payer filter
-        if (filters.payer === "involving_me" && selectedParticipantId) {
-          if (expense.paidByParticipantId !== selectedParticipantId && Number(expense.splitJson?.[selectedParticipantId] || 0) <= 0) return false;
-        } else if (filters.payer !== "all" && expense.paidByParticipantId !== filters.payer) {
+        // 2. Scope filter ("involving_me")
+        if (isScopeInvolvingMe && selectedParticipantId) {
+          const isPayer = expense.paidByParticipantId === selectedParticipantId;
+          const isInSplit = Number(expense.splitJson?.[selectedParticipantId] || 0) > 0;
+          if (!isPayer && !isInSplit) return false;
+        }
+
+        // 2b. Payer filter (specific member)
+        if (activePayerId && expense.paidByParticipantId !== activePayerId) {
           return false;
         }
 
@@ -197,7 +213,7 @@ export function ExpenseList({
         const dateB = new Date(b.date || b.createdAt || 0).getTime() || 0;
         return dateB - dateA;
       });
-  }, [expenses, hasSearch, searchQuery, byId, filters, selectedParticipantId]);
+  }, [expenses, hasSearch, searchQuery, byId, isScopeInvolvingMe, activePayerId, filters, selectedParticipantId]);
 
   const totalSpentMinor = useMemo(() => {
     return expenses.reduce((sum, e) => sum + e.amountMinor, 0);
@@ -243,8 +259,11 @@ export function ExpenseList({
     if (searchQuery.trim()) {
       parts.push(`“${searchQuery.trim()}”`);
     }
-    if (filters.payer !== "all") {
-      parts.push(filters.payer === "involving_me" ? "involving you" : `paid by ${byId.get(filters.payer)?.name || "selected member"}`);
+    if (isScopeInvolvingMe) {
+      parts.push("involving you");
+    }
+    if (activePayerId) {
+      parts.push(`paid by ${byId.get(activePayerId)?.name || "selected member"}`);
     }
     if (filters.categories?.length > 0) {
       if (filters.categories.length === 1) {
@@ -263,11 +282,19 @@ export function ExpenseList({
       parts.push(labels[filters.dateRange] || "date range");
     }
     return parts.join(" · ");
-  }, [searchQuery, filters, byId]);
+  }, [searchQuery, isScopeInvolvingMe, activePayerId, filters, byId]);
 
   function clearAllFilters() {
     setSearchQuery("");
-    onFiltersChange({ ...DEFAULT_FILTERS });
+    onFiltersChange({
+      scope: "all",
+      payer: "all",
+      categories: [],
+      dateRange: "all",
+      customStartDate: "",
+      customEndDate: "",
+      sort: filters.sort || "newest"
+    });
   }
 
   return (
@@ -275,7 +302,7 @@ export function ExpenseList({
       {/* Search & Filter Header */}
       {expenses.length > 0 && (
         <div className="space-y-2">
-          {/* Row 1: Search bar (flex-1) + 44px Square Filter Button */}
+          {/* Row 1: Search bar (flex-1) + Filter Button */}
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
@@ -297,35 +324,104 @@ export function ExpenseList({
               )}
             </div>
 
-            {/* 44px Square Filter Button with Badge */}
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className={`relative h-11 w-11 shrink-0 rounded-xl border border-ink-200/90 bg-white shadow-none transition-colors ${
-                activeFilterCount > 0
-                  ? "text-leaf-700 hover:text-leaf-800 bg-leaf-50/50 hover:bg-leaf-100/50"
-                  : "text-ink-600 hover:text-ink-900 hover:bg-ink-50"
-              }`}
-              onClick={() => setSheetOpen(true)}
-              title="Filter expenses"
-              aria-label="Filter expenses"
-            >
-              <Filter className="h-4 w-4" />
-              {activeFilterCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-leaf-600 px-1 text-[10px] font-bold text-white tabular-nums">
-                  {activeFilterCount}
-                </span>
-              )}
-            </Button>
+            {/* Filter Button: Desktop Popover vs Mobile Bottom Sheet */}
+            {isDesktop ? (
+              <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className={`relative h-11 w-11 shrink-0 rounded-xl border border-ink-200/90 bg-white shadow-none transition-colors ${
+                      activeFilterCount > 0
+                        ? "text-leaf-700 hover:text-leaf-800 bg-leaf-50/50 hover:bg-leaf-100/50 border-leaf-300"
+                        : "text-ink-600 hover:text-ink-900 hover:bg-ink-50"
+                    }`}
+                    title="Filter expenses"
+                    aria-label="Filter expenses"
+                  >
+                    <Filter className="h-4 w-4" />
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-leaf-600 px-1 text-[10px] font-bold text-white tabular-nums">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="end"
+                  className="w-[340px] sm:w-[380px] max-h-[75vh] overflow-y-auto p-4 rounded-2xl shadow-xl border-ink-200"
+                >
+                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-ink-100">
+                    <h3 className="text-sm font-bold text-ink-900 font-sans">Filters</h3>
+                    {activeFilterCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => onFiltersChange({ ...DEFAULT_FILTERS })}
+                        className="text-xs font-semibold text-leaf-700 hover:text-leaf-800 hover:underline"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                  <ExpenseFilterContent
+                    filters={filters}
+                    onChange={onFiltersChange}
+                    participants={participants}
+                    selectedParticipantId={selectedParticipantId}
+                  />
+                </PopoverContent>
+              </Popover>
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className={`relative h-11 w-11 shrink-0 rounded-xl border border-ink-200/90 bg-white shadow-none transition-colors ${
+                  activeFilterCount > 0
+                    ? "text-leaf-700 hover:text-leaf-800 bg-leaf-50/50 hover:bg-leaf-100/50 border-leaf-300"
+                    : "text-ink-600 hover:text-ink-900 hover:bg-ink-50"
+                }`}
+                onClick={() => setSheetOpen(true)}
+                title="Filter expenses"
+                aria-label="Filter expenses"
+              >
+                <Filter className="h-4 w-4" />
+                {activeFilterCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-leaf-600 px-1 text-[10px] font-bold text-white tabular-nums">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </Button>
+            )}
           </div>
 
           {/* Row 2: Removable Active Filter Chips (only when filters are active) */}
           {activeFilterCount > 0 && (
             <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-              {filters.payer !== "all" && (
+              {isScopeInvolvingMe && (
                 <span className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-xs font-medium bg-leaf-50 text-leaf-800 border border-leaf-200/80">
-                  <span>{filters.payer === "involving_me" ? "Involving me" : `Paid by ${byId.get(filters.payer)?.name || "Member"}`}</span>
+                  <span>Involving me</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onFiltersChange({
+                        ...filters,
+                        scope: "all",
+                        payer: filters.payer === "involving_me" ? "all" : filters.payer
+                      })
+                    }
+                    className="text-leaf-700 hover:text-leaf-950 p-0.5 -mr-1 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 transition-colors"
+                    title="Remove Involving me filter"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+
+              {activePayerId && (
+                <span className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full text-xs font-medium bg-leaf-50 text-leaf-800 border border-leaf-200/80">
+                  <span>Paid by {byId.get(activePayerId)?.name || "Member"}</span>
                   <button
                     type="button"
                     onClick={() => onFiltersChange({ ...filters, payer: "all" })}
@@ -423,7 +519,7 @@ export function ExpenseList({
           <Receipt className="mx-auto h-8 w-8 text-ink-400 mb-2" />
           <p className="font-semibold text-ink-900 font-sans">No expenses recorded yet</p>
           <p className="mt-1 text-xs text-ink-500 font-sans">
-            Tap &ldquo;{isDesktop ? "+ Add Expense" : "+"}&rdquo; below to record the first shared bill.
+            Tap &ldquo;{isDesktop ? "Add Expense" : "+"}&rdquo; to record the first shared bill.
           </p>
         </div>
       ) : null}
@@ -690,14 +786,17 @@ export function ExpenseList({
         </AnimatePresence>
       </div>
 
-      {/* Filter Bottom Sheet */}
-      <ExpenseFilterSheet
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-        filters={filters}
-        onApply={onFiltersChange}
-        participants={participants}
-      />
+      {/* Mobile Filter Bottom Sheet */}
+      {!isDesktop && (
+        <ExpenseFilterSheet
+          open={sheetOpen}
+          onOpenChange={setSheetOpen}
+          filters={filters}
+          onApply={onFiltersChange}
+          participants={participants}
+          selectedParticipantId={selectedParticipantId}
+        />
+      )}
     </div>
   );
 }

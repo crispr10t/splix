@@ -6,7 +6,9 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  Coins,
   DollarSign,
+  IndianRupee,
   Layers,
   Percent,
   Plus,
@@ -93,7 +95,8 @@ export function AddExpenseCard({
   disabled,
   adding,
   onSuccess,
-  onCancel
+  onCancel,
+  autoFocus = false
 }) {
   const sortedParticipants = sortByName(participants);
   const isEditMode = Boolean(initialExpense);
@@ -317,7 +320,7 @@ export function AddExpenseCard({
           </label>
           <Input
             ref={titleInputRef}
-            autoFocus={false}
+            autoFocus={autoFocus}
             className="mt-1 text-sm sm:text-base font-medium"
             maxLength={60}
             placeholder="Dinner, cab ride, groceries…"
@@ -396,7 +399,7 @@ export function AddExpenseCard({
         {/* Quick Category Chips */}
         <div>
           <label className="text-xs font-semibold text-ink-500">Category</label>
-          <div className="mt-1.5 grid grid-cols-4 gap-1.5">
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
             {CATEGORIES.map((cat) => {
               const Icon = cat.icon;
               const isSelected = category === cat.id;
@@ -404,7 +407,7 @@ export function AddExpenseCard({
                 <motion.button whileTap={{ scale: 0.93 }}
                   key={cat.id}
                   type="button"
-                  className={`relative h-9 w-full min-w-0 inline-flex items-center justify-center gap-1 px-1.5 text-[11px] font-medium rounded-full !rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 ${cat.id === "entertainment" ? "col-span-2" : ""} [-webkit-tap-highlight-color:transparent] ${
+                  className={`relative h-9 inline-flex items-center justify-center gap-1.5 px-3 text-xs font-medium rounded-full !rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
                     isSelected
                       ? "text-white font-semibold"
                       : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
@@ -435,30 +438,38 @@ export function AddExpenseCard({
         </div>
 
         <div className="mt-2.5 grid grid-cols-3 gap-1.5 sm:gap-2">
-          {[
-            { id: "even", label: "Equally", icon: Layers },
-            { id: "amount", label: "By Amount", icon: DollarSign },
-            { id: "percentage", label: "By %", icon: Percent }
-          ].map((item) => {
-            const Icon = item.icon;
-            const isSelected = mode === item.id;
-            return (
-              <motion.button whileTap={{ scale: 0.95 }}
-                key={item.id}
-                type="button"
-                className={`relative h-9 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
-                  isSelected
-                    ? "text-white font-semibold"
-                    : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
-                }`}
-                onClick={() => setMode(item.id)}
-              >
-                {isSelected && <motion.span layoutId="add-expense-split-method" className="absolute inset-0 -z-0 rounded-full bg-leaf-600 shadow-sm" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}
-                <Icon className="relative z-10 h-3.5 w-3.5" />
-                <span className="relative z-10">{item.label}</span>
-              </motion.button>
-            );
-          })}
+          {(() => {
+            const SplitAmountIcon =
+              currency === "INR" || currencySymbol === "₹"
+                ? IndianRupee
+                : currency === "USD" || currencySymbol === "$"
+                ? DollarSign
+                : Coins;
+            return [
+              { id: "even", label: "Equally", icon: Layers },
+              { id: "amount", label: "By Amount", icon: SplitAmountIcon },
+              { id: "percentage", label: "By %", icon: Percent }
+            ].map((item) => {
+              const Icon = item.icon;
+              const isSelected = mode === item.id;
+              return (
+                <motion.button whileTap={{ scale: 0.95 }}
+                  key={item.id}
+                  type="button"
+                  className={`relative h-9 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-medium rounded-full !rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 [-webkit-tap-highlight-color:transparent] ${
+                    isSelected
+                      ? "text-white font-semibold"
+                      : "bg-ink-100/70 text-ink-700 hover:bg-ink-100"
+                  }`}
+                  onClick={() => setMode(item.id)}
+                >
+                  {isSelected && <motion.span layoutId="add-expense-split-method" className="absolute inset-0 -z-0 rounded-full bg-leaf-600 shadow-sm" transition={{ type: "spring", stiffness: 450, damping: 35 }} />}
+                  <Icon className="relative z-10 h-3.5 w-3.5" />
+                  <span className="relative z-10">{item.label}</span>
+                </motion.button>
+              );
+            });
+          })()}
         </div>
 
         {/* Participants Selector Toggle */}
@@ -547,8 +558,8 @@ export function AddExpenseCard({
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="sticky bottom-0 z-10 -mx-4 flex gap-2 border-t border-ink-100 bg-white px-4 pb-[env(safe-area-inset-bottom)] pt-3 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none">
+      {/* Action Buttons - Sticky Solid White Footer */}
+      <div className="sticky bottom-0 z-10 -mx-5 sm:-mx-6 -mb-6 mt-4 flex gap-2 border-t border-ink-100 bg-white px-5 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
         {isEditMode && onCancel && (
           <Button
             type="button"
@@ -587,9 +598,6 @@ export function AddExpenseCard({
           );
         })()}
       </div>
-      {!isEditMode && (!title.trim() || toMinor(amount) <= 0 || selectedIds.length === 0) && (
-        <p className="-mt-2 text-center text-[11px] text-ink-400">Add title, amount, and split to save</p>
-      )}
     </form>
   );
 }
