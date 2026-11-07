@@ -8,6 +8,7 @@ import {
   DollarSign,
   Download,
   ExternalLink,
+  Eye,
   Layers,
   Link2,
   Lock,
@@ -18,6 +19,7 @@ import {
   RefreshCw,
   RotateCcw,
   Share2,
+  Smartphone,
   Sparkles,
   Trash2,
   User,
@@ -113,6 +115,14 @@ export function EditPage() {
     typeof window !== "undefined" ? window.innerWidth >= 768 : false
   );
   const [activeEditTab, setActiveEditTab] = useState("expenses");
+  const [copiedLinkType, setCopiedLinkType] = useState(null);
+  const copyLinkTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyLinkTimeoutRef.current) clearTimeout(copyLinkTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     function handleResize() {
@@ -764,9 +774,16 @@ export function EditPage() {
     }
   }
 
-  async function copyLink(url, label) {
+  async function copyLink(url, label, type = null) {
     await navigator.clipboard.writeText(url);
     toast.success(label);
+    if (type) {
+      setCopiedLinkType(type);
+      if (copyLinkTimeoutRef.current) clearTimeout(copyLinkTimeoutRef.current);
+      copyLinkTimeoutRef.current = setTimeout(() => {
+        setCopiedLinkType(null);
+      }, 1500);
+    }
   }
 
   if (missingLink) {
@@ -992,7 +1009,7 @@ export function EditPage() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* ⋮ Menu: Focused group actions + safety switch member fallback */}
+                {/* ⋮ Menu: Focused group actions */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -1005,120 +1022,85 @@ export function EditPage() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-2xl shadow-xl border-ink-200 bg-white">
-                    {/* Active User Section & Switcher Fallback */}
-                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
-                      Active User
-                    </div>
-                    <DropdownMenuSub>
-                      <DropdownMenuSubTrigger className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium cursor-pointer">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <UserAvatar name={selectedParticipant?.name} size="xs" className="h-5 w-5 shrink-0" />
-                          <span className="truncate">{selectedParticipant?.name || "Switch User"}</span>
-                        </div>
-                      </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="w-48 p-1.5 rounded-xl border-ink-200 shadow-xl max-h-56 overflow-y-auto">
-                        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
-                          Select Member
-                        </div>
-                        {orderedParticipants.map((p) => (
-                          <DropdownMenuItem
-                            key={p.id}
-                            onClick={() => selectIdentity(p.id)}
-                            className={cn(
-                              "flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs cursor-pointer",
-                              p.id === selectedParticipantId ? "bg-leaf-50 text-leaf-950 font-semibold" : ""
-                            )}
-                          >
-                            <div className="flex items-center gap-2 min-w-0">
-                              <UserAvatar name={p.name} size="xs" className="h-5 w-5 shrink-0" />
-                              <span className="truncate">{p.name}</span>
-                            </div>
-                            {p.id === selectedParticipantId && <Check className="h-3.5 w-3.5 text-leaf-600 shrink-0" />}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuSubContent>
-                    </DropdownMenuSub>
-
-                    <DropdownMenuItem
-                      onClick={() => setProfileOpen(true)}
-                      className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-700 hover:bg-ink-100/60 cursor-pointer"
-                    >
-                      <User className="h-3.5 w-3.5 text-ink-500 shrink-0" />
-                      <span>Profile & UPI Settings</span>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator className="my-1" />
-
-                    {/* Group Collaboration */}
-                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
-                      Group
-                    </div>
-                    <DropdownMenuItem
-                      onClick={() => setAddMemberOpen(true)}
-                      className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
-                    >
-                      <UserPlus className="h-3.5 w-3.5 text-leaf-600 shrink-0" />
-                      <span>Add Member</span>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator className="my-1" />
-
                     {/* Share Links */}
-                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
-                      Share Links
-                    </div>
                     <DropdownMenuItem
                       onClick={() =>
-                        copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied")
+                        copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied", "view")
                       }
                       className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <Link2 className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                        <Eye className="h-4 w-4 text-ink-500 shrink-0" />
                         <span className="truncate">Copy View Link</span>
                       </div>
-                      <span className="text-[10px] font-medium text-ink-500 bg-ink-100 px-1.5 py-0.5 rounded shrink-0">
-                        Read-only
+                      <span
+                        className={cn(
+                          "text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 transition-colors",
+                          copiedLinkType === "view"
+                            ? "bg-leaf-100 text-leaf-800 font-semibold"
+                            : "bg-ink-100 text-ink-600"
+                        )}
+                      >
+                        {copiedLinkType === "view" ? "Copied ✓" : "Read-only"}
                       </span>
                     </DropdownMenuItem>
+
                     <DropdownMenuItem
                       onClick={() =>
-                        copyLink(`${window.location.origin}/edit/${snapshot.group.editId}`, "Edit link copied")
+                        copyLink(`${window.location.origin}/edit/${snapshot.group.editId}`, "Edit link copied", "edit")
                       }
-                      className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-leaf-50 hover:text-leaf-950 cursor-pointer"
+                      className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-amber-50/70 cursor-pointer"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <Link2 className="h-3.5 w-3.5 text-leaf-600 shrink-0" />
+                        <Pencil className="h-4 w-4 text-amber-600 shrink-0" />
                         <span className="truncate">Copy Edit Link</span>
                       </div>
-                      <span className="text-[10px] font-semibold text-leaf-700 bg-leaf-100/80 px-1.5 py-0.5 rounded shrink-0">
-                        Full access
+                      <span
+                        className={cn(
+                          "text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 transition-colors border",
+                          copiedLinkType === "edit"
+                            ? "bg-leaf-100 text-leaf-800 border-leaf-200"
+                            : "bg-amber-50 text-amber-700 border-amber-200/70"
+                        )}
+                      >
+                        {copiedLinkType === "edit" ? "Copied ✓" : "Can edit"}
                       </span>
                     </DropdownMenuItem>
 
-                    <DropdownMenuSeparator className="my-1" />
+                    <DropdownMenuSeparator className="my-1 border-ink-100" />
 
-                    {/* Export */}
-                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
-                      Export & App
-                    </div>
+                    {/* Group Actions */}
+                    <DropdownMenuItem
+                      onClick={() => setAddMemberOpen(true)}
+                      className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-leaf-50 hover:text-leaf-950 cursor-pointer"
+                    >
+                      <UserPlus className="h-4 w-4 text-leaf-600 shrink-0" />
+                      <span>Add Member</span>
+                    </DropdownMenuItem>
+
                     <DropdownMenuItem asChild>
                       <a
                         href={pdfDownloadUrl(snapshot.group.viewId)}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                        className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                       >
-                        <Download className="h-3.5 w-3.5 text-ink-500 shrink-0" />
-                        <span>Download PDF</span>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Download className="h-4 w-4 text-ink-500 shrink-0" />
+                          <span className="truncate">Download PDF</span>
+                        </div>
+                        <span className="text-[10px] font-mono font-medium text-ink-400 bg-ink-50 px-1.5 py-0.5 rounded border border-ink-150 shrink-0">
+                          PDF
+                        </span>
                       </a>
                     </DropdownMenuItem>
+
                     {canInstall && (
                       <DropdownMenuItem
                         onClick={promptInstall}
                         className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                       >
-                        <Download className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                        <Smartphone className="h-4 w-4 text-ink-500 shrink-0" />
                         <span>Install Splix App</span>
                       </DropdownMenuItem>
                     )}

@@ -1,6 +1,6 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Download, Eye, Link2, MoreVertical, Receipt, Share2, Wallet, WifiOff } from "lucide-react";
+import { Download, Eye, Link2, MoreVertical, Receipt, Share2, Smartphone, Wallet, WifiOff } from "lucide-react";
 import { toast } from "sonner";
 import { fetchViewSnapshot, pdfDownloadUrl } from "@/api";
 import { ExpenseList } from "@/components/ExpenseList";
@@ -10,6 +10,7 @@ import { ShareCard } from "@/components/ShareCard";
 import { usePollingSnapshot } from "@/usePollingSnapshot";
 import { usePwaInstall } from "@/pwa";
 import { money } from "@/utils/format";
+import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,9 +40,23 @@ export function ViewPage() {
     [snapshot?.expenses]
   );
 
+  const [copiedView, setCopiedView] = useState(false);
+  const copyTimeoutRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    };
+  }, []);
+
   async function copyLink(url, label) {
     await navigator.clipboard.writeText(url);
     toast.success(label);
+    setCopiedView(true);
+    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+    copyTimeoutRef.current = setTimeout(() => {
+      setCopiedView(false);
+    }, 1500);
   }
 
   if (loading && !snapshot) {
@@ -110,9 +125,7 @@ export function ViewPage() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-2xl shadow-xl border-ink-200 bg-white">
-                <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
-                  Share Links
-                </div>
+                {/* Share Link */}
                 <DropdownMenuItem
                   onClick={() =>
                     copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied")
@@ -120,36 +133,47 @@ export function ViewPage() {
                   className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                 >
                   <div className="flex items-center gap-2 min-w-0">
-                    <Link2 className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                    <Eye className="h-4 w-4 text-ink-500 shrink-0" />
                     <span className="truncate">Copy View Link</span>
                   </div>
-                  <span className="text-[10px] font-medium text-ink-500 bg-ink-100 px-1.5 py-0.5 rounded shrink-0">
-                    Read-only
+                  <span
+                    className={cn(
+                      "text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 transition-colors",
+                      copiedView
+                        ? "bg-leaf-100 text-leaf-800 font-semibold"
+                        : "bg-ink-100 text-ink-600"
+                    )}
+                  >
+                    {copiedView ? "Copied ✓" : "Read-only"}
                   </span>
                 </DropdownMenuItem>
 
-                <DropdownMenuSeparator className="my-1" />
+                <DropdownMenuSeparator className="my-1 border-ink-100" />
 
-                <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
-                  Export &amp; App
-                </div>
+                {/* Export & App */}
                 <DropdownMenuItem asChild>
                   <a
                     href={pdfDownloadUrl(snapshot.group.viewId)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                    className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                   >
-                    <Download className="h-3.5 w-3.5 text-ink-500 shrink-0" />
-                    <span>Download PDF</span>
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Download className="h-4 w-4 text-ink-500 shrink-0" />
+                      <span className="truncate">Download PDF</span>
+                    </div>
+                    <span className="text-[10px] font-mono font-medium text-ink-400 bg-ink-50 px-1.5 py-0.5 rounded border border-ink-150 shrink-0">
+                      PDF
+                    </span>
                   </a>
                 </DropdownMenuItem>
+
                 {canInstall && (
                   <DropdownMenuItem
                     onClick={promptInstall}
                     className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                   >
-                    <Download className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                    <Smartphone className="h-4 w-4 text-ink-500 shrink-0" />
                     <span>Install Splix App</span>
                   </DropdownMenuItem>
                 )}
