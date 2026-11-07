@@ -1288,7 +1288,7 @@ export function EditPage() {
                   </SheetDescription>
                 </SheetHeader>
               </div>
-              <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 pb-6 pt-3">
+              <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
                 <AddExpenseCard
                   participants={orderedParticipants}
                   currency={snapshot.group.currency}

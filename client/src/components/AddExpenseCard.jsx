@@ -308,17 +308,23 @@ export function AddExpenseCard({
     }
   }
 
+  const perPersonShare = useMemo(() => {
+    const totalMinor = toMinor(amount);
+    return selectedIds.length > 0 && totalMinor > 0
+      ? (totalMinor / selectedIds.length / 100).toFixed(2)
+      : null;
+  }, [amount, selectedIds]);
+
   // Live split status calculations for amount and percentage
   const splitStatus = useMemo(() => {
     const totalMinor = toMinor(amount);
 
     if (mode === "even") {
-      if (selectedIds.length > 0 && totalMinor > 0) {
-        const share = (totalMinor / selectedIds.length / 100).toFixed(2);
+      if (perPersonShare) {
         return {
           type: "even",
           variant: "success",
-          text: `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}${share} / person`
+          text: `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}${perPersonShare} / person`
         };
       }
       return null;
@@ -389,8 +395,9 @@ export function AddExpenseCard({
   }, [mode, amount, selectedIds, amountMap, percentMap, currencySymbol, currency]);
 
   return (
-    <form className="space-y-4" onSubmit={submit}>
-      <div className="space-y-3">
+    <form className="flex flex-col flex-1 min-h-0 h-full" onSubmit={submit}>
+      <div className="flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 py-3 space-y-3.5">
+        <div className="space-y-3">
         {/* Title input */}
         <div>
           <label className="text-xs font-semibold tracking-normal text-ink-500">
@@ -593,17 +600,17 @@ export function AddExpenseCard({
           </div>
 
           {detailsOpen && (
-            <div className="mt-3 grid gap-2 max-h-56 overflow-y-auto pr-1">
+            <div className="mt-3 grid gap-2">
               {sortedParticipants.map((p) => {
                 const checked = selectedIds.includes(p.id);
                 return (
                   <div
                     key={p.id}
                     className={cn(
-                      "flex items-center justify-between rounded-xl border p-2 sm:p-2.5 transition-all duration-150 gap-2",
+                      "flex items-center justify-between rounded-xl border px-3 py-2 min-h-[50px] transition-colors duration-150 gap-2",
                       checked
                         ? "border-leaf-200/90 bg-white shadow-2xs"
-                        : "border-ink-200/60 bg-ink-50/50 opacity-60"
+                        : "border-ink-200/70 bg-ink-100/35"
                     )}
                   >
                     <label className="flex flex-1 min-w-0 cursor-pointer items-center gap-2.5 select-none">
@@ -626,22 +633,39 @@ export function AddExpenseCard({
                         {checked && <Check className="h-3.5 w-3.5 stroke-[2.8]" />}
                       </div>
 
-                      <UserAvatar name={p.name} size="xs" className="h-6 w-6 shrink-0" />
+                      <UserAvatar
+                        name={p.name}
+                        size="xs"
+                        className={cn("h-6 w-6 shrink-0 transition-opacity", !checked && "opacity-50")}
+                      />
                       <span
                         className={cn(
                           "truncate text-xs sm:text-sm font-semibold transition-colors",
-                          checked ? "text-ink-900" : "text-ink-500"
+                          checked ? "text-ink-900" : "text-ink-400"
                         )}
                       >
                         {p.name}
                       </span>
                     </label>
 
-                    {mode !== "even" && (
+                    {/* Right slot: guaranteed fixed dimensions for all states */}
+                    {mode === "even" ? (
+                      <div className="w-24 sm:w-28 h-8.5 shrink-0 flex items-center justify-end px-2 text-right">
+                        {checked ? (
+                          <span className="text-xs font-mono font-semibold text-leaf-700">
+                            {currencySymbol}{currencySymbol.length > 1 ? " " : ""}{perPersonShare || "0.00"}
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-medium text-ink-400 italic">
+                            Excluded
+                          </span>
+                        )}
+                      </div>
+                    ) : (
                       checked ? (
                         <div className="w-28 sm:w-32 shrink-0">
                           <Input
-                            className="h-8.5 text-xs sm:text-sm font-semibold font-mono text-right rounded-lg border-ink-200 focus:border-leaf-500"
+                            className="h-8.5 text-xs sm:text-sm font-semibold font-mono text-right rounded-lg border-ink-200 bg-white focus:border-leaf-500 shadow-2xs"
                             inputMode="decimal"
                             placeholder={mode === "amount" ? `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}0.00` : "%"}
                             value={mode === "amount" ? amountMap[p.id] || "" : percentMap[p.id] || ""}
@@ -665,9 +689,9 @@ export function AddExpenseCard({
                           />
                         </div>
                       ) : (
-                        <span className="text-[11px] font-medium text-ink-400 italic px-2 shrink-0">
+                        <div className="w-28 sm:w-32 h-8.5 shrink-0 flex items-center justify-center rounded-lg border border-dashed border-ink-200/80 bg-ink-100/50 text-[11px] font-medium text-ink-400 select-none">
                           Excluded
-                        </span>
+                        </div>
                       )
                     )}
                   </div>
@@ -677,9 +701,10 @@ export function AddExpenseCard({
           )}
         </div>
       </div>
+    </div>
 
-      {/* Action Buttons - Sticky Solid White Footer */}
-      <div className="sticky bottom-0 z-10 -mx-5 sm:-mx-6 -mb-6 mt-4 flex gap-2 border-t border-ink-100 bg-white px-5 sm:px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
+      {/* Action Buttons - Solid Anchored White Footer */}
+      <div className="shrink-0 border-t border-ink-100/90 bg-white px-5 sm:px-6 py-3 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(0,0,0,0.04)] z-20 flex gap-2">
         {isEditMode && onCancel && (
           <Button
             type="button"
