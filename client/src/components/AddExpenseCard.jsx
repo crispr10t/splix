@@ -607,13 +607,13 @@ export function AddExpenseCard({
                   <div
                     key={p.id}
                     className={cn(
-                      "flex items-center justify-between rounded-xl border px-3 py-2 min-h-[50px] transition-colors duration-150 gap-2",
+                      "h-14 shrink-0 flex items-center justify-between rounded-xl border px-3 transition-colors duration-150 gap-2.5",
                       checked
-                        ? "border-leaf-200/90 bg-white shadow-2xs"
-                        : "border-ink-200/70 bg-ink-100/35"
+                        ? "border-leaf-200/90 bg-white shadow-2xs opacity-100"
+                        : "border-ink-200/60 bg-ink-100/30 opacity-45 hover:opacity-60"
                     )}
                   >
-                    <label className="flex flex-1 min-w-0 cursor-pointer items-center gap-2.5 select-none">
+                    <label className="flex flex-1 min-w-0 cursor-pointer items-center gap-2.5 select-none py-1">
                       <input
                         type="checkbox"
                         checked={checked}
@@ -636,64 +636,52 @@ export function AddExpenseCard({
                       <UserAvatar
                         name={p.name}
                         size="xs"
-                        className={cn("h-6 w-6 shrink-0 transition-opacity", !checked && "opacity-50")}
+                        className={cn("h-6 w-6 shrink-0 transition-opacity", !checked && "opacity-40")}
                       />
                       <span
                         className={cn(
                           "truncate text-xs sm:text-sm font-semibold transition-colors",
-                          checked ? "text-ink-900" : "text-ink-400"
+                          checked ? "text-ink-900" : "text-ink-500"
                         )}
                       >
                         {p.name}
                       </span>
                     </label>
 
-                    {/* Right slot: guaranteed fixed dimensions for all states */}
-                    {mode === "even" ? (
-                      <div className="w-24 sm:w-28 h-8.5 shrink-0 flex items-center justify-end px-2 text-right">
-                        {checked ? (
-                          <span className="text-xs font-mono font-semibold text-leaf-700">
+                    {/* Right slot: guaranteed fixed dimensions in all states to prevent any height jump */}
+                    <div className="w-28 sm:w-32 h-9 shrink-0 flex items-center justify-end">
+                      {mode === "even" ? (
+                        checked ? (
+                          <span className="text-xs sm:text-sm font-mono font-semibold text-leaf-700 pr-1">
                             {currencySymbol}{currencySymbol.length > 1 ? " " : ""}{perPersonShare || "0.00"}
                           </span>
-                        ) : (
-                          <span className="text-[11px] font-medium text-ink-400 italic">
-                            Excluded
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      checked ? (
-                        <div className="w-28 sm:w-32 shrink-0">
-                          <Input
-                            className="h-8.5 text-xs sm:text-sm font-semibold font-mono text-right rounded-lg border-ink-200 bg-white focus:border-leaf-500 shadow-2xs"
-                            inputMode="decimal"
-                            placeholder={mode === "amount" ? `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}0.00` : "%"}
-                            value={mode === "amount" ? amountMap[p.id] || "" : percentMap[p.id] || ""}
-                            onChange={(e) => {
-                              if (mode === "amount") {
-                                updateNumericField(
-                                  e.target.value,
-                                  (val) => setAmountMap((c) => ({ ...c, [p.id]: val })),
-                                  `amount-${p.id}`,
-                                  "Numbers only"
-                                );
-                              } else {
-                                updateNumericField(
-                                  e.target.value,
-                                  (val) => setPercentMap((c) => ({ ...c, [p.id]: val })),
-                                  `percent-${p.id}`,
-                                  "Numbers only"
-                                );
-                              }
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-28 sm:w-32 h-8.5 shrink-0 flex items-center justify-center rounded-lg border border-dashed border-ink-200/80 bg-ink-100/50 text-[11px] font-medium text-ink-400 select-none">
-                          Excluded
-                        </div>
-                      )
-                    )}
+                        ) : null
+                      ) : checked ? (
+                        <Input
+                          className="h-9 w-full text-xs sm:text-sm font-semibold font-mono text-right rounded-lg border-ink-200 bg-white focus:border-leaf-500 shadow-2xs"
+                          inputMode="decimal"
+                          placeholder={mode === "amount" ? `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}0.00` : "%"}
+                          value={mode === "amount" ? amountMap[p.id] || "" : percentMap[p.id] || ""}
+                          onChange={(e) => {
+                            if (mode === "amount") {
+                              updateNumericField(
+                                e.target.value,
+                                (val) => setAmountMap((c) => ({ ...c, [p.id]: val })),
+                                `amount-${p.id}`,
+                                "Numbers only"
+                              );
+                            } else {
+                              updateNumericField(
+                                e.target.value,
+                                (val) => setPercentMap((c) => ({ ...c, [p.id]: val })),
+                                `percent-${p.id}`,
+                                "Numbers only"
+                              );
+                            }
+                          }}
+                        />
+                      ) : null}
+                    </div>
                   </div>
                 );
               })}
