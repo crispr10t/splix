@@ -1091,9 +1091,9 @@ export function EditPage() {
           </Tabs>
 
           {/* Floating Action Button (FAB) for Adding Expense */}
-          <div className="fixed right-6 z-30 sm:bottom-8 sm:right-8" style={{ bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))" }}>
+          <motion.div layoutRoot className="fixed right-6 z-30 sm:bottom-8 sm:right-8" style={{ bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))" }}>
             <motion.button
-              layout
+              layout="size"
               transition={{ type: "spring", stiffness: 450, damping: 35 }}
               aria-label="Add expense"
               className={`inline-flex items-center justify-center h-14 ${fabCollapsed ? "w-14 rounded-full px-0" : "rounded-xl px-5"} bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl gap-2 text-sm font-bold active:scale-95 transition-colors duration-150`}
@@ -1106,7 +1106,7 @@ export function EditPage() {
               <Plus className="h-5 w-5" />
               {!fabCollapsed && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}>Add Expense</motion.span>}
             </motion.button>
-          </div>
+          </motion.div>
 
           {/* Floating Bottom Undo Snackbar */}
           <AnimatePresence>

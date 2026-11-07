@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { toast } from "sonner";
 import {
   ChevronDown,
@@ -89,6 +89,22 @@ export function ExpenseList({
 }) {
   const byId = useMemo(() => new Map(participants.map((p) => [p.id, p])), [participants]);
   const [openId, setOpenId] = useState("");
+  const cardRefs = useRef(new Map());
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (!openId) return;
+    const timer = setTimeout(() => {
+      const card = cardRefs.current.get(openId);
+      if (card) {
+        card.scrollIntoView({
+          behavior: shouldReduceMotion ? "auto" : "smooth",
+          block: "nearest"
+        });
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [openId, shouldReduceMotion]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(
@@ -484,6 +500,10 @@ export function ExpenseList({
             return (
               <motion.div
                 key={expense.id}
+                ref={(el) => {
+                  if (el) cardRefs.current.set(expense.id, el);
+                  else cardRefs.current.delete(expense.id);
+                }}
                 layout
                 initial={{ opacity: 0, y: 8, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -494,7 +514,7 @@ export function ExpenseList({
                   marginBottom: 0,
                   transition: { duration: 0.22, ease: [0.25, 1, 0.5, 1] }
                 }}
-                className="relative overflow-hidden rounded-xl border border-ink-200/80 bg-white"
+                className="relative overflow-hidden rounded-xl border border-ink-200/80 bg-white scroll-mb-24"
               >
               {!isOpen && !isDesktop && canEdit && (
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex w-[90px] items-center gap-1.5 rounded-l-xl bg-ink-800 pl-3 text-white">
