@@ -510,7 +510,7 @@ export function AddExpenseCard({
         </div>
 
         {/* Unified Segmented Control */}
-        <div className="mt-2.5 flex items-center p-1 rounded-xl bg-ink-200/60 border border-ink-200/50 gap-1" role="radiogroup" aria-label="Split method">
+        <div className="mt-2.5 flex items-center p-1.5 rounded-2xl bg-ink-200/60 border border-ink-200/50 gap-1.5" role="radiogroup" aria-label="Split method">
           {(() => {
             const SplitAmountIcon =
               currency === "INR" || currencySymbol === "₹"
@@ -532,7 +532,7 @@ export function AddExpenseCard({
                   role="radio"
                   aria-checked={isSelected}
                   className={cn(
-                    "relative flex-1 h-8.5 sm:h-9 inline-flex items-center justify-center gap-1.5 px-2 text-xs sm:text-sm font-medium rounded-lg transition-colors cursor-pointer select-none outline-none focus:outline-none [-webkit-tap-highlight-color:transparent]",
+                    "relative flex-1 h-10 sm:h-11 inline-flex items-center justify-center gap-1.5 px-3 text-xs sm:text-sm font-semibold rounded-xl transition-colors cursor-pointer select-none outline-none focus:outline-none [-webkit-tap-highlight-color:transparent]",
                     isSelected
                       ? "text-white font-semibold"
                       : "text-ink-600 hover:text-ink-900 hover:bg-ink-200/40"
@@ -542,11 +542,11 @@ export function AddExpenseCard({
                   {isSelected && (
                     <motion.span
                       layoutId="add-expense-split-method"
-                      className="absolute inset-0 rounded-lg bg-leaf-600 shadow-xs"
+                      className="absolute inset-0 rounded-xl bg-leaf-600 shadow-xs"
                       transition={{ type: "spring", stiffness: 450, damping: 35 }}
                     />
                   )}
-                  <Icon className="relative z-10 h-3.5 w-3.5 shrink-0" />
+                  <Icon className="relative z-10 h-4 w-4 shrink-0" />
                   <span className="relative z-10 truncate">{item.label}</span>
                 </button>
               );
@@ -599,49 +599,76 @@ export function AddExpenseCard({
                 return (
                   <div
                     key={p.id}
-                    className={`flex items-center justify-between rounded-xl border p-2 sm:p-2.5 transition-colors duration-150 ${
+                    className={cn(
+                      "flex items-center justify-between rounded-xl border p-2 sm:p-2.5 transition-all duration-150 gap-2",
                       checked
-                        ? "border-leaf-200 bg-white"
-                        : "border-ink-200 bg-ink-50/50 opacity-60"
-                    }`}
+                        ? "border-leaf-200/90 bg-white shadow-2xs"
+                        : "border-ink-200/60 bg-ink-50/50 opacity-60"
+                    )}
                   >
-                    <label className="flex flex-1 cursor-pointer items-center gap-2.5 text-xs sm:text-sm font-medium text-ink-900">
+                    <label className="flex flex-1 min-w-0 cursor-pointer items-center gap-2.5 select-none">
                       <input
                         type="checkbox"
                         checked={checked}
                         onChange={() => toggleParticipant(p.id)}
-                        className="h-4 w-4 rounded text-leaf-600 focus:ring-leaf-500"
+                        className="sr-only"
                       />
-                      <UserAvatar name={p.name} size="xs" className="h-6 w-6" />
-                      <span>{p.name}</span>
+                      {/* Custom Round Checkbox */}
+                      <div
+                        className={cn(
+                          "h-5 w-5 rounded-full flex items-center justify-center transition-all shrink-0 border",
+                          checked
+                            ? "bg-leaf-600 border-leaf-600 text-white shadow-2xs"
+                            : "bg-white border-ink-300 hover:border-ink-400"
+                        )}
+                        aria-hidden="true"
+                      >
+                        {checked && <Check className="h-3.5 w-3.5 stroke-[2.8]" />}
+                      </div>
+
+                      <UserAvatar name={p.name} size="xs" className="h-6 w-6 shrink-0" />
+                      <span
+                        className={cn(
+                          "truncate text-xs sm:text-sm font-semibold transition-colors",
+                          checked ? "text-ink-900" : "text-ink-500"
+                        )}
+                      >
+                        {p.name}
+                      </span>
                     </label>
 
-                    {checked && mode !== "even" && (
-                      <div className="w-28">
-                        <Input
-                          className="h-8 text-xs font-semibold text-right"
-                          inputMode="decimal"
-                          placeholder={mode === "amount" ? `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}0.00` : "%"}
-                          value={mode === "amount" ? amountMap[p.id] || "" : percentMap[p.id] || ""}
-                          onChange={(e) => {
-                            if (mode === "amount") {
-                              updateNumericField(
-                                e.target.value,
-                                (val) => setAmountMap((c) => ({ ...c, [p.id]: val })),
-                                `amount-${p.id}`,
-                                "Numbers only"
-                              );
-                            } else {
-                              updateNumericField(
-                                e.target.value,
-                                (val) => setPercentMap((c) => ({ ...c, [p.id]: val })),
-                                `percent-${p.id}`,
-                                "Numbers only"
-                              );
-                            }
-                          }}
-                        />
-                      </div>
+                    {mode !== "even" && (
+                      checked ? (
+                        <div className="w-28 sm:w-32 shrink-0">
+                          <Input
+                            className="h-8.5 text-xs sm:text-sm font-semibold font-mono text-right rounded-lg border-ink-200 focus:border-leaf-500"
+                            inputMode="decimal"
+                            placeholder={mode === "amount" ? `${currencySymbol}${currencySymbol.length > 1 ? " " : ""}0.00` : "%"}
+                            value={mode === "amount" ? amountMap[p.id] || "" : percentMap[p.id] || ""}
+                            onChange={(e) => {
+                              if (mode === "amount") {
+                                updateNumericField(
+                                  e.target.value,
+                                  (val) => setAmountMap((c) => ({ ...c, [p.id]: val })),
+                                  `amount-${p.id}`,
+                                  "Numbers only"
+                                );
+                              } else {
+                                updateNumericField(
+                                  e.target.value,
+                                  (val) => setPercentMap((c) => ({ ...c, [p.id]: val })),
+                                  `percent-${p.id}`,
+                                  "Numbers only"
+                                );
+                              }
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-[11px] font-medium text-ink-400 italic px-2 shrink-0">
+                          Excluded
+                        </span>
+                      )
                     )}
                   </div>
                 );
