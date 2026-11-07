@@ -190,6 +190,11 @@ export function EditPage() {
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base", numeric: true }));
 
+  const otherParticipants = useMemo(
+    () => orderedParticipants.filter((p) => p.id !== selectedParticipantId),
+    [orderedParticipants, selectedParticipantId]
+  );
+
   const balances = useMemo(() => {
     return deriveBalances(orderedParticipants, visibleExpenses, snapshot?.settlementHistory || []);
   }, [orderedParticipants, visibleExpenses, snapshot?.settlementHistory]);
@@ -884,15 +889,24 @@ export function EditPage() {
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className="relative flex items-center justify-center rounded-full p-0.5 hover:ring-2 hover:ring-leaf-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 transition-all cursor-pointer"
-                      title={`Active user: ${selectedParticipant?.name || "You"} (click to switch or edit profile)`}
+                      className="relative inline-flex items-center gap-1 rounded-full p-0.5 pr-1 hover:bg-ink-100/70 border border-transparent hover:border-ink-200/80 transition-all cursor-pointer !outline-none focus-visible:!outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-leaf-500 select-none"
+                      title={`Active user: ${selectedParticipant?.name || "Member"} (click to switch or edit UPI)`}
                       aria-label="Active user menu"
                     >
-                      <UserAvatar
-                        name={selectedParticipant?.name}
-                        size="md"
-                        className="h-8 w-8 text-xs shadow-2xs"
-                      />
+                      <div className="relative">
+                        <UserAvatar
+                          name={selectedParticipant?.name}
+                          size="md"
+                          className="h-8 w-8 text-xs shadow-2xs"
+                        />
+                        {!selectedParticipant?.upiId && (
+                          <span
+                            className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white"
+                            title="UPI not set"
+                          />
+                        )}
+                      </div>
+                      <ChevronDown className="h-3 w-3 text-ink-400 shrink-0" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
@@ -908,62 +922,59 @@ export function EditPage() {
                           className="h-10 w-10 text-sm shadow-xs"
                         />
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5">
-                            <p className="text-sm font-semibold text-ink-900 truncate">
-                              {selectedParticipant?.name || "Active Member"}
-                            </p>
-                            <span className="text-[10px] font-semibold bg-leaf-100 text-leaf-800 px-1.5 py-0.5 rounded-full shrink-0">
-                              You
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-ink-500 font-mono truncate mt-0.5">
-                            {selectedParticipant?.upiId ? (
-                              <span className="text-leaf-700 font-sans">UPI: {selectedParticipant.upiId}</span>
-                            ) : (
-                              <span className="text-ink-400 font-sans">No UPI ID set</span>
-                            )}
+                          <p className="text-sm font-semibold text-ink-900 truncate">
+                            {selectedParticipant?.name || "Active Member"}
                           </p>
+                          {selectedParticipant?.upiId ? (
+                            <button
+                              type="button"
+                              onClick={() => setProfileOpen(true)}
+                              className="flex items-center gap-1 text-[11px] font-mono text-leaf-700 hover:text-leaf-800 transition-colors mt-0.5 text-left truncate group cursor-pointer"
+                              title="Click to edit UPI ID"
+                            >
+                              <span className="truncate">UPI: {selectedParticipant.upiId}</span>
+                              <span className="text-[10px] text-ink-400 group-hover:text-ink-600 font-sans shrink-0">· Edit</span>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setProfileOpen(true)}
+                              className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 hover:text-amber-800 transition-colors mt-0.5 cursor-pointer"
+                              title="Click to set up UPI ID"
+                            >
+                              <span>No UPI ID set</span>
+                              <span className="font-semibold text-leaf-700 hover:underline">· Set up →</span>
+                            </button>
+                          )}
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setProfileOpen(true)}
-                        className="mt-2.5 w-full flex items-center justify-center gap-1.5 rounded-xl border border-ink-200 bg-white py-1.5 px-3 text-xs font-semibold text-ink-700 hover:bg-ink-100/70 hover:text-ink-900 transition-colors shadow-2xs cursor-pointer"
-                      >
-                        <User className="h-3.5 w-3.5 text-ink-500" />
-                        <span>Edit Profile & UPI</span>
-                      </button>
                     </div>
 
-                    {/* Switch Member List */}
-                    <div className="p-1.5">
-                      <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
-                        Switch Active Member
-                      </div>
-                      <div className="max-h-48 overflow-y-auto space-y-0.5 pr-0.5">
-                        {orderedParticipants.map((p) => {
-                          const isSelected = p.id === selectedParticipantId;
-                          return (
+                    {/* Switch to Another Member (Only lists OTHER members - no duplication!) */}
+                    {otherParticipants.length > 0 && (
+                      <div className="p-1.5">
+                        <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                          Switch Active Member
+                        </div>
+                        <div className="max-h-48 overflow-y-auto space-y-0.5 pr-0.5">
+                          {otherParticipants.map((p) => (
                             <DropdownMenuItem
                               key={p.id}
                               onClick={() => selectIdentity(p.id)}
-                              className={cn(
-                                "flex items-center justify-between gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium cursor-pointer transition-colors",
-                                isSelected
-                                  ? "bg-leaf-50 text-leaf-950 font-semibold"
-                                  : "hover:bg-ink-100/60 text-ink-800"
-                              )}
+                              className="flex items-center justify-between gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium cursor-pointer hover:bg-ink-100/60 text-ink-800 transition-colors"
                             >
                               <div className="flex items-center gap-2.5 min-w-0">
                                 <UserAvatar name={p.name} size="xs" className="h-6 w-6 shrink-0" />
                                 <span className="truncate">{p.name}</span>
                               </div>
-                              {isSelected && <Check className="h-3.5 w-3.5 text-leaf-600 shrink-0" />}
+                              {p.upiId ? (
+                                <span className="text-[10px] text-ink-400 font-mono">UPI ✓</span>
+                              ) : null}
                             </DropdownMenuItem>
-                          );
-                        })}
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Add Member Shortcut */}
                     <div className="p-1.5 pt-0 border-t border-ink-100">
@@ -984,7 +995,7 @@ export function EditPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-full text-ink-600 hover:text-ink-900 hover:bg-ink-100/70 shadow-none cursor-pointer"
+                      className="h-8 w-8 rounded-full text-ink-600 hover:text-ink-900 hover:bg-ink-100/70 shadow-none cursor-pointer !outline-none focus-visible:!outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-leaf-500"
                       aria-label="Group actions"
                     >
                       <MoreVertical className="h-4 w-4" />

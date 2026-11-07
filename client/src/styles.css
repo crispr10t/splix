@@ -104,6 +104,12 @@
     transition: none;
   }
 
+  button:focus-visible,
+  [data-ui-button]:focus-visible,
+  .rounded-full:focus-visible {
+    outline: none !important;
+  }
+
   [role="tab"],
   [role="tab"]:focus,
   [role="tab"]:focus-visible {
