@@ -66,6 +66,7 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
+    scrollbar-gutter: stable;
     background-color: hsl(var(--paper));
   }
 

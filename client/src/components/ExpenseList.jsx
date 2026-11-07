@@ -555,18 +555,18 @@ export function ExpenseList({
         </div>
       )}
 
-      {/* Expense Items List with pb-24 clearance */}
-      <div className="space-y-2 pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+      {/* Expense Items List with stable min-height to prevent layout collapse & scroll jump */}
+      <div className="space-y-2 min-h-[480px] pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
         <AnimatePresence initial={false}>
           {displayedExpenses.map((entry) => {
             if (entry.label) {
               return (
                 <motion.div
                   key={`date-${entry.label}`}
-                  layout
+                  layout="position"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  exit={{ opacity: 0, height: 0 }}
+                  exit={{ opacity: 0, transition: { duration: 0.15 } }}
                   className="py-1 text-[11px] font-semibold uppercase tracking-wider text-ink-500"
                 >
                   {entry.label}
@@ -600,15 +600,13 @@ export function ExpenseList({
                   if (el) cardRefs.current.set(expense.id, el);
                   else cardRefs.current.delete(expense.id);
                 }}
-                layout
+                layout="position"
                 initial={{ opacity: 0, y: 8, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{
                   opacity: 0,
-                  height: 0,
-                  scale: 0.96,
-                  marginBottom: 0,
-                  transition: { duration: 0.22, ease: [0.25, 1, 0.5, 1] }
+                  scale: 0.98,
+                  transition: { duration: 0.15, ease: "easeOut" }
                 }}
                 className="relative overflow-hidden rounded-xl border border-ink-200/80 bg-white scroll-mb-24"
               >
