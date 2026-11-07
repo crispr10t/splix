@@ -889,7 +889,7 @@ export function EditPage() {
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className="relative inline-flex items-center gap-1 rounded-full p-0.5 pr-1 hover:bg-ink-100/70 border border-transparent hover:border-ink-200/80 transition-all cursor-pointer !outline-none focus-visible:!outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-leaf-500 select-none"
+                      className="relative inline-flex items-center gap-1 rounded-full p-0.5 pr-1 hover:bg-ink-100/70 border border-transparent hover:border-ink-200/80 transition-colors cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 select-none shadow-none"
                       title={`Active user: ${selectedParticipant?.name || "Member"} (click to switch or edit UPI)`}
                       aria-label="Active user menu"
                     >
@@ -901,7 +901,7 @@ export function EditPage() {
                         />
                         {!selectedParticipant?.upiId && (
                           <span
-                            className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white"
+                            className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-amber-500 ring-2 ring-white"
                             title="UPI not set"
                           />
                         )}
@@ -995,7 +995,7 @@ export function EditPage() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-full text-ink-600 hover:text-ink-900 hover:bg-ink-100/70 shadow-none cursor-pointer !outline-none focus-visible:!outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-leaf-500"
+                      className="h-8 w-8 rounded-full text-ink-600 hover:text-ink-900 hover:bg-ink-100/70 shadow-none cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
                       aria-label="Group actions"
                     >
                       <MoreVertical className="h-4 w-4" />

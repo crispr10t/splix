@@ -17,7 +17,7 @@ const buttonVariants = cva(
         secondary:
           "bg-ink-100 text-ink-900 hover:bg-ink-200/80 shadow-sm",
         ghost:
-          "hover:bg-ink-100 hover:text-ink-900",
+          "hover:bg-ink-100 hover:text-ink-900 focus-visible:ring-0 focus-visible:ring-offset-0",
         link:
           "text-leaf-700 underline-offset-4 hover:underline",
         brand:

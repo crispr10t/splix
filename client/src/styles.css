@@ -104,9 +104,18 @@
     transition: none;
   }
 
+  button,
+  button:focus,
   button:focus-visible,
+  [data-ui-button],
+  [data-ui-button]:focus,
   [data-ui-button]:focus-visible,
-  .rounded-full:focus-visible {
+  .rounded-full,
+  .rounded-full:focus,
+  .rounded-full:focus-visible,
+  [data-radix-dropdown-menu-trigger],
+  [data-radix-dropdown-menu-trigger]:focus,
+  [data-radix-dropdown-menu-trigger]:focus-visible {
     outline: none !important;
   }
 

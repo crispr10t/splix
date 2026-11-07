@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Check, Lock, QrCode, Trash2, X, AlertCircle } from "lucide-react";
+import { Check, Trash2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/ui/avatar";
@@ -11,6 +11,37 @@ import {
   DialogTitle,
   DialogDescription
 } from "@/components/ui/dialog";
+
+/**
+ * Authentic UPI mark with dual directional arrows (orange/green) and bold typography
+ */
+export function UpiLogoBadge({ className = "h-3.5" }) {
+  return (
+    <span className="inline-flex items-center gap-1 bg-white px-1.5 py-0.5 rounded shadow-2xs shrink-0 select-none">
+      <svg
+        className={className}
+        viewBox="0 0 46 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path d="M2 1.5L8.5 8L2 14.5H6.2L12.7 8L6.2 1.5H2Z" fill="#F47920" />
+        <path d="M8 1.5L14.5 8L8 14.5H12.2L18.7 8L12.2 1.5H8Z" fill="#0FA958" />
+        <text
+          x="21"
+          y="12.5"
+          fill="#1E293B"
+          fontFamily="system-ui, -apple-system, BlinkMacSystemFont, sans-serif"
+          fontWeight="800"
+          fontSize="11.5"
+          letterSpacing="0.4"
+        >
+          UPI
+        </text>
+      </svg>
+    </span>
+  );
+}
 
 export function ParticipantProfileDialog({
   open,
@@ -53,30 +84,22 @@ export function ParticipantProfileDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-sm sm:max-w-md rounded-3xl p-5 sm:p-6 border-ink-200">
-        <DialogHeader className="text-center sm:text-center items-center">
-          {/* Participant Avatar Hero */}
-          <div className="relative mb-2">
-            <UserAvatar
-              name={participant.name}
-              size="lg"
-              className="h-14 w-14 text-base shadow-sm ring-4 ring-leaf-100/60"
-            />
-            <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-leaf-600 text-white shadow-xs">
-              <QrCode className="h-3 w-3" />
-            </span>
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-2xl p-5 border-ink-200">
+        <DialogHeader className="text-left space-y-1">
+          <div className="flex items-center gap-2.5">
+            <UserAvatar name={participant.name} size="sm" className="h-7 w-7 text-xs shrink-0" />
+            <div className="min-w-0">
+              <DialogTitle className="text-base font-bold text-ink-900 tracking-tight leading-tight">
+                UPI ID
+              </DialogTitle>
+              <DialogDescription className="text-xs text-ink-500 truncate">
+                For <span className="font-semibold text-ink-800">{participant.name}</span> to receive payments
+              </DialogDescription>
+            </div>
           </div>
-
-          <DialogTitle className="text-lg sm:text-xl font-bold text-ink-900 tracking-tight text-center">
-            Set Up UPI ID
-          </DialogTitle>
-          <DialogDescription className="text-xs text-ink-500 max-w-xs mx-auto text-center mt-1">
-            Allow group members to settle debts directly with 1 tap or QR code as{" "}
-            <span className="font-semibold text-ink-800">{participant.name}</span>.
-          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 pt-2">
+        <div className="space-y-4 pt-1">
           {/* UPI Input Field */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
@@ -88,7 +111,7 @@ export function ParticipantProfileDialog({
               </label>
               {hasExisting && (
                 <span className="text-[11px] font-medium text-leaf-700">
-                  Currently active ✓
+                  Active ✓
                 </span>
               )}
             </div>
@@ -96,6 +119,7 @@ export function ParticipantProfileDialog({
             <div className="relative">
               <Input
                 id="upi-id-input"
+                autoFocus
                 autoCapitalize="none"
                 autoCorrect="off"
                 spellCheck={false}
@@ -112,7 +136,7 @@ export function ParticipantProfileDialog({
                     handleSave();
                   }
                 }}
-                className={`h-11 pr-10 text-sm font-medium transition-colors ${
+                className={`h-10 pr-10 text-sm font-medium transition-colors ${
                   isValid
                     ? "border-leaf-500 focus-visible:border-leaf-600 focus-visible:ring-leaf-200"
                     : showError
@@ -133,39 +157,29 @@ export function ParticipantProfileDialog({
               </div>
             </div>
 
-            {/* Microcopy & Error Messages */}
-            {showError ? (
+            {showError && (
               <p className="text-[11px] font-medium text-danger-600">
-                Format should be username@bank (e.g. 9876543210@paytm or name@okaxis)
-              </p>
-            ) : (
-              <p className="text-[11px] text-ink-400">
-                Works with Google Pay, PhonePe, Paytm, or BHIM.
+                Enter a valid UPI ID (e.g. mobile@upi or name@bank)
               </p>
             )}
-
-            {/* Privacy trust badge */}
-            <div className="flex items-center gap-1.5 text-[11px] text-ink-500 bg-ink-50/80 px-2.5 py-1.5 rounded-xl border border-ink-100 mt-2">
-              <Lock className="h-3.5 w-3.5 text-ink-400 shrink-0" />
-              <span>Visible only to people with this group link.</span>
-            </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col gap-2 pt-2">
+          <div className="flex flex-col gap-2 pt-1">
             <Button
-              className="w-full h-11 bg-leaf-600 hover:bg-leaf-700 text-white rounded-xl shadow-xs text-sm font-semibold transition-all disabled:opacity-40"
+              className="w-full h-10 bg-leaf-600 hover:bg-leaf-700 text-white rounded-xl shadow-xs text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-40"
               disabled={saving || (Boolean(normalized) && !isValid) || (!isDirty && hasExisting)}
               onClick={handleSave}
             >
-              {saving ? "Saving…" : hasExisting ? "Update UPI ID" : "Save UPI ID"}
+              <UpiLogoBadge />
+              <span>{saving ? "Saving…" : hasExisting ? "Update UPI ID" : "Save UPI ID"}</span>
             </Button>
 
             {hasExisting && (
               <Button
                 type="button"
                 variant="ghost"
-                className="w-full h-9 text-xs text-danger-600 hover:text-danger-700 hover:bg-danger-50 rounded-xl gap-1.5 font-medium transition-colors"
+                className="w-full h-8 text-xs text-danger-600 hover:text-danger-700 hover:bg-danger-50 rounded-lg gap-1.5 font-medium transition-colors"
                 disabled={saving}
                 onClick={handleRemove}
               >
