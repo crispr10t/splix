@@ -350,26 +350,30 @@ export function ExpenseList({
                 </PopoverTrigger>
                 <PopoverContent
                   align="end"
-                  className="w-[340px] sm:w-[380px] max-h-[75vh] overflow-y-auto p-4 rounded-2xl shadow-xl border-ink-200"
+                  className="w-[340px] sm:w-[380px] max-h-[75vh] flex flex-col p-0 rounded-2xl shadow-xl border-ink-200 overflow-hidden bg-white"
                 >
-                  <div className="flex items-center justify-between pb-2 mb-3 border-b border-ink-100">
+                  {/* Sticky Header */}
+                  <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-ink-100 shrink-0 z-10">
                     <h3 className="text-sm font-bold text-ink-900 font-sans">Filters</h3>
                     {activeFilterCount > 0 && (
                       <button
                         type="button"
                         onClick={() => onFiltersChange({ ...DEFAULT_FILTERS })}
-                        className="text-xs font-semibold text-leaf-700 hover:text-leaf-800 hover:underline"
+                        className="text-xs font-semibold text-leaf-700 hover:text-leaf-800 hover:underline transition-colors"
                       >
                         Reset
                       </button>
                     )}
                   </div>
-                  <ExpenseFilterContent
-                    filters={filters}
-                    onChange={onFiltersChange}
-                    participants={participants}
-                    selectedParticipantId={selectedParticipantId}
-                  />
+                  {/* Scrollable Filters Content */}
+                  <div className="flex-1 overflow-y-auto p-4 overscroll-contain">
+                    <ExpenseFilterContent
+                      filters={filters}
+                      onChange={onFiltersChange}
+                      participants={participants}
+                      selectedParticipantId={selectedParticipantId}
+                    />
+                  </div>
                 </PopoverContent>
               </Popover>
             ) : (
