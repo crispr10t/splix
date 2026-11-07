@@ -115,14 +115,6 @@ export function EditPage() {
     typeof window !== "undefined" ? window.innerWidth >= 768 : false
   );
   const [activeEditTab, setActiveEditTab] = useState("expenses");
-  const [copiedLinkType, setCopiedLinkType] = useState(null);
-  const copyLinkTimeoutRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (copyLinkTimeoutRef.current) clearTimeout(copyLinkTimeoutRef.current);
-    };
-  }, []);
 
   useEffect(() => {
     function handleResize() {
@@ -774,16 +766,9 @@ export function EditPage() {
     }
   }
 
-  async function copyLink(url, label, type = null) {
+  async function copyLink(url, label) {
     await navigator.clipboard.writeText(url);
     toast.success(label);
-    if (type) {
-      setCopiedLinkType(type);
-      if (copyLinkTimeoutRef.current) clearTimeout(copyLinkTimeoutRef.current);
-      copyLinkTimeoutRef.current = setTimeout(() => {
-        setCopiedLinkType(null);
-      }, 1500);
-    }
   }
 
   if (missingLink) {
@@ -1021,50 +1006,29 @@ export function EditPage() {
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-2xl shadow-xl border-ink-200 bg-white">
+                  <DropdownMenuContent align="end" className="w-48 p-1.5 rounded-2xl shadow-xl border-ink-200 bg-white">
                     {/* Share Links */}
                     <DropdownMenuItem
                       onClick={() =>
-                        copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied", "view")
+                        copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied ✓")
                       }
-                      className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                      className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                     >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Eye className="h-4 w-4 text-ink-500 shrink-0" />
-                        <span className="truncate">Copy View Link</span>
-                      </div>
-                      <span
-                        className={cn(
-                          "text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 transition-colors",
-                          copiedLinkType === "view"
-                            ? "bg-leaf-100 text-leaf-800 font-semibold"
-                            : "bg-ink-100 text-ink-600"
-                        )}
-                      >
-                        {copiedLinkType === "view" ? "Copied ✓" : "Read-only"}
-                      </span>
+                      <Eye className="h-4 w-4 text-ink-500 shrink-0" />
+                      <span>Copy View Link</span>
                     </DropdownMenuItem>
 
                     <DropdownMenuItem
                       onClick={() =>
-                        copyLink(`${window.location.origin}/edit/${snapshot.group.editId}`, "Edit link copied", "edit")
+                        copyLink(
+                          `${window.location.origin}/edit/${snapshot.group.editId}`,
+                          "Edit link copied. Anyone with this and the PIN can edit."
+                        )
                       }
-                      className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-amber-50/70 cursor-pointer"
+                      className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-amber-50/70 cursor-pointer"
                     >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Pencil className="h-4 w-4 text-amber-600 shrink-0" />
-                        <span className="truncate">Copy Edit Link</span>
-                      </div>
-                      <span
-                        className={cn(
-                          "text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 transition-colors border",
-                          copiedLinkType === "edit"
-                            ? "bg-leaf-100 text-leaf-800 border-leaf-200"
-                            : "bg-amber-50 text-amber-700 border-amber-200/70"
-                        )}
-                      >
-                        {copiedLinkType === "edit" ? "Copied ✓" : "Can edit"}
-                      </span>
+                      <Pencil className="h-4 w-4 text-amber-600 shrink-0" />
+                      <span>Copy Edit Link</span>
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator className="my-1 border-ink-100" />
@@ -1072,7 +1036,7 @@ export function EditPage() {
                     {/* Group Actions */}
                     <DropdownMenuItem
                       onClick={() => setAddMemberOpen(true)}
-                      className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-leaf-50 hover:text-leaf-950 cursor-pointer"
+                      className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-leaf-50 hover:text-leaf-950 cursor-pointer"
                     >
                       <UserPlus className="h-4 w-4 text-leaf-600 shrink-0" />
                       <span>Add Member</span>
@@ -1083,22 +1047,17 @@ export function EditPage() {
                         href={pdfDownloadUrl(snapshot.group.viewId)}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                        className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                       >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <Download className="h-4 w-4 text-ink-500 shrink-0" />
-                          <span className="truncate">Download PDF</span>
-                        </div>
-                        <span className="text-[10px] font-mono font-medium text-ink-400 bg-ink-50 px-1.5 py-0.5 rounded border border-ink-150 shrink-0">
-                          PDF
-                        </span>
+                        <Download className="h-4 w-4 text-ink-500 shrink-0" />
+                        <span>Download PDF</span>
                       </a>
                     </DropdownMenuItem>
 
                     {canInstall && (
                       <DropdownMenuItem
                         onClick={promptInstall}
-                        className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                        className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                       >
                         <Smartphone className="h-4 w-4 text-ink-500 shrink-0" />
                         <span>Install Splix App</span>

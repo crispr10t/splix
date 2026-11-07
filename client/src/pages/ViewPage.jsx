@@ -40,23 +40,9 @@ export function ViewPage() {
     [snapshot?.expenses]
   );
 
-  const [copiedView, setCopiedView] = useState(false);
-  const copyTimeoutRef = useRef(null);
-
-  useEffect(() => {
-    return () => {
-      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
-    };
-  }, []);
-
   async function copyLink(url, label) {
     await navigator.clipboard.writeText(url);
     toast.success(label);
-    setCopiedView(true);
-    if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
-    copyTimeoutRef.current = setTimeout(() => {
-      setCopiedView(false);
-    }, 1500);
   }
 
   if (loading && !snapshot) {
@@ -124,28 +110,16 @@ export function ViewPage() {
                   <MoreVertical className="h-3 w-3 text-ink-400" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-2xl shadow-xl border-ink-200 bg-white">
+              <DropdownMenuContent align="end" className="w-48 p-1.5 rounded-2xl shadow-xl border-ink-200 bg-white">
                 {/* Share Link */}
                 <DropdownMenuItem
                   onClick={() =>
-                    copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied")
+                    copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied ✓")
                   }
-                  className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                  className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                 >
-                  <div className="flex items-center gap-2 min-w-0">
-                    <Eye className="h-4 w-4 text-ink-500 shrink-0" />
-                    <span className="truncate">Copy View Link</span>
-                  </div>
-                  <span
-                    className={cn(
-                      "text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 transition-colors",
-                      copiedView
-                        ? "bg-leaf-100 text-leaf-800 font-semibold"
-                        : "bg-ink-100 text-ink-600"
-                    )}
-                  >
-                    {copiedView ? "Copied ✓" : "Read-only"}
-                  </span>
+                  <Eye className="h-4 w-4 text-ink-500 shrink-0" />
+                  <span>Copy View Link</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator className="my-1 border-ink-100" />
@@ -156,22 +130,17 @@ export function ViewPage() {
                     href={pdfDownloadUrl(snapshot.group.viewId)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                    className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                   >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Download className="h-4 w-4 text-ink-500 shrink-0" />
-                      <span className="truncate">Download PDF</span>
-                    </div>
-                    <span className="text-[10px] font-mono font-medium text-ink-400 bg-ink-50 px-1.5 py-0.5 rounded border border-ink-150 shrink-0">
-                      PDF
-                    </span>
+                    <Download className="h-4 w-4 text-ink-500 shrink-0" />
+                    <span>Download PDF</span>
                   </a>
                 </DropdownMenuItem>
 
                 {canInstall && (
                   <DropdownMenuItem
                     onClick={promptInstall}
-                    className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                    className="flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                   >
                     <Smartphone className="h-4 w-4 text-ink-500 shrink-0" />
                     <span>Install Splix App</span>
