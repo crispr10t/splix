@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserAvatar } from "@/components/ui/avatar";
 import { CurrencySelect } from "@/components/ui/currency-select";
+import { capitalizeWords } from "@/utils/format";
 import { cn } from "@/lib/utils";
 
 export function CreateGroupCard({ isDialog = false, onClose }) {
@@ -117,7 +118,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
     event.preventDefault();
     if (saving) return;
 
-    const trimmedName = name.trim();
+    const trimmedName = capitalizeWords(name);
     const newErrors = {};
 
     if (!trimmedName) {
@@ -183,7 +184,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
     setSaving(true);
     try {
       const cleanParticipants = participants
-        .map((participant) => participant.trim())
+        .map((participant) => capitalizeWords(participant))
         .filter((participant) => participant.length > 0)
         .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base", numeric: true }))
         .map((pName) => ({ name: pName }));
@@ -244,6 +245,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                 id="group-name-input"
                 ref={nameRef}
                 autoFocus={isDialog}
+                autoCapitalize="words"
                 className={cn(
                   "pl-9 h-11 text-sm rounded-xl font-sans",
                   errors.name && "border-danger-500 focus-visible:ring-danger-200"
@@ -408,6 +410,7 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                         )}
                         maxLength={32}
                         placeholder={placeholder}
+                        autoCapitalize="words"
                         value={participant}
                         enterKeyHint={index < participants.length - 1 || participant.trim() ? "next" : "done"}
                         onKeyDown={(e) => {

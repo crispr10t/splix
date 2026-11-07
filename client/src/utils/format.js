@@ -76,3 +76,19 @@ export function formatCompactDate(value) {
   }
   return `${day} ${month} ${d.getFullYear()}`;
 }
+
+/**
+ * Capitalizes the first letter of each word in a string, preserving internal casing.
+ * e.g. "tanmay" -> "Tanmay", "piyush gupta" -> "Piyush Gupta", "AJ" -> "AJ"
+ */
+export function capitalizeWords(str) {
+  if (!str) return "";
+  return String(str)
+    .trim()
+    .split(/\s+/)
+    .map((word) => {
+      if (!word) return "";
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
+}

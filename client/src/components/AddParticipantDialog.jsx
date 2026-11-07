@@ -11,6 +11,7 @@ import {
   DialogTitle
 } from "@/components/ui/dialog";
 import { isValidUpiId, normalizeUpiId } from "@/utils/upiValidation";
+import { capitalizeWords } from "@/utils/format";
 
 export function AddParticipantDialog({ open, onOpenChange, onAdd, adding }) {
   const [name, setName] = useState("");
@@ -18,7 +19,7 @@ export function AddParticipantDialog({ open, onOpenChange, onAdd, adding }) {
 
   async function submit(e) {
     e.preventDefault();
-    const cleanName = name.trim();
+    const cleanName = capitalizeWords(name);
     if (!cleanName) {
       toast.error("Please enter a name");
       return;
@@ -63,6 +64,7 @@ export function AddParticipantDialog({ open, onOpenChange, onAdd, adding }) {
             </label>
             <Input
               autoFocus
+              autoCapitalize="words"
               maxLength={32}
               placeholder="e.g. Charlie, Priya, Rohan"
               value={name}
