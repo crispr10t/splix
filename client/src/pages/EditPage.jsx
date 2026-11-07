@@ -108,7 +108,10 @@ export function EditPage() {
   const { scrollY } = useScroll();
   const [fabCollapsed, setFabCollapsed] = useState(false);
   const [activeEditTab, setActiveEditTab] = useState("expenses");
+  const isFabCollapsed = !isDesktop && fabCollapsed;
+
   useMotionValueEvent(scrollY, "change", (current) => {
+    if (isDesktop) return;
     const previous = scrollY.getPrevious() ?? 0;
     if (current < 40) setFabCollapsed(false);
     else if (current > previous + 3) setFabCollapsed(true);
@@ -1099,21 +1102,20 @@ export function EditPage() {
             </TabsContent>
           </Tabs>
 
-          {/* Floating Action Button (FAB) for Adding Expense - portaled directly to body to bypass all ancestor clipping and transformed layer bugs */}
+          {/* Floating Action Button (FAB) for Adding Expense - portaled directly to body with layout="size" & spring physics */}
           {typeof document !== "undefined" && createPortal(
-            <div
+            <motion.div
+              layoutRoot
               className="fixed right-6 z-30 sm:bottom-8 sm:right-8 pointer-events-auto"
-              style={{
-                bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))",
-                transform: "none"
-              }}
+              style={{ bottom: "max(1.5rem, calc(1rem + env(safe-area-inset-bottom)))" }}
             >
-              <button
-                type="button"
+              <motion.button
+                layout="size"
+                transition={{ type: "spring", stiffness: 450, damping: 35 }}
                 aria-label="Add expense"
                 className={`inline-flex items-center justify-center h-14 ${
-                  fabCollapsed ? "w-14 rounded-full px-0" : "rounded-xl px-5"
-                } bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl gap-2 text-sm font-bold active:scale-95 transition-all duration-200 ease-out`}
+                  isFabCollapsed ? "w-14 rounded-full px-0 gap-0" : "rounded-xl px-5 gap-2"
+                } bg-leaf-600 hover:bg-leaf-700 text-white shadow-2xl text-sm font-bold active:scale-95 transition-colors duration-150`}
                 onClick={() => {
                   hapticTap();
                   setEditingExpense(null);
@@ -1121,15 +1123,21 @@ export function EditPage() {
                 }}
               >
                 <Plus className="h-5 w-5 shrink-0" />
-                <span
-                  className={`overflow-hidden whitespace-nowrap transition-all duration-200 ease-out ${
-                    fabCollapsed ? "max-w-0 opacity-0" : "max-w-xs opacity-100"
-                  }`}
-                >
-                  Add Expense
-                </span>
-              </button>
-            </div>,
+                <AnimatePresence initial={false}>
+                  {!isFabCollapsed && (
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className="whitespace-nowrap"
+                    >
+                      Add Expense
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            </motion.div>,
             document.body
           )}
 
