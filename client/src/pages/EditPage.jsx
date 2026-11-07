@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
+  Check,
   ChevronDown,
   DollarSign,
   Download,
@@ -70,13 +71,17 @@ import {
   SheetHeader,
   SheetTitle
 } from "@/components/ui/sheet";
+import { UserAvatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent
 } from "@/components/ui/dropdown-menu";
 
 export function EditPage() {
@@ -873,92 +878,233 @@ export function EditPage() {
                   )
                 )}
 
-                {/* Identity Pill: Subtle rounded pill [P Piyush ▾] */}
+                {/* Google-Style Active User Avatar */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className="inline-flex items-center gap-1.5 rounded-full !rounded-full border border-ink-200/80 bg-white px-2.5 py-1 text-xs font-medium text-ink-800 hover:bg-ink-50 hover:border-ink-300 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-400 font-sans"
-                      title="Active user: click to switch or edit profile"
+                      className="relative flex items-center justify-center rounded-full p-0.5 hover:ring-2 hover:ring-leaf-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 transition-all cursor-pointer"
+                      title={`Active user: ${selectedParticipant?.name || "You"} (click to switch or edit profile)`}
+                      aria-label="Active user menu"
                     >
-                      <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-[10px] font-bold text-leaf-800">
-                        {(selectedParticipant?.name || "M").charAt(0).toUpperCase()}
-                      </span>
-                      <span className="max-w-[100px] sm:max-w-[140px] truncate">
-                        {selectedParticipant?.name || "Member"}
-                      </span>
-                      <ChevronDown className="h-3 w-3 text-ink-400 shrink-0" />
+                      <UserAvatar
+                        name={selectedParticipant?.name}
+                        size="md"
+                        className="h-8 w-8 text-xs shadow-2xs"
+                      />
                     </button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52 max-h-72 overflow-y-auto">
-                    <DropdownMenuLabel className="text-xs">Active Member</DropdownMenuLabel>
-                    {orderedParticipants.map((p) => (
-                      <DropdownMenuItem
-                        key={p.id}
-                        className={p.id === selectedParticipantId ? "font-semibold text-leaf-700" : ""}
-                        onClick={() => selectIdentity(p.id)}
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-64 sm:w-72 p-0 overflow-hidden rounded-2xl shadow-xl border-ink-200 bg-white"
+                  >
+                    {/* Active User Card Header */}
+                    <div className="bg-ink-50/70 p-3.5 border-b border-ink-100">
+                      <div className="flex items-center gap-3">
+                        <UserAvatar
+                          name={selectedParticipant?.name}
+                          size="md"
+                          className="h-10 w-10 text-sm shadow-xs"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <p className="text-sm font-semibold text-ink-900 truncate">
+                              {selectedParticipant?.name || "Active Member"}
+                            </p>
+                            <span className="text-[10px] font-semibold bg-leaf-100 text-leaf-800 px-1.5 py-0.5 rounded-full shrink-0">
+                              You
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-ink-500 font-mono truncate mt-0.5">
+                            {selectedParticipant?.upiId ? (
+                              <span className="text-leaf-700 font-sans">UPI: {selectedParticipant.upiId}</span>
+                            ) : (
+                              <span className="text-ink-400 font-sans">No UPI ID set</span>
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setProfileOpen(true)}
+                        className="mt-2.5 w-full flex items-center justify-center gap-1.5 rounded-xl border border-ink-200 bg-white py-1.5 px-3 text-xs font-semibold text-ink-700 hover:bg-ink-100/70 hover:text-ink-900 transition-colors shadow-2xs cursor-pointer"
                       >
-                        <UserCheck className={`h-4 w-4 shrink-0 ${p.id === selectedParticipantId ? "text-leaf-600" : "text-transparent"}`} />
-                        <span className="truncate">{p.name}</span>
+                        <User className="h-3.5 w-3.5 text-ink-500" />
+                        <span>Edit Profile & UPI</span>
+                      </button>
+                    </div>
+
+                    {/* Switch Member List */}
+                    <div className="p-1.5">
+                      <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                        Switch Active Member
+                      </div>
+                      <div className="max-h-48 overflow-y-auto space-y-0.5 pr-0.5">
+                        {orderedParticipants.map((p) => {
+                          const isSelected = p.id === selectedParticipantId;
+                          return (
+                            <DropdownMenuItem
+                              key={p.id}
+                              onClick={() => selectIdentity(p.id)}
+                              className={cn(
+                                "flex items-center justify-between gap-2.5 px-2.5 py-2 rounded-xl text-xs font-medium cursor-pointer transition-colors",
+                                isSelected
+                                  ? "bg-leaf-50 text-leaf-950 font-semibold"
+                                  : "hover:bg-ink-100/60 text-ink-800"
+                              )}
+                            >
+                              <div className="flex items-center gap-2.5 min-w-0">
+                                <UserAvatar name={p.name} size="xs" className="h-6 w-6 shrink-0" />
+                                <span className="truncate">{p.name}</span>
+                              </div>
+                              {isSelected && <Check className="h-3.5 w-3.5 text-leaf-600 shrink-0" />}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Add Member Shortcut */}
+                    <div className="p-1.5 pt-0 border-t border-ink-100">
+                      <DropdownMenuItem
+                        onClick={() => setAddMemberOpen(true)}
+                        className="flex items-center gap-2 px-2.5 py-2 rounded-xl text-xs font-medium text-leaf-700 hover:bg-leaf-50 hover:text-leaf-800 cursor-pointer"
+                      >
+                        <UserPlus className="h-3.5 w-3.5 text-leaf-600 shrink-0" />
+                        <span>Add Member</span>
                       </DropdownMenuItem>
-                    ))}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setProfileOpen(true)}>
-                      <User className="h-4 w-4 shrink-0 text-ink-600" />
-                      Profile &amp; UPI
-                    </DropdownMenuItem>
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                {/* ⋮ Menu: Focused strictly on group actions */}
+                {/* ⋮ Menu: Focused group actions + safety switch member fallback */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 rounded-lg text-ink-600 hover:text-ink-900 hover:bg-ink-100/60 shadow-none"
+                      className="h-8 w-8 rounded-full text-ink-600 hover:text-ink-900 hover:bg-ink-100/70 shadow-none cursor-pointer"
                       aria-label="Group actions"
                     >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-52 max-h-72 overflow-y-auto">
-                    <DropdownMenuItem onClick={() => setAddMemberOpen(true)}>
-                      <UserPlus className="h-4 w-4 shrink-0 text-leaf-600" />
-                      Add Member
+                  <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-2xl shadow-xl border-ink-200 bg-white">
+                    {/* Active User Section & Switcher Fallback */}
+                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                      Active User
+                    </div>
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium cursor-pointer">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <UserAvatar name={selectedParticipant?.name} size="xs" className="h-5 w-5 shrink-0" />
+                          <span className="truncate">{selectedParticipant?.name || "Switch User"}</span>
+                        </div>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-48 p-1.5 rounded-xl border-ink-200 shadow-xl max-h-56 overflow-y-auto">
+                        <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                          Select Member
+                        </div>
+                        {orderedParticipants.map((p) => (
+                          <DropdownMenuItem
+                            key={p.id}
+                            onClick={() => selectIdentity(p.id)}
+                            className={cn(
+                              "flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs cursor-pointer",
+                              p.id === selectedParticipantId ? "bg-leaf-50 text-leaf-950 font-semibold" : ""
+                            )}
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <UserAvatar name={p.name} size="xs" className="h-5 w-5 shrink-0" />
+                              <span className="truncate">{p.name}</span>
+                            </div>
+                            {p.id === selectedParticipantId && <Check className="h-3.5 w-3.5 text-leaf-600 shrink-0" />}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+
+                    <DropdownMenuItem
+                      onClick={() => setProfileOpen(true)}
+                      className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-700 hover:bg-ink-100/60 cursor-pointer"
+                    >
+                      <User className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                      <span>Profile & UPI Settings</span>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+
+                    <DropdownMenuSeparator className="my-1" />
+
+                    {/* Group Collaboration */}
+                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                      Group
+                    </div>
+                    <DropdownMenuItem
+                      onClick={() => setAddMemberOpen(true)}
+                      className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                    >
+                      <UserPlus className="h-3.5 w-3.5 text-leaf-600 shrink-0" />
+                      <span>Add Member</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator className="my-1" />
+
+                    {/* Share Links */}
+                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                      Share Links
+                    </div>
                     <DropdownMenuItem
                       onClick={() =>
                         copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied")
                       }
+                      className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                     >
-                      <Link2 className="h-4 w-4 shrink-0 text-ink-600" />
-                      Copy View Link
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Link2 className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                        <span className="truncate">Copy View Link</span>
+                      </div>
+                      <span className="text-[10px] font-medium text-ink-500 bg-ink-100 px-1.5 py-0.5 rounded shrink-0">
+                        Read-only
+                      </span>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onClick={() =>
                         copyLink(`${window.location.origin}/edit/${snapshot.group.editId}`, "Edit link copied")
                       }
+                      className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-leaf-50 hover:text-leaf-950 cursor-pointer"
                     >
-                      <Link2 className="h-4 w-4 shrink-0 text-leaf-600" />
-                      Copy Edit Link
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Link2 className="h-3.5 w-3.5 text-leaf-600 shrink-0" />
+                        <span className="truncate">Copy Edit Link</span>
+                      </div>
+                      <span className="text-[10px] font-semibold text-leaf-700 bg-leaf-100/80 px-1.5 py-0.5 rounded shrink-0">
+                        Full access
+                      </span>
                     </DropdownMenuItem>
+
+                    <DropdownMenuSeparator className="my-1" />
+
+                    {/* Export */}
+                    <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                      Export & App
+                    </div>
                     <DropdownMenuItem asChild>
                       <a
                         href={pdfDownloadUrl(snapshot.group.viewId)}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center"
+                        className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                       >
-                        <Download className="h-4 w-4 shrink-0 text-ink-600" />
-                        Download PDF
+                        <Download className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                        <span>Download PDF</span>
                       </a>
                     </DropdownMenuItem>
                     {canInstall && (
-                      <DropdownMenuItem onClick={promptInstall}>
-                        <Download className="h-4 w-4 shrink-0 text-ink-600" />
-                        Install Splix App
+                      <DropdownMenuItem
+                        onClick={promptInstall}
+                        className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                      >
+                        <Download className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                        <span>Install Splix App</span>
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>

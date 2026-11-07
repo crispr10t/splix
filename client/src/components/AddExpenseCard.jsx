@@ -19,7 +19,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/avatar";
+import { PayerSelect } from "@/components/ui/payer-select";
+import { DatePicker } from "@/components/ui/date-picker";
 import { sortByName } from "@/utils/sort";
 import { CATEGORIES, getCategory } from "@/utils/categories";
 import { getCurrencySymbol, money } from "@/utils/format";
@@ -361,38 +363,25 @@ export function AddExpenseCard({
         {/* Payer and date share one row on every viewport */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs font-semibold tracking-normal text-ink-500">
+            <label className="text-xs font-semibold tracking-normal text-ink-500 block mb-1">
               Paid By
             </label>
-            <div className="relative mt-1">
-              <select
-                className="flex h-11 w-full appearance-none rounded-xl border border-ink-300 bg-white px-3.5 pr-10 py-2 text-sm font-medium text-ink-900 transition-colors duration-150 focus-visible:outline-none focus-visible:border-leaf-600 focus-visible:ring-2 focus-visible:ring-leaf-200 cursor-pointer"
-                value={paidByParticipantId}
-                onChange={(e) => setPaidByParticipantId(e.target.value)}
-              >
-                {sortedParticipants.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-400" />
-            </div>
+            <PayerSelect
+              participants={sortedParticipants}
+              value={paidByParticipantId}
+              onChange={setPaidByParticipantId}
+            />
           </div>
           {/* Expense Date Picker */}
           <div>
-          <label className="text-xs font-semibold tracking-normal text-ink-500">
-            Date
-          </label>
-          <div className="relative mt-1">
-            <Input
-              type="date"
-              className="h-11 text-sm font-medium text-ink-900 bg-white cursor-pointer"
+            <label className="text-xs font-semibold tracking-normal text-ink-500 block mb-1">
+              Date
+            </label>
+            <DatePicker
               value={date}
-              max={localDateInputValue()}
-              onChange={(e) => setDate(e.target.value)}
+              maxDate={localDateInputValue()}
+              onChange={setDate}
             />
-          </div>
           </div>
         </div>
 
@@ -515,11 +504,7 @@ export function AddExpenseCard({
                         onChange={() => toggleParticipant(p.id)}
                         className="h-4 w-4 rounded text-leaf-600 focus:ring-leaf-500"
                       />
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback className="text-[10px] bg-leaf-100 text-leaf-800">
-                          {p.name.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      <UserAvatar name={p.name} size="xs" className="h-6 w-6" />
                       <span>{p.name}</span>
                     </label>
 

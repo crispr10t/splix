@@ -1,36 +1,8 @@
 import { useState } from "react";
 import { UserCheck, UserPlus, ChevronRight, Check, Search } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/avatar";
 import { sortByName } from "@/utils/sort";
 import { cn } from "@/lib/utils";
-
-const AVATAR_PALETTES = [
-  "bg-leaf-100 text-leaf-800 border-leaf-200/80",
-  "bg-sky-100 text-sky-800 border-sky-200/80",
-  "bg-violet-100 text-violet-800 border-violet-200/80",
-  "bg-amber-100 text-amber-800 border-amber-200/80",
-  "bg-danger-100 text-danger-800 border-danger-200/80",
-  "bg-indigo-100 text-indigo-800 border-indigo-200/80",
-  "bg-teal-100 text-teal-800 border-teal-200/80",
-  "bg-orange-100 text-orange-800 border-orange-200/80",
-  "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-200/80"
-];
-
-function getAvatarColor(name = "") {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return AVATAR_PALETTES[Math.abs(hash) % AVATAR_PALETTES.length];
-}
-
-function getInitials(name = "") {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return name.slice(0, 2).toUpperCase();
-}
 
 export function IdentitySelectorCard({
   groupName,
@@ -92,7 +64,6 @@ export function IdentitySelectorCard({
       <div className="mt-5 space-y-2 max-h-[340px] overflow-y-auto pr-0.5">
         {filtered.map((participant) => {
           const isSelected = selectedId === participant.id;
-          const avatarColor = getAvatarColor(participant.name);
 
           return (
             <button
@@ -107,11 +78,8 @@ export function IdentitySelectorCard({
               )}
             >
               <div className="flex items-center gap-3 min-w-0 flex-1">
-                <Avatar className="h-9 w-9 shrink-0">
-                  <AvatarFallback className={cn("text-xs font-bold border", avatarColor)}>
-                    {getInitials(participant.name)}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar name={participant.name} size="md" className="h-9 w-9" />
+
 
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-ink-900 truncate group-hover:text-leaf-950">

@@ -19,7 +19,7 @@ import { buildQrUrl, buildUpiLink } from "@/utils/upi";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -164,11 +164,7 @@ export function SettlementList({
             >
               <div className="flex items-center gap-3 min-w-0">
                 {/* Payer Avatar */}
-                <Avatar className="h-8 w-8 shrink-0">
-                  <AvatarFallback className="text-xs bg-ink-100 text-ink-800">
-                    {item.fromName.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar name={item.fromName} size="md" className="h-8 w-8" />
 
                 {/* Transfer Info */}
                 <div className="min-w-0">

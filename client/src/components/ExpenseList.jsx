@@ -18,7 +18,7 @@ import { money } from "@/utils/format";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/avatar";
 import { getCategory } from "@/utils/categories";
 import { DEFAULT_FILTERS, ExpenseFilterSheet } from "@/components/ExpenseFilterSheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -737,11 +737,7 @@ export function ExpenseList({
                                 className={`flex items-center justify-between gap-3 rounded-lg px-2 py-2 ${isCurrentParticipant ? "bg-leaf-50/80" : ""}`}
                               >
                                 <div className="flex min-w-0 items-center gap-2">
-                                  <Avatar className="h-[22px] w-[22px] ring-0">
-                                    <AvatarFallback className={`text-[9px] ${isCurrentParticipant ? "bg-leaf-100 text-leaf-800" : "bg-ink-100 text-ink-600"}`}>
-                                      {personName.slice(0, 2).toUpperCase()}
-                                    </AvatarFallback>
-                                  </Avatar>
+                                  <UserAvatar name={personName} size="xs" className="h-[22px] w-[22px]" />
                                   <span className={`truncate ${isCurrentParticipant ? "font-semibold text-leaf-800" : "text-ink-700"}`}>{isCurrentParticipant ? "You" : personName}</span>
                                 </div>
                                 <span className={`shrink-0 tabular-nums font-medium ${isCurrentParticipant ? "text-leaf-800" : "text-ink-900"}`}>

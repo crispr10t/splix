@@ -21,31 +21,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/ui/avatar";
+import { CurrencySelect } from "@/components/ui/currency-select";
 import { cn } from "@/lib/utils";
-import { getCurrencySymbol } from "@/utils/format";
-
-const standardCurrencies = [
-  "AED", "AUD", "BRL", "CAD", "CHF", "CNY", "EUR", "GBP",
-  "HKD", "INR", "JPY", "KRW", "MXN", "NOK", "NZD", "SAR",
-  "SEK", "SGD", "TRY", "USD", "ZAR"
-];
-
-const AVATAR_PALETTES = [
-  { bg: "bg-emerald-100", text: "text-emerald-800" },
-  { bg: "bg-teal-100", text: "text-teal-800" },
-  { bg: "bg-sky-100", text: "text-sky-800" },
-  { bg: "bg-amber-100", text: "text-amber-800" },
-  { bg: "bg-rose-100", text: "text-rose-800" }
-];
-
-function getInitials(name = "") {
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) {
-    return (parts[0][0] + parts[1][0]).toUpperCase();
-  }
-  return name.trim().slice(0, 2).toUpperCase();
-}
 
 export function CreateGroupCard({ isDialog = false, onClose }) {
   const [name, setName] = useState("");
@@ -303,23 +281,11 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
               <div className="flex items-center h-5">
                 <label className="text-xs font-semibold text-ink-700 block font-sans">Currency</label>
               </div>
-              <div className="relative">
-                <select
-                  className="flex h-11 w-full rounded-xl border border-ink-300 bg-white px-3.5 py-2 text-sm font-medium font-sans text-ink-900 focus-visible:outline-none focus-visible:border-leaf-600 focus-visible:ring-2 focus-visible:ring-leaf-200 transition-colors duration-150 cursor-pointer"
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  onFocus={() => void warmApi()}
-                >
-                  {standardCurrencies.map((code) => {
-                    const sym = getCurrencySymbol(code);
-                    return (
-                      <option key={code} value={code}>
-                        {sym && sym !== code ? `${code} (${sym})` : code}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
+              <CurrencySelect
+                value={currency}
+                onChange={setCurrency}
+                onFocus={() => void warmApi()}
+              />
             </div>
 
             <div className="space-y-1.5">
@@ -411,32 +377,23 @@ export function CreateGroupCard({ isDialog = false, onClose }) {
                   <div key={index} className="space-y-1">
                     <div className="relative flex items-center">
                       {(() => {
-                        const palette = AVATAR_PALETTES[index % AVATAR_PALETTES.length];
                         const hasName = Boolean(participant.trim());
+                        if (hasName) {
+                          return (
+                            <UserAvatar
+                              name={participant}
+                              size="xs"
+                              className="absolute left-2.5 h-6 w-6 pointer-events-none shadow-2xs"
+                            />
+                          );
+                        }
                         return (
-                          <Avatar
-                            className={cn(
-                              "absolute left-2.5 h-6 w-6 text-[10px] font-bold pointer-events-none transition-colors duration-150",
-                              hasName
-                                ? cn(palette.bg, palette.text)
-                                : "bg-ink-100 text-ink-400"
-                            )}
+                          <span
+                            className="absolute left-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink-100 text-ink-400 pointer-events-none"
+                            aria-hidden="true"
                           >
-                            <AvatarFallback
-                              className={cn(
-                                "font-bold flex items-center justify-center font-sans",
-                                hasName
-                                  ? cn(palette.bg, palette.text)
-                                  : "bg-ink-100 text-ink-400"
-                              )}
-                            >
-                              {hasName ? (
-                                getInitials(participant)
-                              ) : (
-                                <User className="h-3.5 w-3.5 text-ink-400" aria-hidden="true" />
-                              )}
-                            </AvatarFallback>
-                          </Avatar>
+                            <User className="h-3.5 w-3.5" />
+                          </span>
                         );
                       })()}
                       <Input

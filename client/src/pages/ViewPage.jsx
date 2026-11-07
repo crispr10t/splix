@@ -102,37 +102,54 @@ export function ViewPage() {
             {/* Quick Actions Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-9 gap-1.5 rounded-xl border-ink-200 text-xs font-semibold bg-white shadow-sm">
-                  <Share2 className="h-3.5 w-3.5" />
-                  <span>Share</span>
-                  <MoreVertical className="h-3.5 w-3.5 ml-0.5 text-ink-400" />
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-xl border-ink-200 text-xs font-semibold bg-white shadow-2xs hover:bg-ink-50">
+                  <Share2 className="h-3.5 w-3.5 text-ink-600" />
+                  <span>Share &amp; Export</span>
+                  <MoreVertical className="h-3 w-3 text-ink-400" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>Sharing</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-2xl shadow-xl border-ink-200 bg-white">
+                <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                  Share Links
+                </div>
                 <DropdownMenuItem
                   onClick={() =>
                     copyLink(`${window.location.origin}/view/${snapshot.group.viewId}`, "View link copied")
                   }
+                  className="flex items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                 >
-                  <Link2 className="h-4 w-4 mr-2" />
-                  Copy View Link
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Link2 className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                    <span className="truncate">Copy View Link</span>
+                  </div>
+                  <span className="text-[10px] font-medium text-ink-500 bg-ink-100 px-1.5 py-0.5 rounded shrink-0">
+                    Read-only
+                  </span>
                 </DropdownMenuItem>
+
+                <DropdownMenuSeparator className="my-1" />
+
+                <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-ink-400">
+                  Export &amp; App
+                </div>
                 <DropdownMenuItem asChild>
                   <a
                     href={pdfDownloadUrl(snapshot.group.viewId)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center"
+                    className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
                   >
-                    <Download className="h-4 w-4 mr-2" />
-                    Download PDF Receipt
+                    <Download className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                    <span>Download PDF</span>
                   </a>
                 </DropdownMenuItem>
                 {canInstall && (
-                  <DropdownMenuItem onClick={promptInstall}>
-                    <Download className="h-4 w-4 mr-2 text-ink-600" />
-                    Install Splix App
+                  <DropdownMenuItem
+                    onClick={promptInstall}
+                    className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-medium text-ink-800 hover:bg-ink-100/60 cursor-pointer"
+                  >
+                    <Download className="h-3.5 w-3.5 text-ink-500 shrink-0" />
+                    <span>Install Splix App</span>
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
