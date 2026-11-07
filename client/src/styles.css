@@ -66,6 +66,7 @@
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
+    background-color: #ffffff;
   }
 
   body {
@@ -339,12 +340,13 @@ button,
   list-style: none;
 }
 
-.timeline-list::before {
+.timeline-item:not(:last-child)::before {
   content: "";
   position: absolute;
-  top: 1.5rem;
-  bottom: 2rem;
+  top: 1rem;
+  bottom: 0;
   left: 1rem;
+  transform: translateX(-50%);
   width: 2px;
   background-color: hsl(var(--leaf-200));
 }

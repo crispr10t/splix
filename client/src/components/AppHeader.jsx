@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Download, WifiOff } from "lucide-react";
 import { SplixLogo } from "./Logo";
 import { usePwaInstall } from "@/pwa";
@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export function AppHeader({ groupName, rightContent }) {
+  const location = useLocation();
+  const isLanding = location.pathname === "/" && !groupName;
   const { canInstall, promptInstall } = usePwaInstall();
   const [isOnline, setIsOnline] = useState(() =>
     typeof navigator !== "undefined" ? navigator.onLine : true
@@ -28,7 +30,7 @@ export function AppHeader({ groupName, rightContent }) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-200 bg-white">
+    <header className={isLanding ? "relative border-b border-ink-100 bg-white" : "sticky top-0 z-40 border-b border-ink-200 bg-white"}>
       <a className="skip-link" href="#main">Skip to content</a>
       <div className="container flex items-center justify-between py-3">
         <div className="flex items-center gap-3">
