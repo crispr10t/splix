@@ -3,7 +3,7 @@ export function normalizeUpiId(value) {
 }
 
 // Common email domains mistakenly entered as UPI
-const EMAIL_DOMAINS = new Set([
+export const EMAIL_DOMAINS = new Set([
   "gmail.com",
   "yahoo.com",
   "hotmail.com",
@@ -13,6 +13,65 @@ const EMAIL_DOMAINS = new Set([
   "zoho.com",
   "live.com"
 ]);
+
+/**
+ * Top recognized PSP handles across India (Google Pay, PhonePe, Paytm, BHIM, etc.)
+ */
+export const KNOWN_PSP_HANDLES = {
+  // Google Pay
+  okhdfcbank: { app: "Google Pay", bank: "HDFC Bank" },
+  okaxis: { app: "Google Pay", bank: "Axis Bank" },
+  okicici: { app: "Google Pay", bank: "ICICI Bank" },
+  oksbi: { app: "Google Pay", bank: "SBI" },
+  // PhonePe
+  ybl: { app: "PhonePe", bank: "YES Bank" },
+  ibl: { app: "PhonePe", bank: "ICICI Bank" },
+  axl: { app: "PhonePe", bank: "Axis Bank" },
+  // Paytm
+  paytm: { app: "Paytm", bank: "Paytm Bank" },
+  ptaxis: { app: "Paytm", bank: "Axis Bank" },
+  pthdfc: { app: "Paytm", bank: "HDFC Bank" },
+  ptyes: { app: "Paytm", bank: "YES Bank" },
+  ptsbi: { app: "Paytm", bank: "SBI" },
+  // BHIM / NPCI
+  upi: { app: "BHIM", bank: "UPI" },
+  // Major Banks
+  sbi: { app: "SBI YONO", bank: "SBI" },
+  icici: { app: "iMobile", bank: "ICICI Bank" },
+  hdfcbank: { app: "HDFC Mobile", bank: "HDFC Bank" },
+  axisbank: { app: "Axis Mobile", bank: "Axis Bank" },
+  kotak: { app: "Kotak 811", bank: "Kotak Bank" },
+  indus: { app: "IndusMobile", bank: "IndusInd Bank" },
+  barodampay: { app: "bob World", bank: "Bank of Baroda" },
+  pnb: { app: "PNB ONE", bank: "Punjab National Bank" },
+  // Amazon Pay
+  apl: { app: "Amazon Pay", bank: "Axis Bank" },
+  rapl: { app: "Amazon Pay", bank: "RBL Bank" },
+  // CRED
+  cred: { app: "CRED", bank: "Axis Bank" },
+  axisb: { app: "CRED", bank: "Axis Bank" }
+};
+
+export const POPULAR_UPI_HANDLES = [
+  "@okaxis",
+  "@okhdfcbank",
+  "@ybl",
+  "@paytm",
+  "@upi",
+  "@icici"
+];
+
+/**
+ * Returns PSP app & bank metadata if the provider is recognized, or null
+ */
+export function getUpiPspInfo(value) {
+  const upiId = normalizeUpiId(value);
+  if (!upiId || !upiId.includes("@")) return null;
+  const parts = upiId.split("@");
+  if (parts.length !== 2) return null;
+  const provider = parts[1].toLowerCase();
+  return KNOWN_PSP_HANDLES[provider] || null;
+}
 
 /**
  * Validates a UPI ID against NPCI VPA specifications:

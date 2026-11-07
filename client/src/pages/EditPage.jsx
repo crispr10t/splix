@@ -930,13 +930,13 @@ export function EditPage() {
                             <button
                               type="button"
                               onClick={() => setProfileOpen(true)}
-                              className="inline-flex items-center gap-1.5 max-w-full px-2 py-0.5 mt-1 rounded-md bg-leaf-50 hover:bg-leaf-100/80 border border-leaf-200/60 transition-colors text-left group cursor-pointer"
+                              className="inline-flex items-center gap-1.5 max-w-full text-[11px] font-mono text-ink-500 hover:text-ink-800 transition-colors text-left group cursor-pointer mt-0.5"
                               title={`UPI: ${selectedParticipant.upiId} (Click to edit)`}
                             >
-                              <span className="text-[11px] font-mono text-leaf-700 truncate max-w-[150px] sm:max-w-[180px]">
+                              <span className="truncate max-w-[150px] sm:max-w-[180px]">
                                 {selectedParticipant.upiId}
                               </span>
-                              <Pencil className="h-2.5 w-2.5 text-leaf-600/70 group-hover:text-leaf-900 shrink-0" />
+                              <Pencil className="h-2.5 w-2.5 text-ink-400 group-hover:text-ink-700 shrink-0" />
                             </button>
                           ) : (
                             <button

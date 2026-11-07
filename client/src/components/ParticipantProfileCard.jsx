@@ -3,7 +3,13 @@ import { Check, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserAvatar } from "@/components/ui/avatar";
-import { isValidUpiId, normalizeUpiId, getUpiValidationMessage } from "@/utils/upiValidation";
+import {
+  isValidUpiId,
+  normalizeUpiId,
+  getUpiValidationMessage,
+  getUpiPspInfo,
+  POPULAR_UPI_HANDLES
+} from "@/utils/upiValidation";
 import {
   Dialog,
   DialogContent,
@@ -35,12 +41,33 @@ export function ParticipantProfileDialog({
     return isValidUpiId(normalized);
   }, [normalized]);
 
+  const pspInfo = useMemo(() => (isValid ? getUpiPspInfo(normalized) : null), [isValid, normalized]);
+
   const isDirty = normalized !== normalizeUpiId(participant?.upiId || "");
   const showError = touched && Boolean(normalized) && !isValid;
   const validationError = useMemo(() => {
     if (!showError) return null;
     return getUpiValidationMessage(normalized) || "Looks incomplete (e.g. yourname@okaxis)";
   }, [showError, normalized]);
+
+  // Autocomplete handle suggestions
+  const suggestedHandles = useMemo(() => {
+    if (!upiInput) return POPULAR_UPI_HANDLES;
+    const atIndex = upiInput.indexOf("@");
+    if (atIndex === -1) {
+      return POPULAR_UPI_HANDLES;
+    }
+    const query = upiInput.slice(atIndex).toLowerCase();
+    if (query === "@") return POPULAR_UPI_HANDLES;
+    return POPULAR_UPI_HANDLES.filter((h) => h.toLowerCase().startsWith(query));
+  }, [upiInput]);
+
+  const handleSelectHandle = (handleSuffix) => {
+    const atIndex = upiInput.indexOf("@");
+    const base = atIndex >= 0 ? upiInput.slice(0, atIndex) : upiInput;
+    setUpiInput(`${base}${handleSuffix}`);
+    setTouched(true);
+  };
 
   const handleSave = () => {
     if (!isValid && normalized) return;
@@ -126,6 +153,31 @@ export function ParticipantProfileDialog({
               <p className="text-[11px] font-medium text-danger-600">
                 {validationError}
               </p>
+            )}
+
+            {/* Recognized PSP info */}
+            {isValid && pspInfo && (
+              <p className="text-[11px] font-medium text-leaf-700 flex items-center gap-1">
+                <span>Recognized:</span>
+                <span className="font-semibold">{pspInfo.app}</span>
+                <span className="text-leaf-600">({pspInfo.bank})</span>
+              </p>
+            )}
+
+            {/* Quick Autocomplete Chips (shown when typing before completing handle) */}
+            {!isValid && suggestedHandles.length > 0 && (
+              <div className="flex items-center gap-1 flex-wrap pt-0.5">
+                {suggestedHandles.slice(0, 6).map((handle) => (
+                  <button
+                    key={handle}
+                    type="button"
+                    onClick={() => handleSelectHandle(handle)}
+                    className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-ink-50 hover:bg-leaf-50 hover:text-leaf-800 hover:border-leaf-300 border border-ink-200/80 text-ink-600 transition-colors cursor-pointer select-none"
+                  >
+                    {handle}
+                  </button>
+                ))}
+              </div>
             )}
 
             {/* Helper value statement */}
